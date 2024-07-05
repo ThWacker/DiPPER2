@@ -85,7 +85,7 @@ def main():
     parser.add_argument('-p', '--parameter', type=str, default="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67", 
                         help='string from config file that defines the primer3_core parameters for fur2prim. Default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67')
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
-    parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in %d-%m-%Y_%Hh%Mmin%Ss_%z format')
+    parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in %%d-%%m-%%Y_%%Hh%%Mmin%%Ss_%%z format')
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
 
     args = parser.parse_args()

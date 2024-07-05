@@ -22,7 +22,7 @@ def usage():
     print('Usage:')
     print('optional:')
     print('-v/--version for the version')
-    print('-o/--outfile_prefix - for outfile prefix [default: date and time in %d-%m-%Y_%Hh%Mmin%Ss_%z format]')
+    print('-o/--outfile_prefix - for outfile prefix [default: date and time in %%d-%%m-%%Y_%%Hh%%Mmin%%Ss_%%z format]')
     print('-p/--parameter - tells fur how to run. -u -> only the first subtraction step; -U -> runs first Subtraction step and Intersection step. -m -> runs megablast instead of blastn in the last step. [default: " " (runs FUR to completion with all steps using blastn)]')
     print('')
     print('CAUTION: needs to be in the folder with the assemblies to be sorted in target and neighbour')

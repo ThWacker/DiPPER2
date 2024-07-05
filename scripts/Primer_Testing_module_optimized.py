@@ -90,7 +90,7 @@ def usage():
     print('Usage:')
     print('optional:')
     print('-v/--version for the version')
-    print('-o/--outfile_prefix - for outfile prefix [default: date and time in %d-%m-%Y_%Hh%Mmin%Ss_%z format]')
+    print('-o/--outfile_prefix - for outfile prefix [default: date and time in %%d-%%m-%%Y_%%Hh%%Mmin%%Ss_%%z format]')
     print('-d/--delete_concat - if included, the concatenated fastas will be deleted.')
     print('')
     print('CAUTION: This module requires seqkit, blast+ and RRW-Primer-Blast (and thus also snakemake, as well as all dependencies) to be in path.')
