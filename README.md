@@ -1,11 +1,11 @@
 # DiPPER2
 DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility
 
->__+++++++++++++++++++++++++++++NOTE - IMPORTANT:+++++++++++++++++++++++++++++__
+>__+++++++++++++++++++++++++++++NOTE - IMPORTANT:+++++++++++++++++++++++++++++++__
 >
 >__This is a work in progress which has not been extensively unit tested and will likely undergo substantial refactoring in the near future.__
 >
->__+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__
+>__+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++__
 
 ## Synopsis
 __*This pipeline and modules are meant to facilitate reliable and reproducible finding of diagnostic targets and to make picking primers for those targets as user-friendly as possible. The approach taken is a phylogeny-driven and clade-specific approach.*__ 
