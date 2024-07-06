@@ -112,7 +112,7 @@ def main():
     parser = argparse.ArgumentParser(description='primer testing module')
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
-    parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in %d-%m-%Y_%Hh%Mmin%Ss_%z format')
+    parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in d-m-y-h-m-s-tz format')
     parser.add_argument('-d', '--delete_concat', action='store_true', help='If option is used, the concatenated fastas will be deleted after module has finished.')
 
     args = parser.parse_args()

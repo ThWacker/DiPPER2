@@ -77,7 +77,7 @@ def main():
     #Parse all arguments
     parser = argparse.ArgumentParser(description='Runs FUR')
     parser.add_argument('-p', '--parameter', type=str, default=" ", help='Tells FUR how to run. -u -> only the first subtraction step; -U -> runs first Subtraction step and Intersection step; -m -> runs megablast instead of blastn in the last step; without argument runs FUR in full.')
-    parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. If not set, uses date and time and timezone in %d-%m-%Y_%Hh%Mmin%Ss_%z format.')
+    parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in d-m-y-h-m-s-tz format')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.0.1')
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
 
