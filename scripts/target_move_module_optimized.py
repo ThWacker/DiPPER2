@@ -21,6 +21,8 @@ def usage():
     print('Module/ Script that moves targets and neighbours into folders called FUR.target and FUR.neighbour')
     print('')
     print('Usage:')
+    print('mandatory:')
+    print('-f/--folder - results folder name, which includes results folders from previous steps')
     print('$0 --target/-t <list of targets in tab delimited file> -f/--folder <the folder name (required, target and neighbour folders will be located in there)>')
     print('optional: -v/--version for the version')
     print('CAUTION: needs to be in the folder with the assemblies to be sorted in target and neighbour')
@@ -29,10 +31,11 @@ def usage():
 def parse_list(targets_file):
     """Parse the list of targets from a file."""
     try:
-        with open(targets_file, 'r') as file:
+        with open(targets_file, 'r',encoding="utf-8") as file:
             return [line.split('\t')[0].split('.')[0] for line in file]
     except FileNotFoundError:
         quit(f"Error: Target file '{targets_file}' not found!")
+        
 
 def main():
     parser = argparse.ArgumentParser(description='Target and Neighbour Folder Sorting')

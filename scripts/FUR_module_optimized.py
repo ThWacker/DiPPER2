@@ -14,12 +14,15 @@ def quit(message=None):
     sys.exit(1)
 
 def usage():
+    """ Usage of the script"""
     print('------------------------------------------------------------------------------------------------------------------------------------------------------')
     print('Theresa Wacker T.Wacker2@exeter.ac.uk')
     print('')
     print('Module runs FUR')
     print('')
     print('Usage:')
+    print('mandatory:')
+    print('-f/--folder - results folder name, which includes results folders from previous steps')
     print('optional:')
     print('-v/--version for the version')
     print('-o/--outfile_prefix - for outfile prefix [default: date and time in %%d-%%m-%%Y_%%Hh%%Mmin%%Ss_%%z format]')

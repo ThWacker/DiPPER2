@@ -7,7 +7,6 @@ import subprocess
 import re
 from datetime import datetime
 import shutil
-import glob
 from pathlib import Path
 
 def quit(message=None):
@@ -19,7 +18,7 @@ def quit(message=None):
 
 def parse_primers(file_name: str) -> list:
     """Parse the primer penalties from the file and return the top lines."""
-    with open(file_name, 'r') as file:
+    with open(file_name, 'r',encoding="utf-8") as file:
         lines = file.readlines()
 
     filtered_lines = [line for line in lines if 'PRIMER_PAIR_0_PENALTY' in line]
@@ -39,7 +38,7 @@ def find_and_return_following_lines_and_target(file_name: str, top_lines: list) 
     """Find and return following lines and targets for the top primer penalties."""
     found_data = {}
 
-    with open(file_name, 'r') as file:
+    with open(file_name, 'r',encoding="utf-8") as file:
         lines = file.readlines()
 
     for top_line in top_lines:
@@ -69,6 +68,8 @@ def usage():
     print('Module runs seqkit amplicon, blastx and RRW-Primer-Blast')
     print('')
     print('Usage:')
+    print('mandatory:')
+    print('-f/--folder - results folder name, which includes results folders from previous steps')
     print('optional:')
     print('-v/--version for the version')
     print('-o/--outfile_prefix - for outfile prefix [default: date and time in %d-%m-%Y_%Hh%Mmin%Ss_%z format]')
@@ -140,7 +141,7 @@ def main():
         print(f"{key}: {value}")
         is_primer = "Primer" in key
         temp_file = f"{args.outfile_prefix}{key}.txt"
-        with open(temp_file, 'w') as tf:
+        with open(temp_file, 'w', encoding="utf-8") as tf:
             if is_primer:
                 for element in value:
                     split_lines = re.split(r'\s*=\s*', element.strip())
@@ -156,8 +157,8 @@ def main():
     destination_folder_pr.mkdir(parents=True, exist_ok=True)
     destination_folder_tar.mkdir(parents=True, exist_ok=True)
 
-    move_files(source_folder, destination_folder_tar, "*_target.txt")
-    move_files(source_folder, destination_folder_pr, "*_primer.txt")
+    move_files(source_folder, destination_folder_tar, "*Target*.txt")
+    move_files(source_folder, destination_folder_pr, "*Primer*.txt")
 
     print('Primer3_module.py ran to completion: exit status 0')
 
