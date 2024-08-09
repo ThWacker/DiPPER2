@@ -122,13 +122,13 @@ echo "Shifting all the target assemblies into FUR.target and all the neighbours 
 # Run FUR
 echo "Running FUR"
 if [[ -n $OUT && -n $FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/FUR_module_optimized.py -f "$FOLD" -p "$FUR" -o "$OUT"
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR" -o "$OUT"
 elif [[ -n $FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/FUR_module_optimized.py -f "$FOLD" -p "$FUR"
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR"
 elif [[ -n $OUT ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/FUR_module_optimized.py -f "$FOLD" -o "$OUT"
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT"
 else
-    "$default_python"  "$SCRIPT_DIR"/scripts/FUR_module_optimized.py -f "$FOLD"
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD"
 fi
 
 echo "Finished running FUR"
@@ -137,19 +137,19 @@ echo "Finished running FUR"
 echo "Pick primers using Primer3"
 convPCR="prodMinSize=200 prodMaxSize=1000"
 if [[ -n $OUT && -n $P3 && $QPCR == "y" ]]; then
-    "$default_python" "$SCRIPT_DIR"/scripts/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"
+    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"
 elif [[ -n $OUT && -n $P3 ]]; then
-    "$default_python" "$SCRIPT_DIR"/scripts/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"
+    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"
 elif [[ -n $OUT && $QPCR == "y" ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$convPCR"
+    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$convPCR"
 elif [[ -n $OUT ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer3_module_optimized.py -f "$FOLD" -o "$OUT"
+    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT"
 elif [[ -n $P3 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer3_module_optimized.py -f "$FOLD" -p "$P3"
+    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -p "$P3"
 elif [[ $QPCR == "y" ]]; then
-    "$default_python" "$SCRIPT_DIR"/scripts/scripts/Primer3_module_optimized.py -f "$FOLD" -p "$convPCR"
+    "$default_python" "$SCRIPT_DIR"/scripts/Primer3_module_optimized.py -f "$FOLD" -p "$convPCR"
 else
-    "$default_python" "$SCRIPT_DIR"/scripts/Primer3_module_optimized.py -f "$FOLD"
+    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD"
 fi
 
 echo "Finished primer picking."
@@ -158,19 +158,19 @@ echo "Finished primer picking."
 echo "Testing the primers for specificity and sensitivity in silico and determining the target"
 
 if [[ -n $OUT && $DEL -eq 0 && -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL" -r "$REF"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL" -r "$REF"
 elif [[ -n $OUT && -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -r "$REF"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -r "$REF"
 elif [[ -n $OUT && $DEL -eq 0 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL"
 elif [[ $DEL -eq 0 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer_Testing_module_optimized.py -f "$FOLD"  -c "$DEL"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -c "$DEL"
 elif [[ -n $OUT ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer_Testing_module_optimized.py -f "$FOLD"  -o "$OUT"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -o "$OUT"
 elif [[ -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer_Testing_module_optimized.py -f "$FOLD"  -r "$REF"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -r "$REF"
 else
-    "$default_python"  "$SCRIPT_DIR"/scripts/Primer_Testing_module_optimized.py -f "$FOLD"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"
 fi
 
 echo "Finished in silico PCR and target definition."
@@ -179,9 +179,9 @@ echo "Finished in silico PCR and target definition."
 echo "Writing summary outfiles/"
 
 if  [[ $QPCR == "y" ]]; then
-    "$default_python"  "$SCRIPT_DIR"/scripts/Summarize_results_module_improved.py -f "$FOLD" -q "$QPCR"
+    "$default_python"  "$SCRIPT_DIR"/Summarize_results_module_improved.py -f "$FOLD" -q "$QPCR"
 else
-    "$default_python"  "$SCRIPT_DIR"/scripts/Summarize_results_module_improved.py  -f "$FOLD"
+    "$default_python"  "$SCRIPT_DIR"/Summarize_results_module_improved.py  -f "$FOLD"
 fi
 
 echo "Finished!"
