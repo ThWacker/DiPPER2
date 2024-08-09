@@ -8,6 +8,7 @@
     body { font-family: Arial, sans-serif; }
     pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; }
     .section { margin-bottom: 20px; }
+    .section_primer { margin-bottom: 20px;white-space: pre-wrap; }
     .status_PASSED {
         background-color:#8f8;
     }
@@ -19,7 +20,7 @@
 </head>
 <body>
 <h1>{{ header }}</h1>
-<div class="section">
+<div class="section_primer">
     <h2>qPCR Primers</h2>
     <p><strong>Forward Primer:</strong></br> {{ primer_frwd }}</p>
     <p><strong>Reverse Primer:</strong></br>  {{ primer_rev }}</p>
@@ -45,7 +46,7 @@
 </div>
 <div class="section">
     <h2>BLASTX Target Testing</h2>
-    <p>{{ res_target_str }}</p>
+    <p>{{ res_target_str|urlize }}</p>
 </div>
 <div class="section">
     <h2>Files &amp; Folders</h2>
