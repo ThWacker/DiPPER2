@@ -3,69 +3,28 @@
 import sys
 import argparse
 from pathlib import Path
-from datetime import datetime
 import subprocess
 from shutil import which
 import re
 from pprint import pprint
 import os
 from pprint import pformat
-from string import Template
+import jinja2
 import pandas as pd # type: ignore
 
 
-def generate_html(header: str, primer_frwd: str, primer_rev: str, primer_internal: str, sensi: dict, speci: dict, res_target_str: str, primer_fold: Path, target_fold: Path, seqkit_fold: Path) -> str:
+
+def generate_html_jinja(header: str, primer_frwd: str, primer_rev: str, primer_internal: str,sensi_pass:str,sensi_ass_no:int, sensi_m:str, speci_pass:str,\
+                   speci_ass_no:int, speci_m:str, sensi: dict, speci: dict, res_target_str: str, primer_fold: Path, target_fold: Path, seqkit_fold: Path, source_folder:Path,qPCR:str):
     """Generate HTML content for the results."""
-    header = header.replace(' ', '&nbsp;').replace('\n', '<br>')
-    primer_frwd=primer_frwd.replace(' ', '&nbsp;').replace('\n', '<br>')
-    primer_rev=primer_rev.replace(' ', '&nbsp;').replace('\n', '<br>')
-    primer_internal=primer_internal.replace(' ', '&nbsp;').replace('\n', '<br>')
-    template = Template("""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Results</title>
-        <style>
-            body { font-family: Arial, sans-serif; }
-            pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; }
-            .section { margin-bottom: 20px; }
-        </style>
-    </head>
-    <body>
-        <h1>${header}</h1>
-        <div class="section">
-            <h2>Primers</h2>
-            <p><strong>Forward Primer:</strong></br> ${primer_frwd}</p>
-            <p><strong>Reverse Primer:</strong></br>  ${primer_rev}</p>
-            <p><strong>Internal Primer:</strong></br>  ${primer_internal}</p>
-        </div>
-        <div class="section">
-            <h2>Sensitivity and Specificity Testing</h2>
-            <h3>Sensitivity:</h3>
-            <pre>${sensi}</pre>
-            <h3>Specificity:</h3>
-            <pre>${speci}</pre>
-        </div>
-        <div class="section">
-            <h2>BLASTX Target Testing</h2>
-            <p>${res_target_str}</p>
-        </div>
-        <div class="section">
-            <h2>Files & Folders</h2>
-            <p>Primers are found in:</p>
-            <pre>${primer_fold}</pre>
-            <p>Target fastas and BLASTX results are found in:</p>
-            <pre>${target_fold}</pre>
-            <p>In silico PCR results are found in:</p>
-            <pre>${seqkit_fold}</pre>
-        </div>
-        <hr>
-    </body>
-    </html>
-    """)
-    return template.substitute(
+    HTML_OUTFILE = source_folder/ "Results.html"
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.join(script_dir, "templates/")))
+    if qPCR == "y":
+        template = environment.get_template("results_qPCR.html")
+    else:
+        template = environment.get_template("results.html")
+    content = template.render(
         header=header,
         primer_frwd=primer_frwd,
         primer_rev=primer_rev,
@@ -75,10 +34,17 @@ def generate_html(header: str, primer_frwd: str, primer_rev: str, primer_interna
         res_target_str=res_target_str,
         primer_fold=primer_fold,
         target_fold=target_fold,
-        seqkit_fold=seqkit_fold
-    )
+        seqkit_fold=seqkit_fold,
+        sensi_pass=sensi_pass,
+        speci_pass=speci_pass,
+        sensi_ass_no=sensi_ass_no,
+        sensi_m=sensi_m,
+        speci_m=speci_m,
+        speci_ass_no=speci_ass_no,
+        source_folder=source_folder)
 
-
+    with open(HTML_OUTFILE, "a", encoding="utf-8") as stream:
+        stream.write(content)
 
 
 def quit_program(message: str = None):
@@ -103,7 +69,7 @@ def usage():
     print('Usage:')
     print('mandatory:')
     print('-f/--folder - results folder name, which includes results folders from previous steps')
-    print('optional: -v/--version for the version')
+    print('optional: -v/--version for the version & -q/--qPCR to toggle qPCR (y) or no qPCR (n) results (default: n)')
     print('CAUTION: needs to be in the folder with the assemblies to be sorted in target and neighbour')
     print('------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -164,37 +130,60 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
     """Interpret the Specificity and Sensitivity test results based on the in silico PCRs"""
     file_pattern = f"{file}_seqkit_amplicon_against_{target_type}_m*"
     files = list(folder.glob(file_pattern))
-    no_files=len(files)
-    #initialize counters
-    amp_p_overall,amp_f_overall,passed, failed = 0,0,0,0
+      #initialize counters
+    amp_f_overall,passed, failed = 0,0,0
     results_dict={}
-
+    if not files:
+        results_dict["NA"] = {
+                "Mismatches tested":"NA",
+                "Did the test pass?": "NA",
+                "Number of assemblies, in silico PCR was performed on": "NA",
+                "Number of assemblies with correct size amplicon": "NA",
+                "Number of assemblies with wrong size amplicon": "NA"
+        }
+        results_dict["Number of files that passed:"]="NA"
+        results_dict["Number of files that failed:"]="NA"
+        return results_dict
+    no_files=len(files)
     for doc in files:
         #for each file initialize
-        mismatch= re.search(r'_(m\d)\.txt', doc.name)
-        m_no=mismatch.group(1)
+        try:
+            mismatch = re.search(r'_(m\d)\.txt', doc.name)
+            if mismatch:
+                m_no = mismatch.group(1)
+                #print(f"Found match: {m_no}")
+            else:
+                raise ValueError("No match found in the document name.")
+                
+        except AttributeError:
+            print("Error: Tried to access a match group on a NoneType object.")
+        except ValueError as ve:
+            print(ve)
         passed_amp=0
         failed_amp=0
-        with doc.open('r') as fp:
-            lines = fp.readlines()
-            if len(lines) == count:
-                #passed the test for correct number of assemblies, test whether all of them are the right amplicon length
-                for line in lines:
-                    amp_len = len(line.strip().split('\t')[6])
-                    if amp_len == length:
-                        passed_amp += 1
-                        amp_p_overall+=1
-                    else:
-                        failed_amp += 1
+        try:
+            with doc.open('r') as fp:
+                lines = fp.readlines()
+                if len(lines) == count:
+                    #passed the test for correct number of assemblies, test whether all of them are the right amplicon length
+                    for line in lines:
+                        amp_len = len(line.strip().split('\t')[6])
+                        if amp_len == length:
+                            passed_amp += 1
+                            
+                        else:
+                            failed_amp += 1
                         amp_f_overall+=1
-                #did we count as many correct length amplicons as assemblies
-                if passed_amp==count:
-                    passed+=1
-                if not failed_amp==0:
-                    failed+=1
-            #next file after this iteration. passed or failed should only incriment per file
-            else:
-                failed += 1
+                    #did we count as many correct length amplicons as assemblies
+                    if passed_amp==count:
+                        passed+=1
+                    if not failed_amp==0:
+                        failed+=1
+                #next file after this iteration. passed or failed should only incriment per file
+                else:
+                    failed += 1
+        except OSError as e:
+            quit_program(f"could not open or read file: {e}")
     #Define whether it is Specificity or Sensitivity test and fail or pass test accordingly
         if target_type=="target":
             note = "passed" if count == passed_amp else "failed"
@@ -211,8 +200,7 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
                 "Mismatches tested": m_no,
                 "Did the test pass?": note,
                 "Number of assemblies, in silico PCR was performed on": count,
-                "Number of assemblies with correct size amplicon": passed_amp,
-                "Number of assemblies with wrong size amplicon": failed_amp
+                "Number of assemblies with correct size amplicon": passed_amp
             }
     results_dict["Number of files (in silico PCR result files for different number of primer mismatches) tested:"]=no_files
     if target_type=="target":
@@ -246,16 +234,21 @@ def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
             xtract_r = subprocess.Popen(["xtract", "-pattern", "DocumentSummary", "-element", "Title"],
                                         stdin=efetch_r.stdout, stdout=subprocess.PIPE, text=True)
             title, _ = xtract_r.communicate()
-            return f"The primer {number}'s target with the highest bitscore {bitscore} & evalue {evalue} has the accession {id} and codes for {title.strip()}.\n"
+            accession="https://www.ncbi.nlm.nih.gov/protein/"+id+"/"
+            return f"The primer {number}'s target with the highest bitscore {bitscore} & evalue {evalue} has the accession \
+                {id} and codes for {title.strip()}.\
+                \nFurther information on the accession: {accession} \n"
         except Exception as e:
             quit_program(f"efetch/xtract command failed: {e}")
     else:
-        return f"The primer {number}'s target with the highest bitscore {bitscore} & evalue {evalue} has the accession {id}.\n"
+        accession="https://www.ncbi.nlm.nih.gov/protein/"+id+"/"
+        return f"The primer {number}'s target with the highest bitscore {bitscore} & evalue {evalue} has the accession {id}.\
+        \nFurther information on the accession: {accession} \n"
 
 def get_highest_scoring_accession(blastx_file: Path) -> tuple[str, float, int]:
     """Parse a BLASTX output file to find the highest scoring accession and its evalue."""
     if not blastx_file.exists() or blastx_file.stat().st_size == 0:
-        raise FileNotFoundError(f"The file {blastx_file} does not exist or is empty.")
+        raise FileNotFoundError(f"Blastx did not find hits. No file with the suffix {blastx_file} exists.")
     columns = ["qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore"]
     try:
         df = pd.read_csv(blastx_file, sep='\t', comment='#', names=columns)
@@ -266,36 +259,104 @@ def get_highest_scoring_accession(blastx_file: Path) -> tuple[str, float, int]:
     except:
         return "Blast did not find hits", float('inf'), 0
 
-def print_results(header: str, primer_frwd: str, primer_rev: str, primer_internal: str, sensi: dict, speci: dict, res_target_str: str,primer_fold:Path, target_fold:Path, seqkit_fold:Path):
+def interpret_and_reformat_sensi_speci_tests(test_res: dict, flavour: str) -> tuple[str, int, str]:
+    passed = "PASSED"
+    ass_no = 0
+    fail_m = []
+
+    # Filtering keys to only process those that map to dictionaries
+    for key in test_res.keys():
+        result = test_res[key]
+        
+        # Skip keys that do not map to dictionaries
+        if not isinstance(result, dict):
+            continue
+        
+        if flavour == "target":
+            if result['Did the test pass?'] == "passed":
+                ass_no = result['Number of assemblies, in silico PCR was performed on']
+                continue
+            elif result['Mismatches tested'] == "m3":
+                fail_m = result['Mismatches tested']  # This seems incorrect, should it be fail_m.append(...)
+                ass_no = result['Number of assemblies, in silico PCR was performed on']
+                continue
+            else:
+                passed = "FAILED"
+                fail = result['Mismatches tested']
+                fail_m.append(fail)
+                ass_no = result['Number of assemblies, in silico PCR was performed on']
+            
+        else:
+            if result['Did the test pass?'] == "passed":
+                ass_no = result['Number of assemblies, in silico PCR was performed on']
+                fail = result['Mismatches tested']
+                print(f"{fail}")
+                fail_m.append(fail)
+                print(f"{fail_m}")
+                continue
+            else:
+                passed = "FAILED"
+                fail = result['Mismatches tested']
+                print(f"{fail}")
+                fail_m.append(fail)
+                print(f"{fail_m}")
+                ass_no = result['Number of assemblies, in silico PCR was performed on']
+    fail_m=', '.join(fail_m)
+
+    return passed, ass_no, fail_m
+    
+
+def print_results(header: str, primer_frwd: str, primer_rev: str, primer_internal: str,sensi_pass:str,sensi_ass_no:int, sensi_m:list\
+                  , speci_pass:str, speci_ass_no:int, speci_m:list, sensi: dict, speci: dict, res_target_str: str,primer_fold:Path, \
+                    target_fold:Path, seqkit_fold:Path, source_folder:Path, qPCR:str):
     """Does what it says on the tin:
        Print results to a text file and a PDF (currently not implemented)."""
     #txt outfile
-    with open("Results.txt", 'a', encoding="utf-8") as file:
+    result_out= source_folder / "Results.txt"
+    with open(result_out, 'a', encoding="utf-8") as file:
         file.write(header)
         file.write(primer_frwd)
         file.write(primer_rev)
-        file.write(primer_internal)
+        if qPCR =="y":
+            file.write(primer_internal)
+        else:
+            pass
         file.write("\n Sensitivity and Specificity testing:\n")
         file.write("\n Sensitivity:\n")
-        #prettyprint allows to print a nested dictionary
-        pprint(sensi, stream=file, depth=4)
+        file.write(f"Pass or fail:\t{sensi_pass}\n")
+        file.write(f"Number of assemblies the in silico PCR was run for:\t {sensi_ass_no}\n")
+        file.write(f"Number of mismatches the sensitivity test failed for (m3 is tolerated):\t{sensi_m}\n")
         file.write("\nSpecificity:\n")
-        pprint(speci, stream=file, depth=4)
+        file.write(f"Pass or fail:\t{speci_pass}\n")
+        file.write(f"Number of assemblies the in silico PCR was run for:\t {speci_ass_no}\n")
+        file.write(f"Number of mismatches the in silico PCR generated amplicons for:\t{speci_m}\n\
+                   (Note that if the test has passed, this means the amplicons had an incorrect size)\n")
         file.write("\n BLASTX Target Testing:\n")
         file.write(res_target_str)
         file.write("\n Files&Folders:\n")
         file.write(f"Primers are found in {primer_fold}.\n")
         file.write(f"Target fastas and blastx results are found in {target_fold}.\n")
+        file.write(f"If generated, bed files are present in {source_folder}.\n")
         file.write(f"In silico PCR results are found in {seqkit_fold}.\n")
+        file.write("Detailed Sensitivity results:\n")
+        #prettyprint allows to print a nested dictionary
+        pprint(sensi, stream=file, depth=4)
+        file.write("Detailed Specificity results:\n")
+        pprint(speci, stream=file, depth=4)
         file.write("\n################################################################################\n")
 
     #generate the html
-    html_content = generate_html(header, primer_frwd, primer_rev, primer_internal, sensi, speci, res_target_str, primer_fold, target_fold, seqkit_fold)
-    
-    with open("Results.html", 'a', encoding="utf-8") as file:
-        file.write(html_content)
+    # html_content = generate_html(header, primer_frwd, primer_rev, primer_internal,sensi_pass,sensi_ass_no, sensi_m, speci_pass, speci_ass_no, \
+    #               speci_m, sensi, speci, res_target_str, primer_fold, target_fold, seqkit_fold, source_folder)
 
-def generate_results(destination_folder_primer, destination_folder_tar, destination_seqkit,  file_path, count_target, count_neighbour):
+    generate_html_jinja(header, primer_frwd, primer_rev, primer_internal,sensi_pass,sensi_ass_no, sensi_m, speci_pass, speci_ass_no, \
+                  speci_m, sensi, speci, res_target_str, primer_fold, target_fold, seqkit_fold, source_folder, qPCR)
+    
+    
+    # with open("Results.html", 'a', encoding="utf-8") as file:
+    #     file.write(html_content)
+
+def generate_results(destination_folder_primer, destination_folder_tar, destination_seqkit,file_path, count_target, count_neighbour, source_folder, qPCR):
     """Gets the primers & amplicon length, processes them for output, gets the results from the sensitivity and specificity tests 
        and finally also gets the blast results. It then calls the print results function to generate an output file"""
     print("Retrieving Primers and obtaining amplicon length...")
@@ -303,8 +364,10 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
         number, pr_frwd, pr_rev, pr_intern, ampli_len = extract_number_and_primers(file_path, destination_seqkit)
     except Exception as e:
         quit_program(f"Error processing {file_path}: {e}")
-
-    header = f'++++++++++RESULTS FOR PRIMER {number} in {file_path.name}+++++++++\n\n'
+    if qPCR=="y":
+        header = f'RESULTS FOR qPCR PRIMER {number} in {file_path.name}\n\n'
+    else:
+        header = f'RESULTS FOR CONV. PCR PRIMER {number} in {file_path.name}\n\n'
     primer_frwd = f'>Forward Primer {number}\n{pr_frwd}\n'
     primer_rev = f'>Reverse Primer {number}\n{pr_rev}\n'
     primer_internal = f'>Internal Probe {number}\n{pr_intern}\n\n'
@@ -327,25 +390,35 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
         quit_program(f"BLASTX Target Testing failed: {e}")
 
     results_folder=os.getcwd()
+    #interpret the tests
+    # Sensi
+    sensi_pass,sensi_ass_no, sensi_m=interpret_and_reformat_sensi_speci_tests(sensi, "target")
+    # Speci
+    speci_pass,speci_ass_no, speci_m=interpret_and_reformat_sensi_speci_tests(speci, "neighbour")
+    #Print results to txt file and html
     print (f"Printing results to outfile. The results summary files 'Results.txt' & 'Results.html' is found in {results_folder}.")
-    print_results(header, primer_frwd, primer_rev, primer_internal, sensi, speci, res_target_str, destination_folder_primer, destination_folder_tar, destination_seqkit)
+    print_results(header, primer_frwd, primer_rev, primer_internal,sensi_pass,sensi_ass_no, sensi_m, speci_pass, speci_ass_no, \
+                  speci_m, sensi, speci, res_target_str, destination_folder_primer, destination_folder_tar, destination_seqkit, source_folder, qPCR)
 
 
 #####################
 ######  MAIN  #######
 #####################
 def main():
-    now = datetime.now()
-    dt_string = now.strftime("%d-%m-%Y_%Hh%Mmin%Ss_%z")
 
     parser = argparse.ArgumentParser(description='Primer testing module')
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
-    parser.add_argument('-o', '--outfile_prefix', default=now, type=str, help='Outfile prefix. Default is date and time in d-m-y-h-m-s-tz format')
+    parser.add_argument('-q', '--qPCR', default="n", type=str, help="Toggles between qPCR (y) or no qPCR (n) results. Default is 'n'" )
 
+    #get args
     args = parser.parse_args()
 
+    #one folder to rule them all
     source_folder = Path(args.folder)
+    
+    #toggle qPCR
+    qPCR=args.qPCR
 
     # Define folders
     destination_folder_pr = source_folder / "FUR.P3.PRIMERS"
@@ -375,7 +448,7 @@ def main():
     #generate results
     for file_path in all_files:
         if file_path.is_file():
-            generate_results(destination_folder_pr,destination_folder_tar, destination_folder_seqkit, file_path, count_target, count_neighbour)
+            generate_results(destination_folder_pr,destination_folder_tar, destination_folder_seqkit, file_path, count_target, count_neighbour, source_folder,qPCR)
 
   
 

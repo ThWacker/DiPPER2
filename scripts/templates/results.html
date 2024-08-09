@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Results</title>
+<style>
+    body { font-family: Arial, sans-serif; }
+    pre { background-color: #f4f4f4; padding: 10px; border-radius: 5px; }
+    .section { margin-bottom: 20px; }
+    .status_PASSED {
+        background-color:#8f8;
+    }
+    .status_FAILED {
+        background-color:#f88;
+    }
+
+</style>
+</head>
+<body>
+<h1>{{ header }}</h1>
+<div class="section">
+    <h2>Conventional Primers</h2>
+    <p><strong>Forward Primer:</strong></br> {{ primer_frwd }}</p>
+    <p><strong>Reverse Primer:</strong></br>  {{ primer_rev }}</p>
+
+</div>
+<div class="section">
+    <h2>Sensitivity and Specificity Testing</h2>
+    <h3>Sensitivity:</h3>
+    <p>PASS OR FAIL:</p>
+    <pre class="status_{{ sensi_pass }}"><b>{{ sensi_pass }}</b></pre>
+    <p>Number of assemblies the in silico PCR was run for:</p>
+    <pre>{{ sensi_ass_no }}</pre>
+    <p>Number of mismatches the sensitivity test failed for (m3 is tolerated):</p>
+    <pre>{{ sensi_m }}</pre>
+    <h3>Specificity:</h3>
+    <p>PASS OR FAIL:</p>
+    <pre class="status_{{ speci_pass }}"><b>{{ speci_pass }}</b></pre>
+    <p>Number of assemblies the in silico PCR was run for:</p>
+    <pre>{{ speci_ass_no }}</pre>
+    <p>Number of mismatches the in silico PCR generated amplicons for:</br> (<small>
+        Note that if the specificity test has "passed", this means amplicons of incorrect lengths</small>)</p>
+    <pre>{{ speci_m }}</pre>
+</div>
+<div class="section">
+    <h2>BLASTX Target Testing</h2>
+    <p>{{ res_target_str }}</p>
+</div>
+<div class="section">
+    <h2>Files &amp; Folders</h2>
+    <p>Primers are found in:</p>
+    <pre>{{ primer_fold }}</pre>
+    <p>Target fastas and BLASTX results are found in:</p>
+    <pre>{{ target_fold }}</pre>
+    <p>If generated, bed files are found in:</p>
+    <pre>{{ source_folder }}</pre>
+    <p>In silico PCR results are found in:</p>
+    <pre>{{ seqkit_fold }}</pre>
+</div>
+<div class="section">
+    <h2>Sensitivity and Specificity Testing in Detail</h2>
+    <h3>Sensitivity:</h3>
+    <pre>{{ sensi }}</pre>
+    <h3>Specificity:</h3>
+    <pre>{{ speci }}</pre>
+</div>
+<hr>
+</body>
+</html>
