@@ -47,8 +47,10 @@ def find_and_return_following_lines_and_target(file_name: str, top_lines: list) 
             if joined_top_line in line:
                 target_sequence = lines[i-5].strip()
                 primer_sequences = [lines[i + j].strip() for j in range(4, 7) if i + j < len(lines)]
+                primer_data = [lines[i + j].strip() for j in range(8, 30) if i + j < len(lines)]
                 found_data[f"Target_{i}"] = target_sequence
                 found_data[f"Primer_{i}"] = primer_sequences
+                found_data[f"Data_primer_{i}"]=primer_data
 
     return found_data
 
@@ -57,7 +59,7 @@ def move_files(source_folder: Path, destination_folder: Path, pattern: str) -> N
     try:
         for file in source_folder.glob(pattern):
             shutil.move(file, destination_folder / file.name)
-            print(f"Moved {file} to {destination_folder}")
+            #print(f"Moved {file} to {destination_folder}")
     except Exception as e:
         print(f"Error moving files: {e}")
 
@@ -147,6 +149,8 @@ def main():
                     split_lines = re.split(r'\s*=\s*', element.strip())
                     if len(split_lines) >= 2:
                         tf.write(f">{split_lines[0]}\n{split_lines[1]}\n")
+            elif "Data" in key:
+                tf.write("\n".join(value))
             else:
                 split_line = re.split(r'\s*=\s*', value.strip())
                 if len(split_line) >= 2:
@@ -154,11 +158,14 @@ def main():
 
     destination_folder_pr = source_folder / "FUR.P3.PRIMERS"
     destination_folder_tar = source_folder / "FUR.P3.TARGETS"
+    destination_folder_data=destination_folder_pr/"primer_data"
     destination_folder_pr.mkdir(parents=True, exist_ok=True)
     destination_folder_tar.mkdir(parents=True, exist_ok=True)
+    destination_folder_data.mkdir(parents=True, exist_ok=True)
 
     move_files(source_folder, destination_folder_tar, "*Target*.txt")
     move_files(source_folder, destination_folder_pr, "*Primer*.txt")
+    move_files(source_folder, destination_folder_data, "*Data*.txt")
 
     print('Primer3_module.py ran to completion: exit status 0')
 
