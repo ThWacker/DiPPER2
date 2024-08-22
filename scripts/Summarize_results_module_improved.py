@@ -6,10 +6,10 @@ from pathlib import Path
 import subprocess
 from shutil import which
 import re
-from pprint import pprint
 import os
 from pprint import pformat
-import jinja2
+from pprint import pprint
+import jinja2 # type: ignore
 import pandas as pd # type: ignore
 
 
@@ -47,11 +47,19 @@ def generate_html_jinja(header: str, primer_frwd: str, primer_rev: str, primer_i
         stream.write(content)
 
 
-def quit_program(message: str = None):
-    """Exit the program with an optional message."""
+def quit_program(message: str = None, exception: Exception = None):
+    """Exit the program with an optional message and exception."""
     if message:
-        print(message)
+        print(f"{message}")
+    
+    # Call usage() if needed
     usage()
+
+    # Raise the provided exception, if any
+    if exception:
+        raise exception
+    
+    # Exit the program with a status code of 1
     sys.exit(1)
 
 def is_tool(name: str) -> bool:
@@ -130,9 +138,10 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
     """Interpret the Specificity and Sensitivity test results based on the in silico PCRs"""
     file_pattern = f"{file}_seqkit_amplicon_against_{target_type}_m*"
     files = list(folder.glob(file_pattern))
-      #initialize counters
+    #initialize counters
     amp_f_overall,passed, failed = 0,0,0
     results_dict={}
+    #default if for instance Specificity tests do not amplify anything in silico (= no files)
     if not files:
         results_dict["NA"] = {
                 "Mismatches tested":"NA",
@@ -144,10 +153,12 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
         results_dict["Number of files that passed:"]="NA"
         results_dict["Number of files that failed:"]="NA"
         return results_dict
+    #how many files are there
     no_files=len(files)
     for doc in files:
         #for each file initialize
         try:
+            #find out the number of mismatches based on file name
             mismatch = re.search(r'_(m\d)\.txt', doc.name)
             if mismatch:
                 m_no = mismatch.group(1)
@@ -156,14 +167,16 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
                 raise ValueError("No match found in the document name.")
                 
         except AttributeError:
-            print("Error: Tried to access a match group on a NoneType object.")
+            raise AttributeError("Error: Tried to access a match group on a NoneType object.")
         except ValueError as ve:
             print(ve)
+            raise
         passed_amp=0
         failed_amp=0
         try:
             with doc.open('r') as fp:
                 lines = fp.readlines()
+                #have all assemblies yielded one amplicon?
                 if len(lines) == count:
                     #passed the test for correct number of assemblies, test whether all of them are the right amplicon length
                     for line in lines:
@@ -183,7 +196,8 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
                 else:
                     failed += 1
         except OSError as e:
-            quit_program(f"could not open or read file: {e}")
+            raise OSError("Unable to open file") from e
+            
     #Define whether it is Specificity or Sensitivity test and fail or pass test accordingly
         if target_type=="target":
             note = "passed" if count == passed_amp else "failed"
@@ -218,32 +232,41 @@ def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
     if not found_target:
         return f"No files for {target_f} found."
     if any(file.stat().st_size == 0 for file in found_target):
-        return f"One or more files for {target_f} are empty."
+        return f"One or more files for {target_f} are empty. Blastx did not return result"
 
     try:
         id, evalue, bitscore = get_highest_scoring_accession(found_target[0])
         evalue=format(evalue, ".2e")
+        if id == "Blast did not find hits":
+            return f"The primer {number}'s BLASTX search did not find any hits.\n"
+    except ValueError as ve:
+        quit_program(f"Value error while finding highest scoring accession: {ve}")
+    except TypeError as te:
+        quit_program(f"Type error while finding highest scoring accession: {te}")
+    except FileNotFoundError as fnf:
+        quit_program(f"File not found error: {fnf}")
     except Exception as e:
         quit_program(f"Could not find highest scoring accession for blastx results: {e}")
 
-    if id == "Blast did not find hits":
-        return f"The primer {number}'s BLASTX search did not find any hits.\n"
-    elif is_tool("efetch"):
+    
+    if is_tool("efetch"):
         try:
             efetch_r = subprocess.Popen(["efetch", "-db", "protein", "-id", id, "-format", "docsum"], stdout=subprocess.PIPE, text=True)
+            efetch_r.wait()
+        except subprocess.CalledProcessError as e:
+            quit_program(f"efetch command failed: {e}")
+        try:
             xtract_r = subprocess.Popen(["xtract", "-pattern", "DocumentSummary", "-element", "Title"],
                                         stdin=efetch_r.stdout, stdout=subprocess.PIPE, text=True)
-            title, _ = xtract_r.communicate()
-            accession="https://www.ncbi.nlm.nih.gov/protein/"+id+"/"
-            return f"The primer {number}'s target with the highest bitscore {bitscore} & evalue {evalue} has the accession \
-                {id} and codes for {title.strip()}.\
-                \nFurther information on the accession: {accession} \n"
-        except Exception as e:
-            quit_program(f"efetch/xtract command failed: {e}")
+            xtract_r.wait()  # Add this line
+        except subprocess.CalledProcessError as e:
+            quit_program(f"xtract command failed: {e}")
+        title, _ = xtract_r.communicate()
+        accession = "https://www.ncbi.nlm.nih.gov/protein/" + id + "/"
+        return f"The primer {number}'s target with the highest bitscore {bitscore} & evalue {evalue} has the accession {id} and codes for {title.strip()}. \nFurther information on the accession: {accession} \n"
     else:
-        accession="https://www.ncbi.nlm.nih.gov/protein/"+id+"/"
-        return f"The primer {number}'s target with the highest bitscore {bitscore} & evalue {evalue} has the accession {id}.\
-        \nFurther information on the accession: {accession} \n"
+        accession = "https://www.ncbi.nlm.nih.gov/protein/" + id + "/"
+        return f"The primer {number}'s target with the highest bitscore {bitscore} & evalue {evalue} has the accession {id}. \nFurther information on the accession: {accession} \n"
 
 def get_highest_scoring_accession(blastx_file: Path) -> tuple[str, float, int]:
     """Parse a BLASTX output file to find the highest scoring accession and its evalue."""
@@ -260,10 +283,20 @@ def get_highest_scoring_accession(blastx_file: Path) -> tuple[str, float, int]:
         return "Blast did not find hits", float('inf'), 0
 
 def interpret_and_reformat_sensi_speci_tests(test_res: dict, flavour: str) -> tuple[str, int, str]:
+    '''Interpret the Sensitivity and Specificity Tests, reformat the interpretation to a easy to grasp PASS or FAIL answer, make this \
+        printable'''
     passed = "PASSED"
     ass_no = 0
     fail_m = []
-
+    found_dict=False
+    try:
+        if not isinstance(test_res, dict):
+            raise TypeError(f"Expected a dictionary, but got {type(test_res).__name__} instead.")
+    except TypeError as e:
+        print(e)
+        raise
+    # set flag to see if nested dictionary is true
+    found_dict=False
     # Filtering keys to only process those that map to dictionaries
     for key in test_res.keys():
         result = test_res[key]
@@ -271,13 +304,15 @@ def interpret_and_reformat_sensi_speci_tests(test_res: dict, flavour: str) -> tu
         # Skip keys that do not map to dictionaries
         if not isinstance(result, dict):
             continue
-        
+        #flag whether there is any dictionaries for result set to TRUE
+        found_dict=True
         if flavour == "target":
             if result['Did the test pass?'] == "passed":
                 ass_no = result['Number of assemblies, in silico PCR was performed on']
                 continue
             elif result['Mismatches tested'] == "m3":
-                fail_m = result['Mismatches tested']  # This seems incorrect, should it be fail_m.append(...)
+                fail = result['Mismatches tested']
+                fail_m.append(fail) 
                 ass_no = result['Number of assemblies, in silico PCR was performed on']
                 continue
             else:
@@ -290,17 +325,16 @@ def interpret_and_reformat_sensi_speci_tests(test_res: dict, flavour: str) -> tu
             if result['Did the test pass?'] == "passed":
                 ass_no = result['Number of assemblies, in silico PCR was performed on']
                 fail = result['Mismatches tested']
-                print(f"{fail}")
                 fail_m.append(fail)
-                print(f"{fail_m}")
                 continue
             else:
                 passed = "FAILED"
                 fail = result['Mismatches tested']
-                print(f"{fail}")
                 fail_m.append(fail)
-                print(f"{fail_m}")
                 ass_no = result['Number of assemblies, in silico PCR was performed on']
+    if not found_dict:
+        raise TypeError("No dictionary was found in the iteration over test_res.")
+    
     fail_m=', '.join(fail_m)
 
     return passed, ass_no, fail_m
@@ -322,18 +356,18 @@ def print_results(header: str, primer_frwd: str, primer_rev: str, primer_interna
         else:
             pass
         file.write("\n Sensitivity and Specificity testing:\n")
-        file.write("\n Sensitivity:\n")
+        file.write("Sensitivity:\n")
         file.write(f"Pass or fail:\t{sensi_pass}\n")
         file.write(f"Number of assemblies the in silico PCR was run for:\t {sensi_ass_no}\n")
         file.write(f"Number of mismatches the sensitivity test failed for (m3 is tolerated):\t{sensi_m}\n")
-        file.write("\nSpecificity:\n")
+        file.write("Specificity:\n")
         file.write(f"Pass or fail:\t{speci_pass}\n")
         file.write(f"Number of assemblies the in silico PCR was run for:\t {speci_ass_no}\n")
         file.write(f"Number of mismatches the in silico PCR generated amplicons for:\t{speci_m}\n\
                    (Note that if the test has passed, this means the amplicons had an incorrect size)\n")
-        file.write("\n BLASTX Target Testing:\n")
+        file.write("BLASTX Target Testing:\n")
         file.write(res_target_str)
-        file.write("\n Files&Folders:\n")
+        file.write("Files&Folders:\n")
         file.write(f"Primers are found in {primer_fold}.\n")
         file.write(f"Target fastas and blastx results are found in {target_fold}.\n")
         file.write(f"If generated, bed files are present in {source_folder}.\n")
@@ -365,12 +399,12 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
     except Exception as e:
         quit_program(f"Error processing {file_path}: {e}")
     if qPCR=="y":
-        header = f'RESULTS FOR qPCR PRIMER {number} in {file_path.name}\n\n'
+        header = f'RESULTS FOR qPCR PRIMER {number} in {file_path.name}\n'
     else:
-        header = f'RESULTS FOR CONV. PCR PRIMER {number} in {file_path.name}\n\n'
-    primer_frwd = f'>Forward Primer {number}\n{pr_frwd}\n'
-    primer_rev = f'>Reverse Primer {number}\n{pr_rev}\n'
-    primer_internal = f'>Internal Probe {number}\n{pr_intern}\n\n'
+        header = f'RESULTS FOR CONV. PCR PRIMER {number} in {file_path.name}\n'
+    primer_frwd = f'>Forward Primer {number}\n{pr_frwd}'
+    primer_rev = f'>Reverse Primer {number}\n{pr_rev}'
+    primer_internal = f'>Internal Probe {number}\n{pr_intern}\n'
 
     print("Assessing the in silico PCR results and determining Specificity and Sensitivity...")
     try:

@@ -102,8 +102,16 @@ def main():
     #run fur
     fur_out = run_fur(args.parameter, args.outfile_prefix, source_folder)
 
-    #print the stats to stderr (might not want that on server)
+    #print the stats to stderr & save in file(might not want that on server)
     print(f'{fur_out}')
+    fur_file= source_folder/ "FUR_Summary_output.txt"
+    try:
+        with open(fur_file, 'w', encoding="utf-8") as f:
+            f.write(fur_out)
+    except OSError as e:
+        raise OSError(f"Could not open or write the FUR summary output to {fur_file}") from e
+
+
 
     # clean up after yourself
     clean_up(source_folder / "FUR.db")

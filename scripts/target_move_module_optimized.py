@@ -33,9 +33,43 @@ def parse_list(targets_file):
     try:
         with open(targets_file, 'r',encoding="utf-8") as file:
             return [line.split('\t')[0].split('.')[0] for line in file]
-    except FileNotFoundError:
+    except FileNotFoundError as e:
         quit(f"Error: Target file '{targets_file}' not found!")
+        raise e
         
+def process_target_files(list_targets, source_folder, fur_target_folder):
+    """Process each target file based on the list of targets."""
+    for accession in list_targets:
+        accession_pattern = accession.strip() + "*"
+        try:
+            result = subprocess.run(['find', str(source_folder), '-maxdepth', '1', '-type', 'f', '-iname', accession_pattern], capture_output=True, text=True, check=True)
+            filename = result.stdout.strip()
+            if filename:
+                if filename.endswith(".fasta") or filename.endswith(".fa") or filename.endswith(".fna"):
+                    target_file = Path(filename)
+                    print(f"{target_file} will be copied to {fur_target_folder}")
+                    shutil.copy(target_file, fur_target_folder)
+                else:
+                    print(f"{filename} is not a fasta file. Skipping.")
+                    continue
+            else:
+                print(f"{accession_pattern} not found! Are you in the folder with the assemblies? Please double-check!")
+        except subprocess.CalledProcessError as e:
+            print(f"Error finding file {accession_pattern}: {e}")
+            raise e
+
+def move_remaining_files_to_neighbour(source_folder, fur_target_folder, fur_neighbour_folder):
+    """Move remaining files to the neighbour folder."""
+    for file_path in source_folder.iterdir():
+        if file_path.is_file() and not (fur_target_folder / file_path.name).exists():
+            if file_path.name.endswith(".fasta") or file_path.name.endswith(".fa") or file_path.name.endswith (".fna"):
+                shutil.copy(file_path, fur_neighbour_folder)
+                print(f'Copied to {fur_neighbour_folder}: {file_path.name}')
+            else:
+                print(f"{file_path.name} is not a fasta file. Skipping.")
+                continue
+        else:
+            print(f'File {file_path.name} already exists in {fur_target_folder}, skipping.')
 
 def main():
     parser = argparse.ArgumentParser(description='Target and Neighbour Folder Sorting')
@@ -58,27 +92,11 @@ def main():
     source_folder = Path.cwd()
     
     # Process each target file
-    for accession in list_targets:
-        accession_pattern = accession.strip() + "*"
-        try:
-            result = subprocess.run(['find', str(source_folder), '-maxdepth', '1', '-type', 'f', '-iname', accession_pattern], capture_output=True, text=True, check=True)
-            filename = result.stdout.strip()
-            if filename:
-                target_file = Path(filename)
-                print(f"{target_file} will be copied to {fur_target_folder}")
-                shutil.copy(target_file, fur_target_folder)
-            else:
-                print(f"{accession_pattern} not found! Are you in the folder with the assemblies? Please double-check!")
-        except subprocess.CalledProcessError as e:
-            print(f"Error finding file {accession_pattern}: {e}")
+    process_target_files(list_targets, source_folder, fur_target_folder)
 
     # Move remaining files to the neighbour folder
-    for file_path in source_folder.iterdir():
-        if file_path.is_file() and not (fur_target_folder / file_path.name).exists():
-            shutil.copy(file_path, fur_neighbour_folder)
-            print(f'Copied to {fur_neighbour_folder}: {file_path.name}')
-        else:
-            print(f'File {file_path.name} already exists in {fur_neighbour_folder}, skipping.')
+    move_remaining_files_to_neighbour(source_folder, fur_target_folder, fur_neighbour_folder)
+
 
 if __name__ == '__main__':
     main()

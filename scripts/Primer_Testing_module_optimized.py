@@ -8,7 +8,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 import re
-from Bio import SeqIO
+from Bio import SeqIO # type: ignore
  
 def check_folders(*folders):
     """Check if folders exist and are non-empty."""
@@ -215,7 +215,7 @@ def main():
 
     for file_path in all_files:
         if file_path.is_file():
-            print(f"Testing your primers for {file_path}:\n\n.")
+            print(f"Testing your primers in {file_path}:\n")
             try:
                 pr_frwd, pr_rev, pr_intern = extract_primer_sequences(file_path)
             except Exception as e:

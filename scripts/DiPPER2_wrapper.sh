@@ -5,7 +5,7 @@ set -e
 
 die() { echo "$@" ; exit 1; }
 diemsg() {
-    echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> -o <outfile prefix -c <delete concatenated files. Default:1. Set to 0 if you don't want that> -p <FUR parameters> -t <primer3 parameters> -q <qpcr default or conventional pcr default> -r <reference>"  
+    echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> -o <outfile prefix -c <delete concatenated files. Default:1. Set to 0 if you don't want that> -p <FUR parameters>  -t <primer3 parameters> [default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200] -q <qpcr (y) or conventional pcr (n)> [default: n] -r <reference>"  
     echo ""
     echo "Arguments -f, -d, and -l are mandatory."
     echo "FUR (https://github.com/EvolBioInf/fur/tree/master), primer3_core (https://github.com/primer3-org/primer3), BLAST+, seqkit, python and all dependencies must be installed in path!!!"
@@ -121,56 +121,94 @@ echo "Shifting all the target assemblies into FUR.target and all the neighbours 
 
 # Run FUR
 echo "Running FUR"
+ 
 if [[ -n $OUT && -n $FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR" -o "$OUT"
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR" -o "$OUT"&& true
+    EXIT_STATUS="$?"
 elif [[ -n $FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR"
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR"&& true
+    EXIT_STATUS="$?"
 elif [[ -n $OUT ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT"
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT"&& true
+    EXIT_STATUS="$?"
 else
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD"
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD"&& true
+    EXIT_STATUS="$?"
 fi
 
+#check if the command failed with an exit status other than 0
+if [[ $EXIT_STATUS -ne 0 ]]; then
+    echo "FUR failed with error ${EXIT_STATUS}. Check log for details!"
+    exit 1
+fi
 echo "Finished running FUR"
 
 # Run P3 picking
 echo "Pick primers using Primer3"
-convPCR="prodMinSize=200 prodMaxSize=1000"
+convPCR="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=200 prodMaxSize=1000"
 if [[ -n $OUT && -n $P3 && $QPCR == "y" ]]; then
-    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"
+    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"&& true
+    EXIT_STATUS="$?"
 elif [[ -n $OUT && -n $P3 ]]; then
-    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"
+    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"&& true
+    EXIT_STATUS="$?"
+elif [[ -n $OUT && $QPCR == "n" ]]; then
+    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$convPCR"&& true
+    EXIT_STATUS="$?"
 elif [[ -n $OUT && $QPCR == "y" ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$convPCR"
+    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" && true
+    EXIT_STATUS="$?"
 elif [[ -n $OUT ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT"
+    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$convPCR"&& true
+    EXIT_STATUS="$?"
 elif [[ -n $P3 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -p "$P3"
+    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -p "$P3"&& true
+    EXIT_STATUS="$?"
 elif [[ $QPCR == "y" ]]; then
-    "$default_python" "$SCRIPT_DIR"/scripts/Primer3_module_optimized.py -f "$FOLD" -p "$convPCR"
+    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" && true
+    EXIT_STATUS="$?"
 else
-    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD"
+    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -p "$convPCR"&& true
+    EXIT_STATUS="$?"
 fi
 
+#check if the command failed with an exit status other than 0
+if [[ $EXIT_STATUS -ne 0 ]]; then
+    echo "Primer picking failed with error ${EXIT_STATUS}. Check log for details!"
+    exit 1
+fi
 echo "Finished primer picking."
 
 # Run in silico tests and blastx
 echo "Testing the primers for specificity and sensitivity in silico and determining the target"
 
 if [[ -n $OUT && $DEL -eq 0 && -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL" -r "$REF"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL" -r "$REF"&& true
+    EXIT_STATUS="$?"
 elif [[ -n $OUT && -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -r "$REF"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -r "$REF"&& true
+    EXIT_STATUS="$?"
 elif [[ -n $OUT && $DEL -eq 0 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL"&& true
+    EXIT_STATUS="$?"
 elif [[ $DEL -eq 0 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -c "$DEL"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -c "$DEL"&& true
+    EXIT_STATUS="$?"
 elif [[ -n $OUT ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -o "$OUT"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -o "$OUT"&& true
+    EXIT_STATUS="$?"
 elif [[ -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -r "$REF"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -r "$REF"&& true
+    EXIT_STATUS="$?"
 else
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"&& true
+    EXIT_STATUS="$?"
+fi
+
+#check if the command failed with an exit status other than 0
+if [[ $EXIT_STATUS -ne 0 ]]; then
+    echo "Primer testing failed with error ${EXIT_STATUS}. Check log for details!"
+    exit 1
 fi
 
 echo "Finished in silico PCR and target definition."
@@ -179,9 +217,17 @@ echo "Finished in silico PCR and target definition."
 echo "Writing summary outfiles/"
 
 if  [[ $QPCR == "y" ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Summarize_results_module_improved.py -f "$FOLD" -q "$QPCR"
+    "$default_python"  "$SCRIPT_DIR"/Summarize_results_module_improved.py -f "$FOLD" -q "$QPCR"&& true
+    EXIT_STATUS="$?"
 else
-    "$default_python"  "$SCRIPT_DIR"/Summarize_results_module_improved.py  -f "$FOLD"
+    "$default_python"  "$SCRIPT_DIR"/Summarize_results_module_improved.py  -f "$FOLD"&& true
+    EXIT_STATUS="$?"
+fi
+
+#check if the command failed with an exit status other than 0
+if [[ $EXIT_STATUS -ne 0 ]]; then
+    echo "Could not generate Results files. Summarize_results_module failed with error ${EXIT_STATUS}. Check log for details!"
+    exit 1
 fi
 
 echo "Finished!"
