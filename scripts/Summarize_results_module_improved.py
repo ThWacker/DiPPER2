@@ -258,7 +258,7 @@ def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
         try:
             xtract_r = subprocess.Popen(["xtract", "-pattern", "DocumentSummary", "-element", "Title"],
                                         stdin=efetch_r.stdout, stdout=subprocess.PIPE, text=True)
-            xtract_r.wait()  # Add this line
+            xtract_r.wait() 
         except subprocess.CalledProcessError as e:
             quit_program(f"xtract command failed: {e}")
         title, _ = xtract_r.communicate()
@@ -379,16 +379,10 @@ def print_results(header: str, primer_frwd: str, primer_rev: str, primer_interna
         pprint(speci, stream=file, depth=4)
         file.write("\n################################################################################\n")
 
-    #generate the html
-    # html_content = generate_html(header, primer_frwd, primer_rev, primer_internal,sensi_pass,sensi_ass_no, sensi_m, speci_pass, speci_ass_no, \
-    #               speci_m, sensi, speci, res_target_str, primer_fold, target_fold, seqkit_fold, source_folder)
-
     generate_html_jinja(header, primer_frwd, primer_rev, primer_internal,sensi_pass,sensi_ass_no, sensi_m, speci_pass, speci_ass_no, \
                   speci_m, sensi, speci, res_target_str, primer_fold, target_fold, seqkit_fold, source_folder, qPCR)
     
-    
-    # with open("Results.html", 'a', encoding="utf-8") as file:
-    #     file.write(html_content)
+
 
 def generate_results(destination_folder_primer, destination_folder_tar, destination_seqkit,file_path, count_target, count_neighbour, source_folder, qPCR):
     """Gets the primers & amplicon length, processes them for output, gets the results from the sensitivity and specificity tests 

@@ -97,6 +97,5 @@ def main():
     # Move remaining files to the neighbour folder
     move_remaining_files_to_neighbour(source_folder, fur_target_folder, fur_neighbour_folder)
 
-
 if __name__ == '__main__':
     main()
