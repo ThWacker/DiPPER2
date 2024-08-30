@@ -8,6 +8,7 @@ import re
 from datetime import datetime
 import shutil
 from pathlib import Path
+from fur2primer3 import (remap_keys,write_result, args_to_dict)
 
 def quit(message=None):
     """Exit the program with an optional message."""
@@ -60,8 +61,9 @@ def move_files(source_folder: Path, destination_folder: Path, pattern: str) -> N
         for file in source_folder.glob(pattern):
             shutil.move(file, destination_folder / file.name)
             #print(f"Moved {file} to {destination_folder}")
-    except Exception as e:
-        print(f"Error moving files: {e}")
+    except FileNotFoundError as e:
+        quit(f"Error moving files: {e}")
+        raise e
 
 def usage():
     print('------------------------------------------------------------------------------------------------------------------------------------------------------')
@@ -85,7 +87,7 @@ def main():
     dt_string = now.strftime("%d-%m-%Y_%Hh%Mmin%Ss_%z")
 
     parser = argparse.ArgumentParser(description='primer3core module')
-    parser.add_argument('-p', '--parameter', type=str, default="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200", 
+    parser.add_argument('-p', '--parameter', type=str, default="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1", 
                         help='string from config file that defines the primer3_core parameters for fur2prim. Default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200')
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
     parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in d-m-y-h-m-s-tz format')
@@ -103,23 +105,36 @@ def main():
         target = next(source_folder.glob('*FUR.db.out.txt'))
     except StopIteration:
         quit("Exception while trying to find the outfile of the FUR_module.py FUR.db.out.txt.")
+        raise
     
     # check if there is the right number of parameters that are supposed to be fed into fur2prim
     param_list = args.parameter.split()
-    if len(param_list) != 8:
-        quit(f"Error: {args.parameter} does not have 8 elements. You must define all changed values: primMinTm, primOptTm, primMaxTm, inMinTm, inOptTm, inMaxTm, prodMinSize=100 and prodMaxSize=200")
+    if len(param_list) != 9:
+        quit(f"Error: {args.parameter} does not have 9 elements. You must define all changed values: primMinTm, primOptTm, primMaxTm, inMinTm, inOptTm, inMaxTm, prodMinSize=100, prodMaxSize=200 and Oligo=1")
 
-    # try running fur2prim. If there is an error, fail with message and sys.exit 1. Might not raise the correct exception. will test.
+    # convert fur output into primer3 compatible output using the functions from the fur2primer3 script
+    print ("Convert the FUR output to Primer3 compatible output using fur2primer3 functions...")
     try:
-        print("Running fur2prim.")
-        out = subprocess.run(['fur2prim'] + param_list + [str(target)], check=True, capture_output=True, text=True)
-    except subprocess.CalledProcessError as e:
-        quit(f"fur2prim failed: {e}")
-        raise e
-
-    # write the result to file
+        # parse parameters (dictionary)
+        params=args_to_dict(args.parameter)
+        #remap/ convert parameter keys to Primer3 conventions
+        form_param=remap_keys(params)
+        #write Primer3 compatible file.
+        write_result(Path(target),form_param)
+    except FileNotFoundError:
+        quit(f"Could not find {target}")
+        raise
+    except ValueError as e:
+        quit(f"Input or output values are not as expected: {e}")
+    except TypeError as e:
+        quit(f"Wrong type: {e}")
+    except OSError as e:
+        quit(f"Could not write or open file: {e}")
+    except Exception as e:
+        quit(f"Unknown exception occured while running fur2primer3 functions: {e}")
+    
+    # define results file
     resultf2p = target.with_suffix('.primers.txt')
-    resultf2p.write_text(out.stdout.strip(),encoding="utf-8")
 
     # check if the results file is empty, if so sys.exit 1 with message (might not raise correct exception)
     if resultf2p.stat().st_size == 0:
