@@ -5,7 +5,9 @@ set -e
 
 die() { echo "$@" ; exit 1; }
 diemsg() {
-    echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> -o <outfile prefix -c <delete concatenated files. Default:1. Set to 0 if you don't want that> -p <FUR parameters>  -t <primer3 parameters> [default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200] -q <qpcr (y) or conventional pcr (n)> [default: n] -r <reference>"  
+    echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> -o <outfile prefix -c <delete concatenated files. Default:1. Set to 0 if you don't want that> 
+    -p <FUR parameters>  -t <primer3 parameters> [default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200] -q <qpcr (y) or conventional pcr (n)> [default: n] 
+    -r <reference for bed files> -a <assembly used as reference for FUR>"  
     echo ""
     echo "Arguments -f, -d, and -l are mandatory."
     echo "FUR (https://github.com/EvolBioInf/fur/tree/master), primer3_core (https://github.com/primer3-org/primer3), BLAST+, seqkit, python and all dependencies must be installed in path!!!"
@@ -34,6 +36,7 @@ P3=
 QPCR="n"
 DEL=1
 REF=
+REF_FUR=
 
 # Initialize variables to track whether mandatory options are provided
 a_provided=false
@@ -52,6 +55,7 @@ while [ $# -gt 0 ]; do
     -q) QPCR="$2"; shift;;
     -c) DEL="$2"; shift;;
     -r) REF="$2"; shift;;
+    -a) REF_FUR="$2"; shift;;
     -*) echo >&2 "Unknown option: $1"; diemsg;;
     *) break;;    # terminate while loop
     esac
@@ -106,12 +110,23 @@ elif [[ $python3_version == *"Python "* ]]; then
 else
     diemsg "Neither python nor python3 is available."
 fi
+
+
 ############
 ### MAIN ###
 ############
 # Get the script directory:
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+#check if environment exists or create one
+
+if [ ! -d dipper2 ]; then
+    "$default_python" -m venv dipper2
+fi
+
+dipper2/bin/pip install --upgrade pip
+dipper2/bin/pip install -r "$SCRIPT_DIR"/requirements.txt
+source dipper2/bin/activate
 # Shift into assembly folder
 cd "$ASSEM_F" || exit 1
 
@@ -122,8 +137,14 @@ echo "Shifting all the target assemblies into FUR.target and all the neighbours 
 # Run FUR
 echo "Running FUR"
  
-if [[ -n $OUT && -n $FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR" -o "$OUT"&& true
+if [[ -n $OUT && -n $FUR && -n $REF_FUR ]]; then
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR" -o "$OUT" -r "$REF_FUR"&& true
+    EXIT_STATUS="$?"
+elif [[ -n $FUR && -n $REF_FUR ]]; then
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR" -r "$REF_FUR"&& true
+    EXIT_STATUS="$?"
+elif [[ -n $OUT && -n $REF_FUR ]]; then
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT" -r "$REF_FUR"&& true
     EXIT_STATUS="$?"
 elif [[ -n $FUR ]]; then
     "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR"&& true
@@ -145,7 +166,7 @@ echo "Finished running FUR"
 
 # Run P3 picking
 echo "Pick primers using Primer3"
-convPCR="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=200 prodMaxSize=1000"
+convPCR="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=200 prodMaxSize=1000 Oligo=0"
 if [[ -n $OUT && -n $P3 && $QPCR == "y" ]]; then
     "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"&& true
     EXIT_STATUS="$?"
@@ -229,5 +250,5 @@ if [[ $EXIT_STATUS -ne 0 ]]; then
     echo "Could not generate Results files. Summarize_results_module failed with error ${EXIT_STATUS}. Check log for details!"
     exit 1
 fi
-
+deactivate
 echo "Finished!"
