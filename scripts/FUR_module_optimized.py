@@ -10,7 +10,7 @@ import shutil
 def quit(message=None):
     """Exit the program with an optional message."""
     if message:
-        print(message, file=sys.stderr)
+        print(message)
     sys.exit(1)
 
 def usage():
@@ -28,6 +28,8 @@ def usage():
     print('-o/--outfile_prefix - for outfile prefix [default: date and time in %%d-%%m-%%Y_%%Hh%%Mmin%%Ss_%%z format]')
     print('-p/--parameter - tells fur how to run. -u -> only the first subtraction step; -U -> runs first Subtraction step and Intersection step. -m -> runs megablast instead of blastn in the last step. [default: " " (runs FUR to completion with all steps using blastn)]')
     print('')
+    print('-r/--reference - refence assembly for the makeFurDb step')
+    print('')
     print('CAUTION: needs to be in the folder with the assemblies to be sorted in target and neighbour')
     print('------------------------------------------------------------------------------------------------------------------------------------------------------')
 
@@ -39,14 +41,18 @@ def check_folders(target_folder, neighbour_folder):
         if not any(folder.iterdir()):
             quit(f"The folder {folder} is empty")
 
-def make_fur_db(target_folder, neighbour_folder, source):
+def make_fur_db(target_folder, neighbour_folder, source, reference=None):
     """Create the FUR database."""
     try:
         print("Making FUR DB.")
         fur_db = source / 'FUR.db'
-        subprocess.run(['makeFurDb', '-t', str(target_folder), '-n', str(neighbour_folder), '-d', str(fur_db)], check=True)
-    except subprocess.CalledProcessError:
+        if reference:
+            subprocess.run(['makeFurDb', '-t', str(target_folder), '-n', str(neighbour_folder), '-d', str(fur_db), '-r', str(reference)], check=True)
+        else:
+            subprocess.run(['makeFurDb', '-t', str(target_folder), '-n', str(neighbour_folder), '-d', str(fur_db)], check=True)
+    except subprocess.CalledProcessError as e:
         quit("makeFurDb failed.")
+        raise e
 
 def run_fur(option, outfile_prefix, source):
     """Run the FUR command and handle the output."""
@@ -60,8 +66,9 @@ def run_fur(option, outfile_prefix, source):
         error=result.stderr.strip()
     except subprocess.CalledProcessError as e:
         quit(f"FUR failed: {e}")
+        raise e
 
-    fur_out.write_text(fur_output)
+    fur_out.write_text(fur_output, encoding="utf-8" )
 
     if not fur_out.exists() or fur_out.stat().st_size == 0:
         quit(f"Fur could not find unique regions or did not run successfully. {fur_out} is empty or does not exist.")
@@ -83,6 +90,7 @@ def main():
     parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in d-m-y-h-m-s-tz format')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.0.1')
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
+    parser.add_argument('-r', '--reference', type=str, default=None,help="Optional reference for the makeFurDb step" )
 
     args = parser.parse_args()
     
@@ -97,7 +105,15 @@ def main():
     check_folders(target_folder, neighbour_folder)
 
     # run makefurdb
-    make_fur_db(target_folder, neighbour_folder, source_folder)
+    if args.reference:
+        try:
+            reference= args.reference
+            make_fur_db(target_folder, neighbour_folder, source_folder, reference)
+        except (FileNotFoundError, OSError):
+            print(f"Could not find file {reference}. Defaulting to running without a reference")
+            make_fur_db(target_folder, neighbour_folder, source_folder)
+    else:
+        make_fur_db(target_folder, neighbour_folder, source_folder)
 
     #run fur
     fur_out = run_fur(args.parameter, args.outfile_prefix, source_folder)
