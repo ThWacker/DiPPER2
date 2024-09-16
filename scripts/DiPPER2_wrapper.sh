@@ -6,7 +6,7 @@ set -e
 die() { echo "$@" ; exit 1; }
 diemsg() {
     echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> -o <outfile prefix -c <delete concatenated files. Default:1. Set to 0 if you don't want that> 
-    -p <FUR parameters>  -t <primer3 parameters> [default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200] -q <qpcr (y) or conventional pcr (n)> [default: n] 
+    -p <FUR parameters>  -t <primer3 parameters> [default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1] -q <qpcr (y) or conventional pcr (n)> [default: n] 
     -r <reference for bed files> -a <assembly used as reference for FUR>"  
     echo ""
     echo "Arguments -f, -d, and -l are mandatory."
@@ -127,12 +127,13 @@ fi
 dipper2/bin/pip install --upgrade pip
 dipper2/bin/pip install -r "$SCRIPT_DIR"/requirements.txt
 source dipper2/bin/activate
+
 # Shift into assembly folder
 cd "$ASSEM_F" || exit 1
 
 # Shift all the files into target and neighbour folders
 echo "Shifting all the target assemblies into FUR.target and all the neighbours into FUR.neighbour folders"
-"$default_python" ~/repos/repos/python_scripts/target_move_module_optimized.py -t "$TARGET" -f "$FOLD"
+"$default_python" "$SCRIPT_DIR"/target_move_module_optimized.py -t "$TARGET" -f "$FOLD"
 
 # Run FUR
 echo "Running FUR"
@@ -146,11 +147,16 @@ elif [[ -n $FUR && -n $REF_FUR ]]; then
 elif [[ -n $OUT && -n $REF_FUR ]]; then
     "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT" -r "$REF_FUR"&& true
     EXIT_STATUS="$?"
+elif [[ -n $OUT && -n $FUR ]]; then
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT" -p "$FUR"&& true
 elif [[ -n $FUR ]]; then
     "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR"&& true
     EXIT_STATUS="$?"
 elif [[ -n $OUT ]]; then
     "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT"&& true
+    EXIT_STATUS="$?"
+elif [[ -n $REF_FUR ]]; then
+    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -r "$REF_FUR" && true
     EXIT_STATUS="$?"
 else
     "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD"&& true
@@ -168,7 +174,7 @@ echo "Finished running FUR"
 echo "Pick primers using Primer3"
 convPCR="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=200 prodMaxSize=1000 Oligo=0"
 if [[ -n $OUT && -n $P3 && $QPCR == "y" ]]; then
-    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"&& true
+    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3" -q "$QCPR" && true
     EXIT_STATUS="$?"
 elif [[ -n $OUT && -n $P3 ]]; then
     "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"&& true
@@ -177,7 +183,7 @@ elif [[ -n $OUT && $QPCR == "n" ]]; then
     "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$convPCR"&& true
     EXIT_STATUS="$?"
 elif [[ -n $OUT && $QPCR == "y" ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" && true
+    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -q "$QPCR"&& true
     EXIT_STATUS="$?"
 elif [[ -n $OUT ]]; then
     "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$convPCR"&& true
@@ -186,7 +192,7 @@ elif [[ -n $P3 ]]; then
     "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -p "$P3"&& true
     EXIT_STATUS="$?"
 elif [[ $QPCR == "y" ]]; then
-    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" && true
+    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -q "$QCPR"&& true
     EXIT_STATUS="$?"
 else
     "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -p "$convPCR"&& true
@@ -204,13 +210,16 @@ echo "Finished primer picking."
 echo "Testing the primers for specificity and sensitivity in silico and determining the target"
 
 if [[ -n $OUT && $DEL -eq 0 && -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL" -r "$REF"&& true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL" -r "$REF" && true
     EXIT_STATUS="$?"
 elif [[ -n $OUT && -n $REF ]]; then
     "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -r "$REF"&& true
     EXIT_STATUS="$?"
 elif [[ -n $OUT && $DEL -eq 0 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL"&& true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL" && true
+    EXIT_STATUS="$?"
+elif [[ -n $REF && $DEL -eq 0 ]]; then
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -r "$REF" -c "$DEL" && true
     EXIT_STATUS="$?"
 elif [[ $DEL -eq 0 ]]; then
     "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -c "$DEL"&& true

@@ -48,9 +48,9 @@ def extract_primer_sequences(file: Path) -> tuple[str, str, str]:
         exit_program("The primer headers are not correctly formatted and cannot be processed.Please change the headers accordingly.")
     return sequences[forward], sequences[reverse], sequences[internal]
 
-def concat_files(folder: Path, name: str) -> str:
+def concat_files(folder: Path, name: str, source:Path) -> str:
     """Concatenate the content of all files found in a folder."""
-    outfilename = f"{name}_concatenated.fasta"
+    outfilename = source/ f"{name}_concatenated.fasta"
     with open(outfilename, 'wb') as outfile:
         for filename in folder.glob('*'):
             if filename.name == outfilename:
@@ -208,8 +208,8 @@ def main():
     check_folders(fur_target, fur_neighbour)
     
     # Concatenate all target and neighbour fastas
-    concat_t = concat_files(fur_target, "target")
-    concat_n = concat_files(fur_neighbour, "neighbour")
+    concat_t = concat_files(fur_target, "target",source_folder)
+    concat_n = concat_files(fur_neighbour, "neighbour", source_folder)
 
     all_files = list(destination_folder_pr.glob('*'))
 

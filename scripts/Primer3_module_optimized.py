@@ -35,7 +35,7 @@ def parse_primers(file_name: str) -> list:
 
     return sorted_lines[:4]
 
-def find_and_return_following_lines_and_target(file_name: str, top_lines: list) -> dict:
+def find_and_return_following_lines_and_target(file_name: str, top_lines: list, qpcr: str) -> dict:
     """Find and return following lines and targets for the top primer penalties."""
     found_data = {}
 
@@ -44,14 +44,25 @@ def find_and_return_following_lines_and_target(file_name: str, top_lines: list) 
 
     for top_line in top_lines:
         joined_top_line = '='.join(top_line)
-        for i, line in enumerate(lines):
-            if joined_top_line in line:
-                target_sequence = lines[i-5].strip()
-                primer_sequences = [lines[i + j].strip() for j in range(4, 7) if i + j < len(lines)]
-                primer_data = [lines[i + j].strip() for j in range(8, 30) if i + j < len(lines)]
-                found_data[f"Target_{i}"] = target_sequence
-                found_data[f"Primer_{i}"] = primer_sequences
-                found_data[f"Data_primer_{i}"]=primer_data
+        if qpcr == "y":
+            for i, line in enumerate(lines):
+                if joined_top_line in line:
+                    target_sequence = lines[i-5].strip()
+                    primer_sequences = [lines[i + j].strip() for j in range(4, 7) if i + j < len(lines)]
+                    primer_data = [lines[i + j].strip() for j in range(7, 30) if i + j < len(lines)]
+                    found_data[f"Target_{i}"] = target_sequence
+                    found_data[f"Primer_{i}"] = primer_sequences
+                    found_data[f"Data_primer_{i}"]=primer_data
+        else:
+            for i, line in enumerate(lines):
+                if joined_top_line in line:
+                    target_sequence = lines[i-5].strip()
+                    primer_sequences = [lines[i + j].strip() for j in range(3, 5) if i + j < len(lines)]
+                    primer_sequences.append("PRIMER_INTERNAL_0_SEQUENCE=NA")
+                    primer_data = [lines[i + j].strip() for j in range(5, 22) if i + j < len(lines)]
+                    found_data[f"Target_{i}"] = target_sequence
+                    found_data[f"Primer_{i}"] = primer_sequences
+                    found_data[f"Data_primer_{i}"]=primer_data
 
     return found_data
 
@@ -92,6 +103,7 @@ def main():
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
     parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in d-m-y-h-m-s-tz format')
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
+    parser.add_argument('-q', '--qpcr',type=str, default="n", help="Toggle whether to expect an internal probe sequence (qPCR) or not. Default is no(n)." )
 
     args = parser.parse_args()
 
@@ -159,7 +171,7 @@ def main():
         print('\t'.join(line))
 
     print("Retrieving primers and targets for the lowest penalties...")
-    found_data = find_and_return_following_lines_and_target(resultp3, top_4_lines)
+    found_data = find_and_return_following_lines_and_target(resultp3, top_4_lines, args.qpcr)
 
     print("The resulting targets and primers are:")
     for key, value in found_data.items():
