@@ -166,11 +166,11 @@ def usage():
     print('For more info on how to install and run RRW-Primer-Blast, compare ')
     print('------------------------------------------------------------------------------------------------------------------------------------------------------')
 
-def delete_concats():
+def delete_concats(target: Path, neighbour: Path):
     """Delete concatenated fasta files."""
     try:
-        os.remove("target_concatenated.fasta")
-        os.remove("neighbour_concatenated.fasta")
+        os.remove(target)
+        os.remove(neighbour)
         print("Concatenated files deleted.")
     except OSError as e:
         print(f"Error deleting concatenated files: {e}")
@@ -342,7 +342,7 @@ def main():
     print('Primer_Testing_module.py ran to completion: exit status 0')
     
     if args.delete_concat:
-        delete_concats()
+        delete_concats(concat_t,concat_n)
 
     sys.exit(0)
 
