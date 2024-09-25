@@ -177,6 +177,7 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
             with doc.open('r') as fp:
                 lines = fp.readlines()
                 #have all assemblies yielded one amplicon?
+                print("have the assemblies yielded an amplicon?)")
                 if len(lines) == count:
                     #passed the test for correct number of assemblies, test whether all of them are the right amplicon length
                     for line in lines:
@@ -194,7 +195,19 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
                         failed+=1
                 #next file after this iteration. passed or failed should only incriment per file
                 else:
-                    failed += 1
+                
+                    failed+= 1
+                    for line in lines:
+                        try:
+                            amp_len = len(line.strip().split('\t')[6])
+                            if amp_len == length:
+                                passed_amp += 1
+                                
+                            else:
+                                failed_amp += 1
+                            amp_f_overall+=1
+                        except:
+                            continue
         except OSError as e:
             raise OSError("Unable to open file") from e
             
@@ -209,7 +222,7 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
                 "Number of assemblies with wrong size amplicon": failed_amp
             }
         else:
-            note = "passed" if passed==0 else "failed"
+            note = "passed" if (passed==0 and passed_amp==0) else "failed"
             results_dict[doc.name] = {
                 "Mismatches tested": m_no,
                 "Did the test pass?": note,
