@@ -143,7 +143,6 @@ def get_longest_target(directory: Path) -> Path:
             if total_length > longest_length:
                 longest_length = total_length
                 longest_file = filepath
-    print(f"the output is a str? {isinstance(longest_file, str)}")
     return longest_file
 
 
