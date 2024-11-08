@@ -376,7 +376,7 @@ class TestRunTests(unittest.TestCase):
     # @patch('Summarize_results_module_improved.Path.open')
     # @patch('Summarize_results_module_improved.quit_program')
     # def test_os_error_script(self, mock_quit_program, mock_open, mock_glob):
-
+    
     #     # Setting up mock for files
     #     mock_file = MagicMock()
     #     mock_file.name = "test_file_m1.txt"
@@ -390,7 +390,7 @@ class TestRunTests(unittest.TestCase):
         
     #     # Ensure quit_program is called with the correct message
     #     mock_quit_program.assert_called_once_with("could not open or read file: Unable to open file", OSError("Unable to open file"))
-
+    
    
     def test_sensitvity_successfully(self):
 
@@ -439,12 +439,12 @@ class TestRunTests(unittest.TestCase):
                 "Test_Primer_123.txt_seqkit_amplicon_against_neighbour_m0.txt":{
                 "Mismatches tested": "m0",
                 "Did the test pass?": "failed",
-                "Number of assemblies, in silico PCR was performed on": 10,
+                "Number of assemblies, in silico PCR was performed on": 4,
                 "Number of assemblies with correct size amplicon": 4}, "Number of files that passed:": 0
                 ,"Number of files that failed:": 1, "Number of files (in silico PCR result files for different number of primer mismatches) tested:":1
             }
         #mock run
-        result =run_tests(Path(self.test_dir), "Test_Primer_123.txt", 9,10,"neighbour")
+        result =run_tests(Path(self.test_dir), "Test_Primer_123.txt", 9,6,"neighbour")
 
         # Assert the expected output
         self.assertEqual(result, expected_dict)
