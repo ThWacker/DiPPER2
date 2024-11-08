@@ -13,34 +13,9 @@ import logging
 from logging.handlers import RotatingFileHandler
 import jinja2 # type: ignore
 import pandas as pd # type: ignore
+import logging_handler
 
-
-# create a logger 
-logger = logging.getLogger(__name__)
-
-def setup_logging(main_folder:Path):
-    '''Set up the logger for the script. Currently global.'''
-
-    # where to put the log files
-    log_folder= main_folder / "logs"
-    log_folder.mkdir(parents=True, exist_ok=True)
-
-    logger.setLevel(logging.DEBUG)
-
-    file_handler = RotatingFileHandler(
-        filename = log_folder / "dipper2_run.log",
-        maxBytes=10487650,
-        backupCount=8
-    )
-
-    # set level of file handler (the actual log file)
-    file_handler.setLevel(logging.INFO)
-    logger.addHandler(file_handler)
-
-    # stream handler is what user sees on command line
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG)
-    logger.addHandler(stream_handler)
+logging = logging_handler
 
 def generate_html_jinja(header: str, primer_frwd: str, primer_rev: str, primer_internal: str,sensi_pass:str,sensi_ass_no:int, sensi_m:str, speci_pass:str,\
                    speci_ass_no:int, speci_m:str, sensi: dict, speci: dict, res_target_str: str, primer_fold: Path, target_fold: Path, seqkit_fold: Path, source_folder:Path,qPCR:str):
@@ -78,11 +53,8 @@ def generate_html_jinja(header: str, primer_frwd: str, primer_rev: str, primer_i
 def quit_program(message: str = None, exception: Exception = None):
     """Exit the program with an optional message and exception."""
     if message:
-        print(f"{message}")
+        logging.error(f"{message}")
     
-    # Call usage() if needed
-    usage()
-
     # Raise the provided exception, if any
     if exception:
         raise exception
@@ -94,20 +66,6 @@ def is_tool(name: str) -> bool:
     """Check whether `name` is on PATH and marked as executable."""
     #which is a tool in shutil. 
     return which(name) is not None
-
-def usage():
-    """Display usage information."""
-    print('------------------------------------------------------------------------------------------------------------------------------------------------------')
-    print('Theresa Wacker T.Wacker2@exeter.ac.uk')
-    print('')
-    print('Module/ Script that summarizes results')
-    print('')
-    print('Usage:')
-    print('mandatory:')
-    print('-f/--folder - results folder name, which includes results folders from previous steps')
-    print('optional: -v/--version for the version & -q/--qPCR to toggle qPCR (y) or no qPCR (n) results (default: n)')
-    print('CAUTION: needs to be in the folder with the assemblies to be sorted in target and neighbour')
-    print('------------------------------------------------------------------------------------------------------------------------------------------------------')
 
 def count_files(folda: Path) -> int:
     """Counts the number of files in a folder."""
@@ -205,7 +163,7 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
             with doc.open('r') as fp:
                 lines = fp.readlines()
                 #have all assemblies yielded one amplicon?
-                print("have the assemblies yielded an amplicon?)")
+                logger.info("have the assemblies yielded an amplicon?)")
                 if len(lines) == count:
                     #passed the test for correct number of assemblies, test whether all of them are the right amplicon length
                     for line in lines:
@@ -268,7 +226,7 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
     else:
         results_dict["Number of files that passed:"]=passed
         results_dict["Number of files that failed:"]=failed
-    print(results_dict)
+    logger.debug(results_dict)
     return results_dict
 
 def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
@@ -433,7 +391,7 @@ def print_results(header: str, primer_frwd: str, primer_rev: str, primer_interna
 def generate_results(destination_folder_primer, destination_folder_tar, destination_seqkit,file_path, count_target, count_neighbour, source_folder, qPCR):
     """Gets the primers & amplicon length, processes them for output, gets the results from the sensitivity and specificity tests 
        and finally also gets the blast results. It then calls the print results function to generate an output file"""
-    print("Retrieving Primers and obtaining amplicon length...")
+    logger.info("Retrieving Primers and obtaining amplicon length...")
     try:
         number, pr_frwd, pr_rev, pr_intern, ampli_len = extract_number_and_primers(file_path, destination_seqkit)
     except Exception as e:
@@ -446,7 +404,7 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
     primer_rev = f'>Reverse Primer {number}\n{pr_rev}'
     primer_internal = f'>Internal Probe {number}\n{pr_intern}\n'
 
-    print("Assessing the in silico PCR results and determining Specificity and Sensitivity...")
+    logger.info("Assessing the in silico PCR results and determining Specificity and Sensitivity...")
     try:
         sensi = run_tests(destination_seqkit, file_path.name, ampli_len, count_target, "target")
     except Exception as e:
@@ -457,7 +415,7 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
     except Exception as e:
         quit_program(f"Specificity tests failed: {e}")
 
-    print("Retrieving the blastx results of the targets, if entrez direct (eutils) is installed, also check NCBI annotation...")
+    logger.info("Retrieving the blastx results of the targets, if entrez direct (eutils) is installed, also check NCBI annotation...")
     try:
         res_target_str = handle_blasts_and_efetch(destination_folder_tar, number)
     except Exception as e:
@@ -470,7 +428,7 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
     # Speci
     speci_pass,speci_ass_no, speci_m=interpret_and_reformat_sensi_speci_tests(speci, "neighbour")
     #Print results to txt file and html
-    print (f"Printing results to outfile. The results summary files 'Results.txt' & 'Results.html' is found in {results_folder}.")
+    logger.info(f"Printing results to outfile. The results summary files 'Results.txt' & 'Results.html' is found in {results_folder}.")
     print_results(header, primer_frwd, primer_rev, primer_internal,sensi_pass,sensi_ass_no, sensi_m, speci_pass, speci_ass_no, \
                   speci_m, sensi, speci, res_target_str, destination_folder_primer, destination_folder_tar, destination_seqkit, source_folder, qPCR)
 
@@ -480,11 +438,11 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
 #####################
 def main():
 
-    parser = argparse.ArgumentParser(description='Summarize the results')
-    parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
+    parser = argparse.ArgumentParser(description='Summarize the results', epilog="Theresa Wacker T.Wacker2@exeter.ac.uk")
+    parser.add_argument("-V", "--version", action="version", version="%(prog)s 0.0.1")
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
     parser.add_argument('-q', '--qPCR', default="n", type=str, help="Toggles between qPCR (y) or no qPCR (n) results. Default is 'n'" )
-
+    parser.add_argument('-v', '--verbose', action="store_true", help="increase logging verbosity" )
     #get args
     args = parser.parse_args()
     
@@ -492,13 +450,8 @@ def main():
     source_folder = Path(args.folder)
 
     # configures the logger
-    setup_logging(source_folder)
+    logging.setup_logging(source_folder, args.verbose)
 
-    logger.info("Start logger")
-    return
-
-
-    
     #toggle qPCR
     qPCR=args.qPCR
 
@@ -522,7 +475,7 @@ def main():
     count_neighbour = count_files(fur_neighbour)
 
     #info
-    print(f"{fur_target} has {count_target} entries and {fur_neighbour} has {count_neighbour} entries.")
+    logger.info(f"{fur_target} has {count_target} entries and {fur_neighbour} has {count_neighbour} entries.")
 
     #to be able to loop through each primer of the 4 candidates, find all the files and generate a list of paths (it is a generator object and yields Path objects with name and path attributes)
     all_files = list(destination_folder_pr.glob('*'))
