@@ -9,38 +9,10 @@ import re
 import os
 from pprint import pformat
 from pprint import pprint
-import logging
-from logging.handlers import RotatingFileHandler
 import jinja2 # type: ignore
 import pandas as pd # type: ignore
 
 
-# create a logger 
-logger = logging.getLogger(__name__)
-
-def setup_logging(main_folder:Path):
-    '''Set up the logger for the script. Currently global.'''
-
-    # where to put the log files
-    log_folder= main_folder / "logs"
-    log_folder.mkdir(parents=True, exist_ok=True)
-
-    logger.setLevel(logging.DEBUG)
-
-    file_handler = RotatingFileHandler(
-        filename = log_folder / "dipper2_run.log",
-        maxBytes=10487650,
-        backupCount=8
-    )
-
-    # set level of file handler (the actual log file)
-    file_handler.setLevel(logging.INFO)
-    logger.addHandler(file_handler)
-
-    # stream handler is what user sees on command line
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG)
-    logger.addHandler(stream_handler)
 
 def generate_html_jinja(header: str, primer_frwd: str, primer_rev: str, primer_internal: str,sensi_pass:str,sensi_ass_no:int, sensi_m:str, speci_pass:str,\
                    speci_ass_no:int, speci_m:str, sensi: dict, speci: dict, res_target_str: str, primer_fold: Path, target_fold: Path, seqkit_fold: Path, source_folder:Path,qPCR:str):
@@ -148,7 +120,7 @@ def extract_primer_sequences(file: Path) -> tuple[str, str, str]:
     with file.open('r') as f:
         lines = f.readlines()
         for i, line in enumerate(lines):
-            for key in sequences:
+            for key in sequences.keys():
                 if key in line:
                     sequences[key] = lines[i + 1].strip()
     if not all(sequences.values()):
@@ -251,10 +223,6 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
             }
         else:
             note = "passed" if (passed==0 and passed_amp==0) else "failed"
-            if note == "passed":
-                passed_mem=passed
-                passed=failed
-                failed=passed_mem
             results_dict[doc.name] = {
                 "Mismatches tested": m_no,
                 "Did the test pass?": note,
@@ -266,9 +234,8 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
         results_dict["Number of files that passed:"]=passed
         results_dict["Number of files that failed:"]=failed
     else:
-        results_dict["Number of files that passed:"]=passed
-        results_dict["Number of files that failed:"]=failed
-    print(results_dict)
+        results_dict["Number of files that passed:"]=failed
+        results_dict["Number of files that failed:"]=passed
     return results_dict
 
 def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
@@ -368,7 +335,7 @@ def interpret_and_reformat_sensi_speci_tests(test_res: dict, flavour: str) -> tu
                 ass_no = result['Number of assemblies, in silico PCR was performed on']
             
         else:
-            if result['Did the test pass?'] == "passed":
+            if result['Did the test pass?'] == "passed" or result['Did the test pass?'] == "NA":
                 ass_no = result['Number of assemblies, in silico PCR was performed on']
                 fail = result['Mismatches tested']
                 fail_m.append(fail)
@@ -480,24 +447,16 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
 #####################
 def main():
 
-    parser = argparse.ArgumentParser(description='Summarize the results')
+    parser = argparse.ArgumentParser(description='Primer testing module')
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
     parser.add_argument('-q', '--qPCR', default="n", type=str, help="Toggles between qPCR (y) or no qPCR (n) results. Default is 'n'" )
 
     #get args
     args = parser.parse_args()
-    
+
     #one folder to rule them all
     source_folder = Path(args.folder)
-
-    # configures the logger
-    setup_logging(source_folder)
-
-    logger.info("Start logger")
-    return
-
-
     
     #toggle qPCR
     qPCR=args.qPCR
