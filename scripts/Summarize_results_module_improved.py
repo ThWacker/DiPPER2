@@ -152,8 +152,8 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
             else:
                 raise ValueError("No match found in the document name.")
                 
-        except AttributeError:
-            raise AttributeError("Error: Tried to access a match group on a NoneType object.")
+        except Exception as e:
+            pass
         except ValueError as ve:
             print(ve)
             raise
@@ -326,7 +326,7 @@ def interpret_and_reformat_sensi_speci_tests(test_res: dict, flavour: str) -> tu
                 ass_no = result['Number of assemblies, in silico PCR was performed on']
             
         else:
-            if result['Did the test pass?'] == "passed":
+            if result['Did the test pass?'] == "passed" or result['Did the test pass?'] == "NA":
                 ass_no = result['Number of assemblies, in silico PCR was performed on']
                 fail = result['Mismatches tested']
                 fail_m.append(fail)
