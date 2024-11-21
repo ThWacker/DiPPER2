@@ -42,8 +42,11 @@ def process_target_files(list_targets, source_folder, fur_target_folder):
     for accession in list_targets:
         accession_pattern = accession.strip() + "*"
         try:
-            result = subprocess.run(['find', str(source_folder), '-maxdepth', '1', '-type', 'f', '-iname', accession_pattern, '-quit'], capture_output=True, text=True, check=True)
+            result = subprocess.run(['find', str(source_folder), '-maxdepth', '1', '-type', 'f', '-iname', accession_pattern], capture_output=True, text=True, check=True)
             filename = result.stdout.strip()
+            test_list=filename.split(sep="\n")
+            if len(test_list) > 1:
+                quit("Make sure that there is only one assembly per accession. Please delete the other assemblies and only keep the highest quality one.")
             if filename:
                 if filename.endswith(".fasta") or filename.endswith(".fa") or filename.endswith(".fna"):
                     target_file = Path(filename)
