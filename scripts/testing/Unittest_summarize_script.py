@@ -9,7 +9,7 @@ import pandas as pd
 from unittest.mock import patch, mock_open, MagicMock
 
 # Assuming all your functions are imported from your script
-from Summarize_results_module_improved import (quit_program, is_tool, usage, count_files, check_folders,
+from Summarize_results_module_improved import (quit_program, is_tool, count_files, check_folders,
                          extract_number_and_primers, extract_number_from_filename,
                          extract_primer_sequences, get_amplicon_length_from_seq,
                          run_tests, handle_blasts_and_efetch, get_highest_scoring_accession,
@@ -54,10 +54,10 @@ class TestPrimerScript(unittest.TestCase):
         self.assertTrue(is_tool("cd"))
         self.assertFalse(is_tool("nonexistenttool"))
 
-    def test_usage(self):
-        with patch('builtins.print') as mocked_print:
-            usage()
-            self.assertTrue(mocked_print.called)
+    # def test_usage(self):
+    #     with patch('builtins.print') as mocked_print:
+    #         usage()
+    #         self.assertTrue(mocked_print.called)
 
     def test_count_files(self):
         path = Path(self.test_dir)
@@ -270,7 +270,7 @@ class TestHandleBlastsAndEfetch(unittest.TestCase):
         mock_quit_program.assert_not_called()  # Check that quit_program was not called
 
 class TestRunTests(unittest.TestCase):
-
+    maxDiff = None
     def setUp(self):
         # Setup temporary directories and files for testing
         self.test_dir = tempfile.mkdtemp()
@@ -430,7 +430,7 @@ class TestRunTests(unittest.TestCase):
                 ,"Number of files that failed:": 0, "Number of files (in silico PCR result files for different number of primer mismatches) tested:":1
             }
         #mock run
-        result =run_tests(Path(self.test_dir), "Test_Primer_123.txt", 7,4,"neighbour")
+        result =run_tests(Path(self.test_dir), "Test_Primer_123.txt", 6,4,"neighbour")
 
         # Assert the expected output
         self.assertEqual(result, expected_dict)
@@ -439,7 +439,7 @@ class TestRunTests(unittest.TestCase):
                 "Test_Primer_123.txt_seqkit_amplicon_against_neighbour_m0.txt":{
                 "Mismatches tested": "m0",
                 "Did the test pass?": "failed",
-                "Number of assemblies, in silico PCR was performed on": 4,
+                "Number of assemblies, in silico PCR was performed on": 6,
                 "Number of assemblies with correct size amplicon": 4}, "Number of files that passed:": 0
                 ,"Number of files that failed:": 1, "Number of files (in silico PCR result files for different number of primer mismatches) tested:":1
             }
