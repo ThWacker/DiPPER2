@@ -51,7 +51,7 @@ def generate_html_jinja(header: str, primer_frwd: str, primer_rev: str, primer_i
 def quit_program(message: str = None, exception: Exception = None):
     """Exit the program with an optional message and exception."""
     if message:
-        logging.error(f"{message}")
+        print(f"{message}")
     
     # Raise the provided exception, if any
     if exception:
@@ -123,7 +123,7 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
     file_pattern = f"{file}_seqkit_amplicon_against_{target_type}_m*"
     files = list(folder.glob(file_pattern))
     #initialize counters
-    amp_f_overall,passed, failed = 0,0,0
+    amp_f_overall,passed, failed, passed_n, failed_n = 0,0,0,0,0
     results_dict={}
     #default if for instance Specificity tests do not amplify anything in silico (= no files)
     if not files:
@@ -150,8 +150,8 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
             else:
                 raise ValueError("No match found in the document name.")
                 
-        except Exception as e:
-            pass
+        # except Exception as e:
+        #     raise 
         except ValueError as ve:
             print(ve)
             raise
@@ -161,37 +161,37 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
             with doc.open('r') as fp:
                 lines = fp.readlines()
                 #have all assemblies yielded one amplicon?
-                logger.info("have the assemblies yielded an amplicon?)")
+                print("have the assemblies yielded an amplicon?)")
                 if len(lines) == count:
-                    #passed the test for correct number of assemblies, test whether all of them are the right amplicon length
+                    # Process each line to count correct and incorrect amplicon lengths
                     for line in lines:
                         amp_len = len(line.strip().split('\t')[6])
                         if amp_len == length:
                             passed_amp += 1
-                            
                         else:
                             failed_amp += 1
-                        amp_f_overall+=1
-                    #did we count as many correct length amplicons as assemblies
-                    if passed_amp==count:
-                        passed+=1
-                    if not failed_amp==0:
-                        failed+=1
-                #next file after this iteration. passed or failed should only incriment per file
+                        amp_f_overall += 1
+                    # Check if all assemblies have correct-length amplicons
+                    if passed_amp == count:
+                        passed += 1
+                        failed_n += 1  # For specificity, correct counts in neighbor tests are a failure
+                    if failed_amp > 0:
+                        failed += 1 #for sensitivity, this is a failure
+                        passed_n+=1 #for specificity, thisnis what we want
                 else:
-                
-                    failed+= 1
+                    # If count mismatches, adjust pass/fail logic accordingly
+                    failed += 1 if target_type == "target" else 0
+                    passed_n += 1 if target_type == "neighbour" else 0
                     for line in lines:
-                        try:
-                            amp_len = len(line.strip().split('\t')[6])
-                            if amp_len == length:
-                                passed_amp += 1
-                                
-                            else:
-                                failed_amp += 1
-                            amp_f_overall+=1
-                        except:
-                            continue
+                        amp_len = len(line.strip().split('\t')[6])
+                        if amp_len == length:
+                            passed_amp += 1
+                        else:
+                            failed_amp += 1
+                        amp_f_overall += 1
+                    if target_type == "neighbour" and passed_amp > 0:
+                        passed_n -= 1
+                        failed_n += 1
         except OSError as e:
             raise OSError("Unable to open file") from e
             
@@ -218,8 +218,8 @@ def run_tests(folder: Path, file: str, length: int, count: int, target_type: str
         results_dict["Number of files that passed:"]=passed
         results_dict["Number of files that failed:"]=failed
     else:
-        results_dict["Number of files that passed:"]=failed
-        results_dict["Number of files that failed:"]=passed
+        results_dict["Number of files that passed:"]=passed_n
+        results_dict["Number of files that failed:"]=failed_n
     return results_dict
 
 def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
@@ -384,7 +384,7 @@ def print_results(header: str, primer_frwd: str, primer_rev: str, primer_interna
 def generate_results(destination_folder_primer, destination_folder_tar, destination_seqkit,file_path, count_target, count_neighbour, source_folder, qPCR):
     """Gets the primers & amplicon length, processes them for output, gets the results from the sensitivity and specificity tests 
        and finally also gets the blast results. It then calls the print results function to generate an output file"""
-    logger.info("Retrieving Primers and obtaining amplicon length...")
+    print("Retrieving Primers and obtaining amplicon length...")
     try:
         number, pr_frwd, pr_rev, pr_intern, ampli_len = extract_number_and_primers(file_path, destination_seqkit)
     except Exception as e:
@@ -397,7 +397,7 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
     primer_rev = f'>Reverse Primer {number}\n{pr_rev}'
     primer_internal = f'>Internal Probe {number}\n{pr_intern}\n'
 
-    logger.info("Assessing the in silico PCR results and determining Specificity and Sensitivity...")
+    print("Assessing the in silico PCR results and determining Specificity and Sensitivity...")
     try:
         sensi = run_tests(destination_seqkit, file_path.name, ampli_len, count_target, "target")
     except Exception as e:
@@ -408,7 +408,7 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
     except Exception as e:
         quit_program(f"Specificity tests failed: {e}")
 
-    logger.info("Retrieving the blastx results of the targets, if entrez direct (eutils) is installed, also check NCBI annotation...")
+    print("Retrieving the blastx results of the targets, if entrez direct (eutils) is installed, also check NCBI annotation...")
     try:
         res_target_str = handle_blasts_and_efetch(destination_folder_tar, number)
     except Exception as e:
@@ -421,7 +421,7 @@ def generate_results(destination_folder_primer, destination_folder_tar, destinat
     # Speci
     speci_pass,speci_ass_no, speci_m=interpret_and_reformat_sensi_speci_tests(speci, "neighbour")
     #Print results to txt file and html
-    logger.info(f"Printing results to outfile. The results summary files 'Results.txt' & 'Results.html' is found in {results_folder}.")
+    print(f"Printing results to outfile. The results summary files 'Results.txt' & 'Results.html' is found in {results_folder}.")
     print_results(header, primer_frwd, primer_rev, primer_internal,sensi_pass,sensi_ass_no, sensi_m, speci_pass, speci_ass_no, \
                   speci_m, sensi, speci, res_target_str, destination_folder_primer, destination_folder_tar, destination_seqkit, source_folder, qPCR)
 
@@ -468,7 +468,7 @@ def main():
     count_neighbour = count_files(fur_neighbour)
 
     #info
-    logger.info(f"{fur_target} has {count_target} entries and {fur_neighbour} has {count_neighbour} entries.")
+    print(f"{fur_target} has {count_target} entries and {fur_neighbour} has {count_neighbour} entries.")
 
     #to be able to loop through each primer of the 4 candidates, find all the files and generate a list of paths (it is a generator object and yields Path objects with name and path attributes)
     all_files = list(destination_folder_pr.glob('*'))
