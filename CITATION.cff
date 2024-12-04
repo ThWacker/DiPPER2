@@ -18,6 +18,10 @@ authors:
 license: BSD-3-Clause
 repository-code: 'https://github.com/ThWacker/DiPPER2'
 keywords:
-  - primer
+  - pipeline  
+  - primer-design 
+  - marker-detection  
+  - diagnostic-primers 
+  - unique-genomic-regions
 version: 0.1.0-beta
 date-pre-released: 2024-12-03
