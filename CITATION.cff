@@ -16,3 +16,8 @@ authors:
     affiliation: 'University of Exeter '
     orcid: 'https://orcid.org/0000-0002-1789-2346'
 license: BSD-3-Clause
+repository-code: 'https://github.com/ThWacker/DiPPER2'
+keywords:
+  - primer
+version: 0.1.0-beta
+date-pre-released: 2024-12-03
