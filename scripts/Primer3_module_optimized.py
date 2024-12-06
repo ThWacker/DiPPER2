@@ -9,6 +9,7 @@ from datetime import datetime
 import shutil
 from pathlib import Path
 from fur2primer3 import remap_keys, write_result, args_to_dict
+import logging_handler
 
 
 def parse_primers(file_name: str) -> list:
@@ -28,9 +29,11 @@ def parse_primers(file_name: str) -> list:
     try:
         sorted_lines = sorted(split_lines, key=lambda x: float(x[1]))
     except ValueError as e:
+        logger.error("Error in sorting lines", exc_info=1)
         raise ValueError(f"Error in sorting lines: {e}") from e
 
     if not sorted_lines:
+        logger.error("Error: No primers found in file")
         raise Exception("Error: No primers found in file")
 
     return sorted_lines[:4]
@@ -41,7 +44,7 @@ def find_and_return_following_lines_and_target(
 ) -> dict:
     """
     Find the primer penalty and return following lines aka primers and targets for the top primer penalties.
-    
+
     Args:
         file_name(str): the primer3 output file
         top_lines(list): list with the 4 lowest primer penalties
@@ -91,7 +94,7 @@ def find_and_return_following_lines_and_target(
 def move_files(source_folder: Path, destination_folder: Path, pattern: str) -> None:
     """
     Move files matching pattern from source_folder to destination_folder.
-    
+
     Args:
         source_folder(Path): Path object containing the files that are supposed to be moved into the destination folder
         destination_folder(Path): Path object the files are supposed to be shifted to
@@ -102,10 +105,10 @@ def move_files(source_folder: Path, destination_folder: Path, pattern: str) -> N
     try:
         for file in source_folder.glob(pattern):
             shutil.move(file, destination_folder / file.name)
-            # print(f"Moved {file} to {destination_folder}")
+            logger.info(f"Moved {file} to {destination_folder}")
     except FileNotFoundError as e:
+        logger.error(f"Error moving files", exc_info=1)
         raise FileNotFoundError(f"Error moving files: {e}") from e
-        
 
 
 def main():
@@ -153,7 +156,14 @@ def main():
 
     args = parser.parse_args()
 
+    # set source folder
     source_folder = Path(args.folder)
+
+    # info
+    logger.info("Starting the Primer3 module...")
+
+    # configures the logger
+    logger = logging_handler.setup_logging(__file__, source_folder, args.verbose)
 
     # change into the folder
     os.chdir(source_folder)
@@ -162,6 +172,7 @@ def main():
     try:
         target = next(source_folder.glob("*FUR.db.out.txt"))
     except StopIteration as e:
+        logger.error("Could not find {target}", exc_info=1)
         raise StopIteration(
             "Exception while trying to find the outfile of the FUR_module.py FUR.db.out.txt."
         ) from e
@@ -169,13 +180,13 @@ def main():
     # check if there is the right number of parameters that are supposed to be fed into fur2prim
     param_list = args.parameter.split()
     if len(param_list) != 9:
-        print(
+        logger.error(
             f"Error: {args.parameter} does not have 9 elements. You must define all changed values: primMinTm, primOptTm, primMaxTm, inMinTm, inOptTm, inMaxTm, prodMinSize=100, prodMaxSize=200 and Oligo=1"
         )
         sys.exit()
 
     # convert fur output into primer3 compatible output using the functions from the fur2primer3 script
-    print(
+    logger.info(
         "Convert the FUR output to Primer3 compatible output using fur2primer3 functions..."
     )
     try:
@@ -186,58 +197,73 @@ def main():
         # write Primer3 compatible file.
         write_result(Path(target), form_param)
     except FileNotFoundError as e:
+        logger.error("Could not find {target}", exc_info=1)
         raise FileNotFoundError(f"Could not find {target}") from e
-        
+
     except ValueError as e:
+        logger.error(f"Input or output values are not as expected: {e}", exc_info=1)
         raise ValueError(f"Input or output values are not as expected: {e}") from e
 
     except TypeError as e:
-        (f"Wrong type: {e}")
+        logger.error("Wrong type", exc_info=1)
+        raise TypeError(f"Wrong type: {e}") from e
     except OSError as e:
-        print(f"Could not write or open file: {e}")
-        raise
+        logger.error(f"Could not write or open file: {e}", exc_info=1)
+        raise OSError(f"Could not write or open file: {e}") from e
     except Exception as e:
-        print(f"Unknown exception occured while running fur2primer3 functions: {e}")
-        raise
+        logger.error(
+            f"Unknown exception occured while running fur2primer3 functions: {e}",
+            exc_info=1,
+        )
+        raise Exception(
+            f"Unknown exception occured while running fur2primer3 functions: {e}"
+        ) from e
 
     # define results file
     resultf2p = target.with_suffix(".primers.txt")
 
     # check if the results file is empty, if so sys.exit 1 with message (might not raise correct exception)
     if resultf2p.stat().st_size == 0:
-        print(f"{resultf2p} is empty.")
+        logger.error(f"{resultf2p} is empty.")
         sys.exit()
 
     # try running primer3_core, write it to file, check if the file exists and/or is empty. If so,
     try:
-        print("Running primer3_core.")
+        logger.info("Running primer3_core.")
         primer3 = subprocess.run(
             ["primer3_core", str(resultf2p)], check=True, capture_output=True, text=True
         )
     except subprocess.CalledProcessError as e:
-        raise subprocess.CalledProcessError(f"primer3_core failed: {e}") from e
+        logger.error("Primer 3 did not run successfully.", exc_info=1)
+        raise subprocess.CalledProcessError(
+            e.returncode, e.cmd, output=e.output, stderr=e.stderr
+        ) from e
 
     resultp3 = resultf2p.with_suffix(".primer3_out.txt")
     resultp3.write_text(primer3.stdout.strip(), encoding="utf-8")
 
     if not resultp3.exists() or resultp3.stat().st_size == 0:
+        logger.error(
+            "Fur could not find unique regions or did not run successfully. {resultp3} does not exist or is empty.",
+            exc_info=1,
+        )
         raise FileExistsError(
             f"Fur could not find unique regions or did not run successfully. {resultp3} does not exist or is empty."
         )
 
     top_4_lines = parse_primers(resultp3)
-    print("The top 4 lowest primer penalties are:")
+    logger.info("The top 4 lowest primer penalties are:")
     for line in top_4_lines:
-        print("\t".join(line))
+        logger.info("\t".join(line))
 
-    print("Retrieving primers and targets for the lowest penalties...")
+    logger.info("Retrieving primers and targets for the lowest penalties...")
     found_data = find_and_return_following_lines_and_target(
         resultp3, top_4_lines, args.qpcr
     )
 
-    print("The resulting targets and primers are:")
+    logger.info("The resulting targets and primers are:")
     for key, value in found_data.items():
-        print(f"{key}: {value}")
+        logger.info(f"{key}: {value}")
         is_primer = "Primer" in key
         temp_file = f"{args.outfile_prefix}{key}.txt"
         with open(temp_file, "w", encoding="utf-8") as tf:
@@ -264,7 +290,7 @@ def main():
     move_files(source_folder, destination_folder_pr, "*Primer*.txt")
     move_files(source_folder, destination_folder_data, "*Data*.txt")
 
-    print("Primer3_module.py ran to completion: exit status 0")
+    logger.info("Primer3_module.py ran to completion: exit status 0")
 
 
 if __name__ == "__main__":
