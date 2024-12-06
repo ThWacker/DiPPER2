@@ -131,7 +131,7 @@ def main():
         default="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1",
         help="string from config file that defines the primer3_core parameters for fur2prim. Default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200",
     )
-    parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
+    parser.add_argument("-V", "--version", action="version", version="%(prog)s 0.1.0-beta")
     parser.add_argument(
         "-o",
         "--outfile_prefix",
@@ -153,17 +153,22 @@ def main():
         default="n",
         help="Toggle whether to expect an internal probe sequence (qPCR) or not. Default is no(n).",
     )
+    parser.add_argument('-v', '--verbose', action="store_true", help="increase logging verbosity" )
 
     args = parser.parse_args()
 
     # set source folder
     source_folder = Path(args.folder)
 
+    # configures the logger
+    module_name=Path(__file__).name
+    logger = logging_handler.setup_logging(module_name, source_folder, args.verbose)
+
+    logger.info("testing")
+    return 
+
     # info
     logger.info("Starting the Primer3 module...")
-
-    # configures the logger
-    logger = logging_handler.setup_logging(__file__, source_folder, args.verbose)
 
     # change into the folder
     os.chdir(source_folder)
