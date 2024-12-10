@@ -164,9 +164,6 @@ def main():
     module_name=Path(__file__).name
     logger = logging_handler.setup_logging(module_name, source_folder, args.verbose)
 
-    logger.info("testing")
-    return 
-
     # info
     logger.info("Starting the Primer3 module...")
 

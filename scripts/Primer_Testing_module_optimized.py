@@ -9,31 +9,46 @@ from datetime import datetime
 from pathlib import Path
 import re
 from Bio import SeqIO # type: ignore
+import logging_handler
  
-def check_folders(*folders):
-    """Check if folders exist and are non-empty."""
+def check_folders(*folders:Path):
+    """
+    Check if folders exist and are non-empty.
+    Args:
+        folders(Path): path object(s) of one or more folders
+    Returns:
+        None
+    """
     for folder in folders:
         if not folder.is_dir():
+            logger.error(f"The folder {folder} does not exist")
             sys.exit(f"The folder {folder} does not exist")
         if not any(folder.iterdir()):
+            logger.error(f"The folder {folder} is empty")
             sys.exit(f"The folder {folder} is empty")
 
-def exit_program(message=None):
-    """Exit the program with an optional message."""
-    if message:
-        print(message)
-    usage()
-    sys.exit(1)
-
 def check_program_installed(program: str):
-    """Check if a program is installed and available in the PATH."""
+    """
+    Check if a program is installed and available in the PATH.
+    Args:
+        programm(str): the program to check
+    Returns:
+        None
+    """
     try:
         subprocess.run(program, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
-    except FileNotFoundError:
-        exit_program(f"{program} is not installed or not found in the PATH.Please install {program} and ensure it is in the PATH.")
+    except FileNotFoundError as e:
+        logger.error(f"{program} is not installed or not found in the PATH.Please install {program} and ensure it is in the PATH.", exc_info=1)
+        raise FileNotFoundError(f"{program} is not installed or not found in the PATH.Please install {program} and ensure it is in the PATH.") from e
 
 def extract_primer_sequences(file: Path) -> tuple[str, str, str]:
-    """Extract primer sequences from a file."""
+    """
+    Extract primer sequences from a file.
+    Args:
+        file(Path): path object of file that contains primers
+    Returns:
+        A tuple of strings with the forward, reverse and internal probe.     
+    """
     forward, reverse, internal = "PRIMER_LEFT", "PRIMER_RIGHT", "PRIMER_INTERNAL"
     sequences = {forward: None, reverse: None, internal: None}
 
@@ -45,49 +60,124 @@ def extract_primer_sequences(file: Path) -> tuple[str, str, str]:
                     sequences[key] = lines[i + 1].strip()
   
     if not all(sequences.values()):
-        exit_program("The primer headers are not correctly formatted and cannot be processed.Please change the headers accordingly.")
+        logger.error("In function 'extract_primer_sequences': The primer headers are not correctly formatted and cannot be processed.Please change the headers accordingly.")
+        raise Exception("The primer headers are not correctly formatted and cannot be processed.Please change the headers accordingly.")
     return sequences[forward], sequences[reverse], sequences[internal]
 
 def concat_files(folder: Path, name: str, source:Path) -> str:
-    """Concatenate the content of all files found in a folder."""
+    """
+    Concatenate the content of all files found in a folder.
+    Args:
+        folder(Path): a path object of the folder which contains the fastas to be concatenated
+        name(str): target or neighbour
+        source(Path): Path object to the folder that rules it all (the results folder of this DiPPER2 run)
+    Returns:
+        the filename of the concatenated fasta file
+    Raises:
+        FileNotFoundError
+    """
     outfilename = source/ f"{name}_concatenated.fasta"
     with open(outfilename, 'wb') as outfile:
-        for filename in folder.glob('*'):
-            if filename.name == outfilename:
-                continue
-            with filename.open('rb') as readfile:
-                shutil.copyfileobj(readfile, outfile)
+        try:
+            for filename in folder.glob('*'):
+                if filename.name == outfilename:
+                    continue
+                with filename.open('rb') as readfile:
+                    shutil.copyfileobj(readfile, outfile)
+        except FileNotFoundError as e:
+            logger.error(f"Could not open or read files {folder}. Concatenation failed", exc_info=1)
+            raise FileNotFoundError(f"Could not open or read files {folder}. Concatenation failed: {e}") from e
     return outfilename
 
-def run_seqkit_amplicon_with_optional_timeout(frwd: str, rev: str, concat: str, number: int, timeout: int = None) -> str:
-    """Run seqkit amplicon with an optional timeout and return the output."""
+def run_seqkit_amplicon_with_optional_timeout(
+    frwd: str, 
+    rev: str, 
+    concat: str, 
+    number: int, 
+    timeout: Optional[int] = None
+) -> Optional[str]:
+    """
+    Run seqkit amplicon with an optional timeout and return the output.
+
+    Args:
+        frwd (str): The forward primer sequence.
+        rev (str): The reverse primer sequence.
+        concat (str): Path to the concatenated file.
+        number (int): The number of allowed mismatches.
+        timeout (Optional[int]): Timeout in seconds for the subprocess. If None, no timeout is applied.
+
+    Returns:
+        Optional[str]: Output of seqkit amplicon as a string if successful, None if it times out.
+
+    Raises:
+        ValueError: If invalid arguments are provided.
+        subprocess.CalledProcessError: If seqkit amplicon fails with a non-zero exit code.
+    """
+    # Validate inputs
+    if not all([frwd, rev, concat]):
+        raise ValueError("Forward primer, reverse primer, and concatenated file must be provided.")
+    if number < 0:
+        raise ValueError("Mismatch number must be a non-negative integer.")
+    
+    logger.info(f"Running seqkit amplicon on {concat} with primers {frwd} (forward) and {rev} (reverse).")
+
     try:
-        print(f"Running seqkit amplicon against {concat} with -m {number}.")
-        cat = subprocess.Popen(["cat", concat], stdout=subprocess.PIPE, text=True)
+        # Step 1: Create subprocess to read the input file using 'cat'
+        cat = subprocess.Popen(
+            ["cat", concat], 
+            stdout=subprocess.PIPE,  # Send output to the next process
+            text=True                # Enable text mode for I/O
+        )
+        logger.debug(f"'cat {concat}' subprocess started successfully.")
+
+        # Step 2: Pipe the output of 'cat' into 'seqkit amplicon'
         seqkit_out = subprocess.Popen(
             ['seqkit', 'amplicon', '-F', frwd, '-R', rev, '--bed', '-m', str(number)],
-            stdin=cat.stdout,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+            stdin=cat.stdout,         # Input from 'cat' command
+            stdout=subprocess.PIPE,   # Capture standard output
+            stderr=subprocess.PIPE,   # Capture standard error
+            text=True                 # Enable text mode for I/O
         )
+        logger.debug("'seqkit amplicon' subprocess started successfully.")
+
+        # Step 3: Handle timeout if provided
         if timeout is not None:
             output, error = seqkit_out.communicate(timeout=timeout)
         else:
             output, error = seqkit_out.communicate()
 
+        # Step 4: Check for errors
         if seqkit_out.returncode != 0:
-            print(f"Error output from seqkit: {error}")
-            raise subprocess.CalledProcessError(seqkit_out.returncode, 'seqkit amplicon')
+            logger.error(f"Seqkit error output: {error.strip()}")
+            raise subprocess.CalledProcessError(seqkit_out.returncode, 'seqkit amplicon', output=error.strip())
 
+        logger.info(f"Seqkit amplicon ran successfully. Output size: {len(output)} characters.")
         return output
+
     except subprocess.TimeoutExpired:
-        print(f"seqkit amplicon timed out after {timeout} seconds.")
-        seqkit_out.kill()
-        cat.kill()
+        # Handle timeout scenarios
+        logger.warning(f"Seqkit amplicon timed out after {timeout} seconds.")
+        seqkit_out.kill()  # Ensure seqkit process is terminated
+        if cat:
+            cat.kill()      # Ensure 'cat' process is terminated
         return None
-    except subprocess.CalledProcessError:
-        exit_program("seqkit amplicon failed.")
+
+    except subprocess.CalledProcessError as e:
+        # Handle non-zero exit codes from seqkit
+        logger.error(f"Seqkit amplicon failed with exit code {e.returncode}: {e.output}")
+        raise subprocess.CalledProcessError(f"Seqkit amplicon failed with exit code {e.returncode}: {e.output}") from e
+
+    except Exception as e:
+        # Handle any unexpected exceptions
+        logger.exception(f"An unexpected error occurred: {str(e)}")
+        raise Exception(f"An unexpected error occurred: {str(e)}") from e
+
+    finally:
+        # Cleanup: Ensure all subprocesses are terminated
+        if cat and cat.poll() is None:
+            cat.terminate()
+        if seqkit_out and seqkit_out.poll() is None:
+            seqkit_out.terminate()
 
 def move_files_with_pattern(source_dir: Path, pattern: str, destination_dir: Path):
     """Move files containing a specific pattern from source to destination."""
@@ -118,8 +208,9 @@ def run_seqkit_locate(amplicon: str, ref_file: Path):
         
         return output
     
-    except subprocess.CalledProcessError:
-        exit_program("seqkit locate failed.")
+    except subprocess.CalledProcessError as e:
+        logger.exception(f"seqkit locate failed with errorcode {e.returncode}: {e.output}", exc_info=1)
+        raise subprocess.CalledProcessError(f"seqkit locate failed with errorcode {e.returncode}: {e.output}") from e
 
 def get_amplicon(file: Path) -> str:
     """Extract the amplicon from the sequence file."""
@@ -145,26 +236,6 @@ def get_longest_target(directory: Path) -> Path:
                 longest_file = filepath
     return longest_file
 
-
-def usage():
-    """Print usage information."""
-    print('------------------------------------------------------------------------------------------------------------------------------------------------------')
-    print('Theresa Wacker T.Wacker2@exeter.ac.uk')
-    print('')
-    print('Module runs in silico PCR for primers and blastx for targets')
-    print('')
-    print('Usage:')
-    print('mandatory:')
-    print('-f/--folder - results folder name, which includes results folders from previous steps')
-    print('optional:')
-    print('-v/--version for the version')
-    print('-o/--outfile_prefix - for outfile prefix [default: date and time in %%d-%%m-%%Y_%%Hh%%Mmin%%Ss_%%z format]')
-    print('-d/--delete_concat - if included, the concatenated fastas will be deleted.')
-    print('')
-    print('CAUTION: This module requires seqkit, blast+ and RRW-Primer-Blast (and thus also snakemake, as well as all dependencies) to be in path.')
-    print('For more info on how to install and run RRW-Primer-Blast, compare ')
-    print('------------------------------------------------------------------------------------------------------------------------------------------------------')
-
 def delete_concats(target: Path, neighbour: Path):
     """Delete concatenated fasta files."""
     try:
@@ -178,7 +249,7 @@ def main():
     now = datetime.now()
     dt_string = now.strftime("%d-%m-%Y_%Hh%Mmin%Ss_%z")
 
-    parser = argparse.ArgumentParser(description='primer testing module')
+    parser = argparse.ArgumentParser(prog="DiPPER2",description='primer testing module. Primers generated by Primer3 are validated in silico.', epilog='complaints, bugs, coffee, puppies and suggestions to t.wacker2@exeter.ac.uk')
     parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
     parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in d-m-y-h-m-s-tz format')
@@ -186,13 +257,16 @@ def main():
     parser.add_argument('-r','--ref', type=str,help='Reference assembly of the targets.' )
 
     args = parser.parse_args()
+    source_folder = Path(args.folder)
+    # configures the logger
+    module_name=Path(__file__).name
+    logger = logging_handler.setup_logging(module_name, source_folder, args.verbose)
 
     # Check if programs are installed
     check_program_installed("seqkit")
     check_program_installed("blastx")
     
     # Define the folders with primers and targets
-    source_folder = Path(args.folder)
     destination_folder_pr = source_folder / "FUR.P3.PRIMERS"
     destination_folder_tar = source_folder / "FUR.P3.TARGETS"
 
@@ -214,11 +288,12 @@ def main():
 
     for file_path in all_files:
         if file_path.is_file():
-            print(f"Testing your primers in {file_path}:\n")
+            logger.info(f"Testing your primers in {file_path}:\n")
             try:
                 pr_frwd, pr_rev, pr_intern = extract_primer_sequences(file_path)
             except Exception as e:
-                exit_program(f"Could not extract primer sequences from {file_path}: {e}")
+                logger.exception(f"Could not extract primer sequences from {file_path}: {e}", exc_info=1)
+                raise Exception(f"Could not extract primer sequences from {file_path}: {e}") from e
 
             for i in range(4):
                 try: 
@@ -231,36 +306,48 @@ def main():
                     exit_program(f"Unexpected error running seqkit amplicon: {e}")
 
                 if not out_seqk_target:
-                    print(f"Seqkit amplicon did not return any matches for the primers in the targets with -m flag at {i}")
+                    logger.warning(f"Seqkit amplicon did not return any matches for the primers in the targets with -m flag at {i}")
                     continue
 
                 try:
+                    # Construct filename for output
                     filename = f"{file_path}_seqkit_amplicon_against_target_m{i}.txt"
+                    
+                    # Write output to the file
                     with open(filename, "w", encoding="utf-8") as file:
                         file.write(out_seqk_target)
-                except (IOError, OSError) as e:
-                    exit_program(f"Error writing output of seqkit amplicon to file {filename}: {e}")
+                except (IOError, OSError, PermissionError) as e:
+                    # Log error and raise exception with additional context
+                    logger.error(f"Error writing output of seqkit amplicon to file {filename}: {e}")
+                    raise RuntimeError(f"Error writing output of seqkit amplicon to file {filename}: {e}")
+
 
             for i in range(5):
                 try: 
                     out_seqk_neighbour = run_seqkit_amplicon_with_optional_timeout(pr_frwd, pr_rev, concat_n, i, timeout=480)
-                    print(f"ran seqkit amplicon for {i} mismatches")
+                    logger.info(f"ran seqkit amplicon for {i} mismatches")
                 except Exception as e:
-                    exit_program(f"Error running seqkit amplicon: {e}")
+                    logger.exception(f"Error running seqkit amplicon: {e}")
+                    raise Exception(f"Error running seqkit amplicon: {e}") from e
 
-                if not out_seqk_neighbour:
-                    print(f"Seqkit amplicon did not return any matches for the primers in the neighbours with -m flag at {i}")
+                if not out_seqk_target:
+                    logger.warning(f"Seqkit amplicon did not return any matches for the primers in the targets with -m flag at {i}")
                     continue
 
                 try:
-                    filename = f"{file_path}_seqkit_amplicon_against_neighbour_m{i}.txt"
-                    with open(filename, "w",encoding="utf-8") as file:
-                        file.write(out_seqk_neighbour)
-                except (IOError, OSError)  as e:
-                    exit_program(f"Error writing output of seqkit amplicon to file {filename}: {e}")
+                    # Construct filename for output
+                    filename = f"{file_path}_seqkit_amplicon_against_target_m{i}.txt"
+                    
+                    # Write output to the file
+                    with open(filename, "w", encoding="utf-8") as file:
+                        file.write(out_seqk_target)
+                except (IOError, OSError, PermissionError) as e:
+                    # Log error and raise exception with additional context
+                    logger.error(f"Error writing output of seqkit amplicon to file {filename}: {e}")
+                    raise RuntimeError(f"Error writing output of seqkit amplicon to file {filename}: {e}")
 
 
-    print("Running blastx on the targets...")
+    logger.info("Running blastx on the targets...")
 
     all_files_tar = list(destination_folder_tar.glob('*'))
     for file_path_tar in all_files_tar:
@@ -273,16 +360,17 @@ def main():
                 )
                 output_tar = result.stdout
             except Exception as e:
-                exit_program(f"Blastx failed: {e}")
+                logger.exception(f"Blastx failed: {e}")
+                raise Exception(f"Blastx failed: {e}") from e
 
             if not output_tar:
-                print("Blastx did not return any results. No matches found.")
+                logger.info("Blastx did not return any results. No matches found.")
            
                 # Get the amplicon
                 file = destination_folder_pr / f"{file_path_tar.name}_seqkit_amplicon_against_target_m0.txt"
                 file = Path(str(file).replace("Target", "Primer"))
                 amp = get_amplicon(file)
-                print(f"The amplicon is {amp}")
+                logger.info(f"The amplicon is {amp}")
 
                 # See if reference is present, otherwise use longest assembly
                 try:
@@ -290,19 +378,20 @@ def main():
                         ref=Path(args.ref)
                         seqk_loc_out = run_seqkit_locate(amp, ref)
                     else:
-                        print("No reference found, using longest target assembly")
+                        logger.warning("No reference found, using longest target assembly")
                         ref = get_longest_target(fur_target)
                         if not ref:
-                            print(f"No valid assembly found in {fur_target} to run seqkit locate. Do the assembly fasta files end on .fa, .fasta, or .fna?")
+                            logger.warning(f"No valid assembly found in {fur_target} to run seqkit locate. Do the assembly fasta files end on .fa, .fasta, or .fna?")
                             continue
-                        print(f"Using longest target assembly: {ref}")
+                        logger.info(f"Using longest target assembly: {ref}")
                         seqk_loc_out = run_seqkit_locate(amp, ref)
 
                 except Exception as e:
-                    exit_program(f"Error running seqkit locate: {e}")
+                    logger.error(f"Error running seqkit locate:{e}")
+                    raise Exception(f"Unknown exception running seqkit locate: {e}") from e
 
                 if not seqk_loc_out:
-                    print(f"Seqkit locate did not return a bed file for the assembly {args.ref if args.ref else ref} with the amplicon \"{amp}\".\n")
+                    logger.warning(f"Seqkit locate did not return a bed file for the assembly {args.ref if args.ref else ref} with the amplicon \"{amp}\".\n")
                     continue
 
                 try:
@@ -310,12 +399,13 @@ def main():
                     ref=Path(ref)
                     filename = f"Primer_{int(match_no.group(1))}_amplicon_locate_in_{ref.name}.bed"
                     filename= source_folder / filename
-                    print(f"Printing bed file for seqkit locate to {filename}")
+                    logger.info(f"Printing bed file for seqkit locate to {filename}")
                     with open(filename, "w", encoding="utf-8") as file:
-                        print("Writing results of seqkit locate to bed file...")
+                        logger.info("Writing results of seqkit locate to bed file...")
                         file.write(seqk_loc_out)
                 except OSError as e:
-                    exit_program(f"Error writing output of seqkit locate to file {filename}: {e}")
+                    logger.error(f"Error writing output of seqkit locate to file {filename}: {e}")
+                    raise OSError(f"Error writing output of seqkit locate to file {filename}: {e}") from e
 
                 
 
@@ -324,21 +414,23 @@ def main():
                 with open(filenamed, "w", encoding="utf-8") as file_1:
                     file_1.write(output_tar)
             except OSError as e:
-                exit_program(f"Error writing output of blastx to file {filenamed}: {e}")
+                logger.error(f"Error writing output of blastx to file {filenamed}: {e}")
+                raise OSError(f"Error writing output of blastx to file {filenamed}: {e}") from e
 
     # Move everything in the FUR.P3.PRIMER folder that is a seqkit testing file in a subfolder called "in_silico_tests"
     in_silico_folder = destination_folder_pr / "in_silico_tests"
     in_silico_folder.mkdir(parents=True, exist_ok=True)
     pattern_to_match = 'seqkit_amplicon_against'
 
-    print(f"Moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}...")
+    logger.info(f"Moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}...")
     try:
         move_files_with_pattern(destination_folder_pr, pattern_to_match, in_silico_folder)
     except Exception as e:
-        exit_program(f"Error moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}: {e}")
+        logger.error(f"Error moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}: {e}")
+        raise Exception(f"Error moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}: {e}") from e
 
 
-    print('Primer_Testing_module.py ran to completion: exit status 0')
+    logger.info('Primer_Testing_module.py ran to completion: exit status 0')
     
     if args.delete_concat:
         delete_concats(concat_t,concat_n)
