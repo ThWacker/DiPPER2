@@ -11,8 +11,7 @@ from pprint import pformat
 from pprint import pprint
 import jinja2  # type: ignore
 import pandas as pd  # type: ignore
-import logging_handler
-
+from logging_handler import Logger
 
 def generate_html_jinja(
     header: str,
@@ -276,8 +275,7 @@ def run_tests(
                 exc_info=1,
             )
             raise ValueError(
-                f"Value error when trying to find matching document name: {ve}"
-            )
+                f"Value error when trying to find matching document name: {ve}")from ve
         passed_amp = 0
         failed_amp = 0
         try:
@@ -809,7 +807,8 @@ def main():
 
     # configures the logger
     module_name = Path(__file__).name
-    logger = logging_handler.setup_logging(module_name, source_folder, args.verbose)
+    logger_instance = Logger(module_name, source_folder, args.verbose)
+    logger = logger_instance.get_logger()
     logger.info("Starting to run the Summarize_results module. Logger is initialized.")
     # toggle qPCR
     qPCR = args.qPCR
@@ -836,9 +835,8 @@ def main():
     count_neighbour = count_files(fur_neighbour)
 
     # info
-    logger.info(
-        f"{fur_target} has {count_target} entries and {fur_neighbour} has {count_neighbour} entries."
-    )
+    logger.info("%s has %d entries and %s has %d entries.",fur_target, count_target, fur_neighbour, count_neighbour)
+
 
     # to be able to loop through each primer of the 4 candidates, find all the files and generate a list of paths (it is a generator object and yields Path objects with name and path attributes)
     all_files = list(destination_folder_pr.glob("*"))

@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 import re
 from Bio import SeqIO  # type: ignore
-import logging_handler
+from logging_handler import Logger
 
 
 def check_folders(*folders: Path):
@@ -366,12 +366,16 @@ def main():
     parser.add_argument(
         "-r", "--ref", type=str, help="Reference assembly of the targets."
     )
-
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="increase logging verbosity"
+    )
     args = parser.parse_args()
     source_folder = Path(args.folder)
+    
     # configures the logger
     module_name = Path(__file__).name
-    logger = logging_handler.setup_logging(module_name, source_folder, args.verbose)
+    logger_instance = Logger(module_name, source_folder, args.verbose)
+    logger = logger_instance.get_logger()
 
     # Check if programs are installed
     check_program_installed("seqkit")
