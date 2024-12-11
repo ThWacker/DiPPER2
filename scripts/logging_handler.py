@@ -2,45 +2,72 @@ import logging
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
-def setup_logging(module_name:str, main_folder:Path, verbosity:bool):
-    '''Set up the logger for the script. Currently global.'''
-    logger = logging.getLogger(module_name)
-    # where to put the log files
-    log_folder= main_folder / "logs"
-    log_folder.mkdir(parents=True, exist_ok=True)
+class Logger:
+    """A class to set up and manage logging configurations."""
 
-    logger.setLevel(logging.DEBUG)
+    def __init__(
+        self, 
+        module_name: str = "default_logger", 
+        log_folder: Path = Path("./dipper2/logs"), 
+        verbosity: bool = False
+    ):
+        """
+        Initializes the Logger instance and sets up logging.
 
-    formatter = logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(name)s - %(message)s")
+        Args:
+            module_name (str): Name of the module using the logger. Default is 'default_logger'.
+            log_folder (Path): Path to the folder where logs should be stored. Default is './logs'.
+            verbosity (bool): Whether to enable verbose logging. Default is False.
+        """
+        self.module_name = module_name
+        self.log_folder = log_folder
+        self.verbosity = verbosity
 
-    file_handler = RotatingFileHandler(
-        filename = log_folder / "dipper2_run.log",
-        maxBytes=10487650,
-        backupCount=8
-    )
+        # Ensure the log folder exists
+        self.log_folder.mkdir(parents=True, exist_ok=True)
 
-    # set level of file handler (the actual log file)
-    file_handler.setLevel(logging.DEBUG if verbosity else logging.INFO)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+        # Set up the logger
+        self.logger = self._setup_logger()
 
-    # stream handler is what user sees on command line
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG if verbosity else logging.WARNING)
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
+    def _setup_logger(self) -> logging.Logger:
+        """
+        Configures the logger.
 
-    return logger
+        Returns:
+            logging.Logger: Configured logger instance.
+        """
+        logger = logging.getLogger(self.module_name)
+        logger.setLevel(logging.DEBUG)  # Base logger level
 
-    #Creating a handler
-# def handle_unhandled_exception(exc_type, exc_value, exc_traceback):
-#     if issubclass(exc_type, KeyboardInterrupt):
-#                 #Will call default excepthook
-#         sys.__excepthook__(exc_type, exc_value, exc_traceback)
-#         return
-#         #Create a critical level log message with info from the except hook.
-#     self.logger.critical("Unhandled exception", exc_info=(exc_type, exc_value, exc_traceback))
-#Assign the excepthook to the handler
-# sys.excepthook = handle_unhandled_exception
+        # Formatter for log messages
+        formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+        )
+
+        # File handler for saving logs to a file
+        file_handler = RotatingFileHandler(
+            filename=self.log_folder / "application.log",
+            maxBytes=10 * 1024 * 1024,  # 10 MB
+            backupCount=8,
+        )
+        file_handler.setLevel(logging.DEBUG if self.verbosity else logging.INFO)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+        # Stream handler for console output
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.DEBUG if self.verbosity else logging.WARNING)
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
+
+        return logger
+
+    def get_logger(self) -> logging.Logger:
+        """
+        Returns the configured logger instance.
+
+        Returns:
+            logging.Logger: Configured logger instance.
+        """
+        return self.logger
 
