@@ -133,7 +133,7 @@ def move_files(source_folder: Path, destination_folder: Path, pattern: str, logg
         source_folder(Path): Path object containing the files that are supposed to be moved into the destination folder
         destination_folder(Path): Path object the files are supposed to be shifted to
         pattern(str): pattern to be matched to identify which files from the source folder go into the destination folder
-        
+
     Returns:
         None
     """
@@ -168,7 +168,7 @@ def main():
         default="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1",
         help="string from config file that defines the primer3_core parameters for fur2prim. Default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200",
     )
-    parser.add_argument("-V", "--version", action="version", version="%(prog)s 0.1.0-beta")
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.1.0-beta")
     parser.add_argument(
         "-o",
         "--outfile_prefix",
@@ -190,7 +190,7 @@ def main():
         default="n",
         help="Toggle whether to expect an internal probe sequence (qPCR) or not. Default is no(n).",
     )
-    parser.add_argument('-v', '--verbose', action="store_true", help="increase logging verbosity" )
+    parser.add_argument('-V', '--verbose', action="store_true", help="increase logging verbosity" )
 
     args = parser.parse_args()
 

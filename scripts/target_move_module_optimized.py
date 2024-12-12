@@ -95,6 +95,9 @@ def main():
     parser.add_argument('-t', '--target', type=str, required=True, help='Please add target list')
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which will include the FUR.target and FUR.neighbour subfolders')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1.0-beta')
+    parser.add_argument(
+            "-V", "--verbose", action="store_true", help="increase logging verbosity"
+        )
 
     args = parser.parse_args()
 

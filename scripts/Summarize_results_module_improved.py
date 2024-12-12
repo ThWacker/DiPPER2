@@ -755,7 +755,7 @@ def generate_results(
         count_neighbour(int): the number of neighbours
         source_folder(Path): one folder to rule them all (the folder with all DiPPER results of this run)
         qPCR(str): a toggle whether qPCR primers are wanted and have been generated or not
-        
+
     Returns:
         None
     """
@@ -881,7 +881,7 @@ def main():
         help="Toggles between qPCR (y) or no qPCR (n) results. Default is 'n'",
     )
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="increase logging verbosity"
+        "-V", "--verbose", action="store_true", help="increase logging verbosity"
     )
     # get args
     args = parser.parse_args()

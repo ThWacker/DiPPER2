@@ -115,7 +115,9 @@ def main():
     parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.0.1')
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
     parser.add_argument('-r', '--reference', type=str, default=None,help="Optional reference for the makeFurDb step" )
-
+    parser.add_argument(
+        "-V", "--verbose", action="store_true", help="increase logging verbosity"
+    )
     args = parser.parse_args()
     
     # find the source folder, define the FUR.target and FUR.neighbour folders

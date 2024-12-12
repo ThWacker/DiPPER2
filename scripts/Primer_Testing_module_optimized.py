@@ -389,7 +389,7 @@ def main():
         "-r", "--ref", type=str, help="Reference assembly of the targets."
     )
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="increase logging verbosity"
+        "-V", "--verbose", action="store_true", help="increase logging verbosity"
     )
     args = parser.parse_args()
     source_folder = Path(args.folder)
