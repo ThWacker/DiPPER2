@@ -1,5 +1,5 @@
-# Key Functions of DiPPERs
-## Key Functions of target_move_module_optimized
+# Key Functions of DiPPER
+# Key Functions of target_move_module_optimized
 ::: target_move_module_optimized
 ## Key Functions of FUR_module_optimized
 ::: FUR_module_optimized
