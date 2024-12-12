@@ -15,8 +15,10 @@ from logging_handler import Logger
 def parse_primers(file_name: str, logger: Logger) -> list:
     """
     Parse the primer penalties from the file and return the top lines.
+
     Args:
         file_name (str): the file name of the primer3 output
+
     Returns:
         sorted_lines(list): the first 4 elements of a list of penalty sorted incrementally
     """
@@ -131,6 +133,7 @@ def move_files(source_folder: Path, destination_folder: Path, pattern: str, logg
         source_folder(Path): Path object containing the files that are supposed to be moved into the destination folder
         destination_folder(Path): Path object the files are supposed to be shifted to
         pattern(str): pattern to be matched to identify which files from the source folder go into the destination folder
+        
     Returns:
         None
     """

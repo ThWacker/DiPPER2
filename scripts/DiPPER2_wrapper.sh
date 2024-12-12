@@ -254,6 +254,7 @@ else
     EXIT_STATUS="$?"
 fi
 
+# Clean up FUR.target and FUR.neighbour after saving all the targets and neighbours into txt files
 #check if the command failed with an exit status other than 0
 if [[ $EXIT_STATUS -ne 0 ]]; then
     echo "Could not generate Results files. Summarize_results_module failed with error ${EXIT_STATUS}. Check log for details!"

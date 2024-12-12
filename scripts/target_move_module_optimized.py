@@ -8,11 +8,15 @@ from pathlib import Path
 from logging_handler import Logger
 
 def parse_list(targets_file: Path, logger: Logger)-> list:
-    """Parse the list of targets from a file.
+    """
+    Parse the list of targets from a file.
+
     Args:
         targets_file(Path): a file with a list of targets
+
     Returns:
         A list of Accessions with the version number stripped off
+
     Raises:
         FileNotFoundError
     """
@@ -24,14 +28,18 @@ def parse_list(targets_file: Path, logger: Logger)-> list:
         raise FileNotFoundError(f"Error: Target file '{targets_file}' not found!: {e}") from e
         
 def process_target_files(list_targets: list, source_folder:Path, fur_target_folder:Path, logger: Logger):
-    """Process each target file based on the list of targets.
+    """
+    Process each target file based on the list of targets.
+
     Args:
         list_targets(list): The list with the target accessions
         source_folder(Path): a path object of the folder to rule them all (all results of this DiPPER2 run are in this folder)
         fur_target_folder(Path): the target folder the accessions that are targets will be copiedn in. 
         logger(Logger): the logger
+
     Returns:
         None
+
     Raises:
         RunTimeError
     """
@@ -61,11 +69,13 @@ def process_target_files(list_targets: list, source_folder:Path, fur_target_fold
 def move_remaining_files_to_neighbour(source_folder: Path, fur_target_folder: Path, fur_neighbour_folder: Path, logger:Logger):
     """
     Move remaining files to the neighbour folder.
+
     Args:
         source_folder(Path): the folder with all results of this run
         fur_target_folder(Path): folder with the target accession assemblies
         fur_neighbour_folder(Path): the folder with the neighbour accession assemblies
         logger(Logger): the logger
+    
     Returns:
         None
     """

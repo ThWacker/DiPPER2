@@ -1,0 +1,12 @@
+site_name: DiPPER2 documentation
+use_directory_urls: false
+theme:
+  name: "material"
+font: false
+nav:
+  - Documentation: index.md
+  - Reference: reference.md
+
+
+plugins:
+  - mkdocstrings
