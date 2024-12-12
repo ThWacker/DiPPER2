@@ -13,6 +13,7 @@ import jinja2  # type: ignore
 import pandas as pd  # type: ignore
 from logging_handler import Logger
 
+
 def generate_html_jinja(
     header: str,
     primer_frwd: str,
@@ -56,8 +57,13 @@ def generate_html_jinja(
         qPCR(str): toggle of y or n to change formatting according to whether it is qPCR or not
     Returns:
         None"""
+    # hardcoded output file name
     HTML_OUTFILE = source_folder / "Results.html"
+
+    # return the directory of the script the function is called from, making sure that relative paths are converted to absolut paths
     script_dir = os.path.dirname(os.path.realpath(__file__))
+
+    # create jinja2 environments, load templates
     environment = jinja2.Environment(
         loader=jinja2.FileSystemLoader(os.path.join(script_dir, "templates/"))
     )
@@ -65,6 +71,8 @@ def generate_html_jinja(
         template = environment.get_template("results_qPCR.html")
     else:
         template = environment.get_template("results.html")
+
+    # render the html file with provided arguments
     content = template.render(
         header=header,
         primer_frwd=primer_frwd,
@@ -86,6 +94,7 @@ def generate_html_jinja(
         source_folder=source_folder,
     )
 
+    # appending
     with open(HTML_OUTFILE, "a", encoding="utf-8") as stream:
         stream.write(content)
 
@@ -107,10 +116,11 @@ def count_files(folda: Path) -> int:
         folda(Path): a Path object that is the folder you want to count the files in
     Returns:
         the number of files as an integer"""
+    # kind of an elegant way to count files in folders
     return sum(1 for x in folda.iterdir() if x.is_file())
 
 
-def check_folders(*folders: Path):
+def check_folders(*folders: Path, logger: Logger):
     """Check if folders exist and are non-empty. Forces sys.exit if either is not true.
     Args:
         folders(Path): one or multiple path objects of folders
@@ -119,13 +129,17 @@ def check_folders(*folders: Path):
     """
     for folder in folders:
         if not folder.is_dir():
+            logger.error(
+                f" Error in check_folders function: the folder {folder} does not exist"
+            )
             sys.exit(f"The folder {folder} does not exist")
         if not any(folder.iterdir()):
-            sys.exit(f"The folder {folder} is empty")
+            logger.error(f"The folder {folder} does not exist")
+            sys.exit(f"Error in check_folders function: the folder {folder} is empty")
 
 
 def extract_number_and_primers(
-    file_path: Path, folder: Path
+    file_path: Path, folder: Path, logger: Logger
 ) -> tuple[int, str, str, str, int]:
     """
     Extract the primer number, primer sequences, and amplicon length from a file.
@@ -136,10 +150,10 @@ def extract_number_and_primers(
         a tuple with the identification number of the primer, the primers and the amplicon length
     """
     # the number is our identifier for the primer
-    number = extract_number_from_filename(file_path.name)
+    number = extract_number_from_filename(file_path.name, logger)
 
     # extract primer sequence
-    pr_frwd, pr_rev, pr_intern = extract_primer_sequences(file_path)
+    pr_frwd, pr_rev, pr_intern = extract_primer_sequences(file_path, logger)
 
     # get the amplicon length from the amplified sequences in the in silico files
     target_seq = f"*Primer_{number}.txt_seqkit_amplicon_against_target_m0.txt"
@@ -154,7 +168,7 @@ def extract_number_and_primers(
     return number, pr_frwd, pr_rev, pr_intern, ampli_len
 
 
-def extract_number_from_filename(filename: str) -> int:
+def extract_number_from_filename(filename: str, logger: Logger) -> int:
     """
     Extract the primer number from the file name.
     Args:
@@ -165,6 +179,7 @@ def extract_number_from_filename(filename: str) -> int:
 
     # regex match the number
     match = re.search(r"_(\d+)\.txt", filename)
+    # if match is found, return the number
     if match:
         return int(match.group(1))
     else:
@@ -172,7 +187,7 @@ def extract_number_from_filename(filename: str) -> int:
         raise ValueError(f"No number found in the filename: {filename}")
 
 
-def extract_primer_sequences(file: Path) -> tuple[str, str, str]:
+def extract_primer_sequences(file: Path, logger: Logger) -> tuple[str, str, str]:
     """
     Extract primer sequences from a file.
     Args:
@@ -183,12 +198,16 @@ def extract_primer_sequences(file: Path) -> tuple[str, str, str]:
 
     # initialize empty dictionary
     sequences = {"PRIMER_LEFT": None, "PRIMER_RIGHT": None, "PRIMER_INTERNAL": None}
+
+    # if you find a line with the keys from sequences, then add the next line as a value to the key in this dictionary
     with file.open("r") as f:
         lines = f.readlines()
         for i, line in enumerate(lines):
             for key in sequences.keys():
                 if key in line:
                     sequences[key] = lines[i + 1].strip()
+
+    # did not find all keys (not all values in dictionary are truthy)? Throw error!
     if not all(sequences.values()):
         logger.error(
             "The primer headers are not correctly formatted and cannot be processed. Please change the headers accordingly."
@@ -209,6 +228,7 @@ def get_amplicon_length_from_seq(file: Path) -> int:
 
     Returns:
         the integer that is the amplicon length"""
+    # open the file, read the first line, extract amplicon from the 7th column of the bed file
     with file.open("r") as f:
         first_line = f.readline()
         amplicon = first_line.strip().split("\t")[6]
@@ -216,7 +236,7 @@ def get_amplicon_length_from_seq(file: Path) -> int:
 
 
 def run_tests(
-    folder: Path, file: str, length: int, count: int, target_type: str
+    folder: Path, file: str, length: int, count: int, target_type: str, logger: Logger
 ) -> dict:
     """
     Parse the Specificity and Sensitivity test results based on the in silico PCRs.
@@ -264,18 +284,19 @@ def run_tests(
                 m_no = mismatch.group(1)
                 # print(f"Found match: {m_no}")
             else:
-                logger.error(f"Could not determine value of ")
+                logger.error("Could not determine value of mismatches")
                 raise ValueError("No match found in the document name.")
 
         # except Exception as e:
         #     raise
         except ValueError as ve:
-            logger.error(
+            logger.exception(
                 f"Value error when trying to find matching document name: {ve}",
                 exc_info=1,
             )
             raise ValueError(
-                f"Value error when trying to find matching document name: {ve}")from ve
+                f"Value error when trying to find matching document name: {ve}"
+            ) from ve
         passed_amp = 0
         failed_amp = 0
         try:
@@ -313,11 +334,12 @@ def run_tests(
                         passed_n -= 1
                         failed_n += 1
         except OSError as e:
-            logger.error(f"Unable to open or read file {doc}")
+            logger.exception(f"Unable to open or read file {doc}: {e}")
             raise OSError("Unable to open file") from e
 
         # Define whether it is Specificity or Sensitivity test and fail or pass test accordingly
         if target_type == "target":
+            # only passed if all targets have been amplified to the correct length
             note = "passed" if count == passed_amp else "failed"
             results_dict[doc.name] = {
                 "Mismatches tested": m_no,
@@ -327,6 +349,7 @@ def run_tests(
                 "Number of assemblies with wrong size amplicon": failed_amp,
             }
         else:
+            # only pass if no neighbours have been amplified with the correct size amplicon.
             note = "passed" if (passed == 0 and passed_amp == 0) else "failed"
             results_dict[doc.name] = {
                 "Mismatches tested": m_no,
@@ -347,7 +370,9 @@ def run_tests(
     return results_dict
 
 
-def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
+def handle_blasts_and_efetch(
+    destination_folder_tar: Path, number: int, logger: Logger
+) -> str:
     """
     Handle BLAST results and use efetch to get the highest scoring accession's title (description).
     Args:
@@ -359,8 +384,12 @@ def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
     logger.info(
         "running handle_blasts_and_efetch function to find highest scoring blast hits and determine what they are or run seqkit locate to generate bed files. "
     )
+
+    # get the blast result
     target_f = f"*Target_{number}.txt_blastx_1e-5.txt"
     found_target = list(destination_folder_tar.glob(target_f))
+
+    # 1: get the file
     if not found_target:
         logger.info(f"No files for {target_f} were found")
         return f"No files for {target_f} found."
@@ -372,11 +401,14 @@ def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
             f"One or more files for {target_f} are empty. Blastx did not return result"
         )
 
+    # 2: get highest scoring accession
     try:
         id, evalue, bitscore = get_highest_scoring_accession(found_target[0])
         evalue = format(evalue, ".2e")
         if id == "Blast did not find hits":
             return f"The primer {number}'s BLASTX search did not find any hits.\n"
+
+    # Error handling
     except ValueError as ve:
         logger.error(
             f"Value error while finding highest scoring accession: {ve}", exc_info=1
@@ -403,7 +435,10 @@ def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
             f"Could not find highest scoring accession for blastx results: {e}"
         ) from e
 
+    # 3: make sure eutilities are in path
     if is_tool("efetch"):
+
+        # if eutilities are in path, find the annotation of the accession
         try:
             efetch_r = subprocess.Popen(
                 ["efetch", "-db", "protein", "-id", id, "-format", "docsum"],
@@ -412,8 +447,8 @@ def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
             )
             efetch_r.wait()
         except subprocess.CalledProcessError as e:
-            logger.error(f"efetch command failed: {e}", exc_info=1)
-            raise subprocess.CalledProcessError(f"efetch command failed: {e}") from e
+            logger.exception(f"efetch command failed: {e}", exc_info=1)
+            raise RuntimeError(f"efetch command failed: {e}") from e
         try:
             xtract_r = subprocess.Popen(
                 ["xtract", "-pattern", "DocumentSummary", "-element", "Title"],
@@ -424,7 +459,7 @@ def handle_blasts_and_efetch(destination_folder_tar: Path, number: int) -> str:
             xtract_r.wait()
         except subprocess.CalledProcessError as e:
             logger.error(f"xtract command failed: {e}", exc_info=1)
-            raise subprocess.CalledProcessError(f"xtract command failed: {e}") from e
+            raise RuntimeError(f"xtract command failed: {e}") from e
         title, _ = xtract_r.communicate()
         accession = "https://www.ncbi.nlm.nih.gov/protein/" + id + "/"
         return f"The primer {number}'s target with the highest bitscore {bitscore} & evalue {evalue} has the accession {id} and codes for {title.strip()}. \nFurther information on the accession: {accession} \n"
@@ -476,7 +511,7 @@ def get_highest_scoring_accession(blastx_file: Path) -> tuple[str, float, int]:
 
 
 def interpret_and_reformat_sensi_speci_tests(
-    test_res: dict, flavour: str
+    test_res: dict, flavour: str, logger: Logger
 ) -> tuple[str, int, str]:
     """
     Interpret the Sensitivity and Specificity Tests, reformat the interpretation to a easy to grasp PASS or FAIL answer, make this \
@@ -572,6 +607,7 @@ def print_results(
     source_folder: Path,
     qPCR: str,
     ampli_len: int,
+    logger: Logger,
 ):
     """
     Does what it says on the tin:
@@ -672,6 +708,7 @@ def generate_results(
     count_neighbour: int,
     source_folder: Path,
     qPCR: str,
+    logger: Logger,
 ):
     """
     Gets the primers & amplicon length, processes them for output, gets the results from the sensitivity and specificity tests
@@ -685,13 +722,13 @@ def generate_results(
         count_neighbour(int): the number of neighbours
         source_folder(Path): one folder to rule them all (the folder with all DiPPER results of this run)
         qPCR(str): a toggle whether qPCR primers are wanted and have been generated or not
-    Returns:    
+    Returns:
         None
     """
     logger.info("Retrieving Primers and obtaining amplicon length...")
     try:
         number, pr_frwd, pr_rev, pr_intern, ampli_len = extract_number_and_primers(
-            file_path, destination_seqkit
+            file_path, destination_seqkit, logger
         )
     except Exception as e:
         logger.error(f"Error processing {file_path}:{e}", exc_info=1)
@@ -709,7 +746,12 @@ def generate_results(
     )
     try:
         sensi = run_tests(
-            destination_seqkit, file_path.name, ampli_len, count_target, "target"
+            destination_seqkit,
+            file_path.name,
+            ampli_len,
+            count_target,
+            "target",
+            logger,
         )
     except Exception as e:
         logger.error(f"Sensitivity tests failed: {e}", exc_info=1)
@@ -717,7 +759,12 @@ def generate_results(
 
     try:
         speci = run_tests(
-            destination_seqkit, file_path.name, ampli_len, count_neighbour, "neighbour"
+            destination_seqkit,
+            file_path.name,
+            ampli_len,
+            count_neighbour,
+            "neighbour",
+            logger,
         )
     except Exception as e:
         logger.error(f"Specificity tests failed: {e}", exc_info=1)
@@ -727,7 +774,9 @@ def generate_results(
         "Retrieving the blastx results of the targets, if entrez direct (eutils) is installed, also check NCBI annotation..."
     )
     try:
-        res_target_str = handle_blasts_and_efetch(destination_folder_tar, number)
+        res_target_str = handle_blasts_and_efetch(
+            destination_folder_tar, number, logger
+        )
     except Exception as e:
         logger.error(f"BLASTX Target Testing failed: {e}", exc_info=1)
         raise Exception(f"BLASTX Target Testing failed: {e}") from e
@@ -736,11 +785,11 @@ def generate_results(
     # interpret the tests
     # Sensi
     sensi_pass, sensi_ass_no, sensi_m = interpret_and_reformat_sensi_speci_tests(
-        sensi, "target"
+        sensi, "target", logger
     )
     # Speci
     speci_pass, speci_ass_no, speci_m = interpret_and_reformat_sensi_speci_tests(
-        speci, "neighbour"
+        speci, "neighbour", logger
     )
     # Print results to txt file and html
     logger.info(
@@ -766,6 +815,7 @@ def generate_results(
         source_folder,
         qPCR,
         ampli_len,
+        logger,
     )
 
 
@@ -820,7 +870,7 @@ def main():
 
     # do they exist and are they not empty?
     check_folders(
-        destination_folder_pr, destination_folder_tar, destination_folder_seqkit
+        destination_folder_pr, destination_folder_tar, destination_folder_seqkit, logger=logger
     )
 
     # target and neighbour folders
@@ -828,15 +878,20 @@ def main():
     fur_neighbour = source_folder / "FUR.neighbour"
 
     # do they exist and are they not empty?
-    check_folders(fur_target, fur_neighbour)
+    check_folders(fur_target, fur_neighbour, logger=logger)
 
     # define how many targets (equivalent to number of target assemblies, each assembly in one file) and neighbours (ditto targets) there are
     count_target = count_files(fur_target)
     count_neighbour = count_files(fur_neighbour)
 
     # info
-    logger.info("%s has %d entries and %s has %d entries.",fur_target, count_target, fur_neighbour, count_neighbour)
-
+    logger.info(
+        "%s has %d entries and %s has %d entries.",
+        fur_target,
+        count_target,
+        fur_neighbour,
+        count_neighbour,
+    )
 
     # to be able to loop through each primer of the 4 candidates, find all the files and generate a list of paths (it is a generator object and yields Path objects with name and path attributes)
     all_files = list(destination_folder_pr.glob("*"))
@@ -853,6 +908,7 @@ def main():
                 count_neighbour,
                 source_folder,
                 qPCR,
+                logger,
             )
 
 
