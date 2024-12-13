@@ -99,7 +99,7 @@ def clean_up(db, logger: Logger):
     """
     if db.exists():
         shutil.rmtree(db)
-        logger.info(f"The directory {db} has been deleted.", file=sys.stderr)
+        logger.info(f"The directory {db} has been deleted.")
 
 def main():
     """
