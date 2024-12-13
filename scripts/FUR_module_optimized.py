@@ -131,7 +131,7 @@ def main():
     logger = logger_instance.get_logger()
 
     # Basic info
-    logger.info(f'The parameters are:\n for the FUR parameter {args.parameter}\n for the outfile prefix: {args.outfile_prefix}', file=sys.stderr)
+    logger.info(f'The parameters are:\n for the FUR parameter {args.parameter}\n for the outfile prefix: {args.outfile_prefix}')
     
     #check if they exist
     check_folders(target_folder, neighbour_folder, logger=logger)
