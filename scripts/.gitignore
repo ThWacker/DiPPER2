@@ -1,2 +1,4 @@
 dipper2/
 .DS_Store
+.coverage 
+__pycache__
