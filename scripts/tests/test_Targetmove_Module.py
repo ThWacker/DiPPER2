@@ -6,7 +6,7 @@ import tempfile
 import shutil
 import subprocess
 from logging_handler import Logger
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import patch, MagicMock
 
 # Assuming all your functions are imported from your script
 from target_move_module_optimized import (parse_list, process_target_files,move_remaining_files_to_neighbour)
@@ -228,39 +228,6 @@ class TestMoveRemainingFilesToNeighbour(unittest.TestCase):
         shutil.rmtree(self.fur_target_folder)
         shutil.rmtree(self.fur_neighbour_folder)
 
-   #@patch('target_move_module_optimized.Path.exists')
-    @patch('target_move_module_optimized.Logger')
-    class TestMoveRemainingFilesToNeighbour(unittest.TestCase):
-    def setUp(self):
-        # Create temporary directories
-        self.source_folder = tempfile.mkdtemp()
-        self.fur_target_folder = tempfile.mkdtemp()
-        self.fur_neighbour_folder = tempfile.mkdtemp()
-
-        # Create test files in the source folder
-        self.files = {
-            'file1.fasta': 'ATGTCGAAA',
-            'file2.fasta': '>This is a fasta file\nATGCTCCAGTC',
-            'file3.txt': 'Superkalifragilistikexpialegetisch',
-            'file4.fa': "This will be copied"
-        }
-        for filename, content in self.files.items():
-            file_path = Path(self.source_folder) / filename
-            with file_path.open('w') as f:
-                f.write(content)
-
-        # Simulate existing files in target folder
-        for filename in ['file1.fasta', 'file2.fasta']:
-            file_path = Path(self.fur_target_folder) / filename
-            with file_path.open('w') as f:
-                f.write('')
-
-    def tearDown(self):
-        # Clean up temporary directories
-        shutil.rmtree(self.source_folder)
-        shutil.rmtree(self.fur_target_folder)
-        shutil.rmtree(self.fur_neighbour_folder)
-
     @patch('target_move_module_optimized.Logger')
     def test_file_exists_in_target_folder(self, mock_logger_class):
         # Create mock logger instance
@@ -288,19 +255,26 @@ class TestMoveRemainingFilesToNeighbour(unittest.TestCase):
     @patch('target_move_module_optimized.Logger')
     @patch('target_move_module_optimized.shutil.copy')
     def test_successful_move(self, mock_copy, mock_logger_class):
-        
-        # Create mock logger instance
+        # Mock logger instance
         mock_logger_instance = MagicMock()
         mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
 
-        move_remaining_files_to_neighbour(Path(self.source_folder), Path(self.fur_target_folder), Path(self.fur_neighbour_folder), mock_logger_instance)
+        # Call the function
+        move_remaining_files_to_neighbour(
+            Path(self.source_folder), 
+            Path(self.fur_target_folder), 
+            Path(self.fur_neighbour_folder), 
+            mock_logger_instance
+        )
 
-        # Verify file4.fa was copied
-        self.assertTrue((Path(self.fur_neighbour_folder) / 'file4.fa').exists())
+        # Verify that shutil.copy was called with the correct arguments
+        mock_copy.assert_called_once_with(
+            Path(self.source_folder) / 'file4.fa', 
+            Path(self.fur_neighbour_folder)
+        )
 
         # Verify debug call for copied file
         mock_logger_instance.debug.assert_any_call(f'Copied to {Path(self.fur_neighbour_folder)}: file4.fa')
-
 
 
 if __name__ == '__main__':
