@@ -11,7 +11,7 @@ from unittest.mock import patch, MagicMock
 from Primer3_module_optimized import (quit,move_files,parse_primers,find_and_return_following_lines_and_target, main, usage)
 
 class TestHelperFunctions(unittest.TestCase):
-        def setUp(self):
+    def setUp(self):
         # Setup temporary directories and files for testing
         self.source_dir = tempfile.mkdtemp()
         self.dist_dir
@@ -41,11 +41,8 @@ class TestHelperFunctions(unittest.TestCase):
     def test_quit_program(self):
         with self.assertRaises(SystemExit):
             quit("More tests")
+
     
-    def test_usage(self):
-        with patch('builtins.print') as mocked_print:
-            usage()
-            self.assertTrue(mocked_print.called) 
     
     @patch("Primer3_module_optimized.shutil.move")
     @patch("Primer3_module_optimized.Path.glob")

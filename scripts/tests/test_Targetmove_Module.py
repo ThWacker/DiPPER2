@@ -5,10 +5,11 @@ from pathlib import Path
 import tempfile
 import shutil
 import subprocess
-from unittest.mock import patch, mock_open, MagicMock
+from logging_handler import Logger
+from unittest.mock import patch, MagicMock
 
 # Assuming all your functions are imported from your script
-from target_move_module_optimized import (quit,parse_list, main, usage, process_target_files,move_remaining_files_to_neighbour)
+from target_move_module_optimized import (parse_list, process_target_files,move_remaining_files_to_neighbour)
 
 class TestParseList(unittest.TestCase):
     def setUp(self):
@@ -31,32 +32,31 @@ class TestParseList(unittest.TestCase):
         # Remove temporary directory and files after testing
         shutil.rmtree(self.test_dir)
     
-    @patch('target_move_module_optimized.quit')
-    def test_parse_list_FileNotFound_error(self, mock_quit):
-        parse_list(self.listfile)
-        # with self.assertRaises(SystemExit):
-        #     parse_list(Path("Test"))
+    @patch('target_move_module_optimized.Logger')
+    def test_parse_list_logger(self, mock_logger_class):
+        # Create a mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
+
+        # Simulate FileNotFoundError by providing a non-existent file path
+        non_existent_file = Path("non_existent_file.txt")
+        
+        # Assert that FileNotFoundError is raised
         with self.assertRaises(FileNotFoundError):
-            parse_list(Path("Test"))
-    
-    def test_parse_list_SysExit(self):
-        with self.assertRaises(SystemExit):
-            parse_list(Path("Test"))
-    
-    def test_parse_list_return_is_list(self):
-        result=parse_list(Path(self.listfile))
+            logger = mock_logger_instance
+            parse_list(non_existent_file, logger)
+        
+        # Check if logger.exception was called with the expected message
+        mock_logger_instance.exception.assert_called_once()
+        self.assertTrue("Error: Target file 'non_existent_file.txt' not found!" in mock_logger_instance.exception.call_args[0][0])
+
+    @patch('target_move_module_optimized.Logger')
+    def test_parse_list_return_is_list(self, mock_logger_class):
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
+        result=parse_list(Path(self.listfile), mock_logger_instance)
         self.assertIsInstance(result,list)
 
-class test_helper(unittest.TestCase):
-    @patch('sys.exit')
-    def test_quit_program(self, mock_exit):
-        quit("Test message")
-        mock_exit.assert_called_once_with(1)
-    
-    def test_usage(self):
-        with patch('builtins.print') as mocked_print:
-            usage()
-            self.assertTrue(mocked_print.called)    
 
 
 class testProcessTargetFiles(unittest.TestCase):
@@ -81,10 +81,15 @@ class testProcessTargetFiles(unittest.TestCase):
         shutil.rmtree(self.test_dir)
     
     #@patch('target_move_module_optimized.parse_list')
+    @patch('target_move_module_optimized.Logger')
     @patch('target_move_module_optimized.subprocess.run')
     @patch('target_move_module_optimized.shutil.copy')
     @patch('target_move_module_optimized.Path.cwd')
-    def test_fasta_skip(self,mock_cwd, mock_copy, mock_run):
+    def test_fasta_skip(self,mock_cwd, mock_copy, mock_run, mock_logger_class):
+        # mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
+    
         # Mock the current working directory
         mock_cwd.return_value = Path(self.test_dir)
 
@@ -98,14 +103,18 @@ class testProcessTargetFiles(unittest.TestCase):
         list=["target5"]
 
         #run 
-        process_target_files(list,source_folder,fur_target_folder)
+        process_target_files(list,source_folder,fur_target_folder, logger=mock_logger_instance)
         # Assert the file was not copied
         mock_copy.assert_not_called()
     
+    @patch('target_move_module_optimized.Logger')
     @patch('target_move_module_optimized.subprocess.run')
     @patch('target_move_module_optimized.shutil.copy')
     @patch('target_move_module_optimized.Path.cwd')
-    def test_process_target_files_success(self,mock_cwd, mock_copy, mock_run):
+    def test_process_target_files_success(self,mock_cwd, mock_copy, mock_run, mock_logger_class):
+        # mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
         # Mock the subprocess.run to return different files based on the pattern
         def side_effect_find_command(args, **kwargs):
             accession_pattern = args[-1].strip("*")
@@ -128,7 +137,7 @@ class testProcessTargetFiles(unittest.TestCase):
         fur_target_folder = Path('/mock/dist/FUR.target')
         target_list = ["target1", "target2", "target3", "target4", "target5"]
 
-        process_target_files(target_list, source_folder, fur_target_folder)
+        process_target_files(target_list, source_folder, fur_target_folder, logger=mock_logger_instance)
 
         # Assert that there have been 4 files copied (target1, target2, target3, target4)
         self.assertEqual(mock_copy.call_count, 4)
@@ -139,10 +148,14 @@ class testProcessTargetFiles(unittest.TestCase):
         mock_copy.assert_any_call(self.target3_file, fur_target_folder)
         mock_copy.assert_any_call(self.target4_file, fur_target_folder)
 
+    @patch('target_move_module_optimized.Logger')
     @patch('target_move_module_optimized.subprocess.run')
     @patch('target_move_module_optimized.shutil.copy')
     @patch('target_move_module_optimized.Path.cwd')
-    def test_file_not_found(self, mock_cwd, mock_copy, mock_run):
+    def test_file_not_found(self, mock_cwd, mock_copy, mock_run, mock_logger_class):
+        # mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
         # Mock the current working directory
         mock_cwd.return_value = Path(self.test_dir)
         
@@ -156,14 +169,18 @@ class testProcessTargetFiles(unittest.TestCase):
         fur_target_folder = Path('/mock/dist/FUR.target')
 
         # Call the process_targets function directly
-        process_target_files(list_targets, source_folder, fur_target_folder)
+        process_target_files(list_targets, source_folder, fur_target_folder, logger=mock_logger_instance)
 
         # Assert the file was not copied
         mock_copy.assert_not_called()
     
+    @patch('target_move_module_optimized.Logger')
     @patch('target_move_module_optimized.subprocess.run')
     @patch('target_move_module_optimized.Path.cwd')
-    def test_Called_Process_Error(self,mock_cwd, mock_run):
+    def test_Called_Process_Error(self,mock_cwd, mock_run, mock_logger_class):
+        # mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
         # Mock the current working directory
         mock_cwd.return_value = Path(self.test_dir)
         #mock sideeffect
@@ -175,8 +192,8 @@ class testProcessTargetFiles(unittest.TestCase):
         target_list = ["target1", "target2", "target3", "target4", "target5"]
 
         # assert the error is called
-        with self.assertRaises(subprocess.CalledProcessError):
-            process_target_files(target_list, source_folder, fur_target_folder)
+        with self.assertRaises(RuntimeError):
+            process_target_files(target_list, source_folder, fur_target_folder, logger=mock_logger_instance)
     
     
 class TestMoveRemainingFilesToNeighbour(unittest.TestCase):
@@ -211,28 +228,53 @@ class TestMoveRemainingFilesToNeighbour(unittest.TestCase):
         shutil.rmtree(self.fur_target_folder)
         shutil.rmtree(self.fur_neighbour_folder)
 
-   #@patch('target_move_module_optimized.Path.exists')
-    @patch('builtins.print')
-    def test_file_exists_in_target_folder(self, mock_print):
-        
-        move_remaining_files_to_neighbour(Path(self.source_folder), Path(self.fur_target_folder), Path(self.fur_neighbour_folder))
+    @patch('target_move_module_optimized.Logger')
+    def test_file_exists_in_target_folder(self, mock_logger_class):
+        # Create mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
 
-        # Check the output of print statements
-        expected_calls = [
+        # Call the function
+        move_remaining_files_to_neighbour(
+            Path(self.source_folder), 
+            Path(self.fur_target_folder), 
+            Path(self.fur_neighbour_folder), 
+            mock_logger_instance
+        )
+
+        # Verify logger debug calls for skipped files
+        expected_debug_calls = [
             unittest.mock.call(f'File file1.fasta already exists in {Path(self.fur_target_folder)}, skipping.'),
             unittest.mock.call(f'File file2.fasta already exists in {Path(self.fur_target_folder)}, skipping.')
         ]
-        
-        # Verify that print was called with the expected messages
-        mock_print.assert_has_calls(expected_calls, any_order=True)
+        mock_logger_instance.debug.assert_has_calls(expected_debug_calls, any_order=True)
 
+        # Verify warning calls for non-fasta files
+        mock_logger_instance.warning.assert_called_once_with("file3.txt is not a fasta file. Skipping.")
+
+    @patch('target_move_module_optimized.Logger')
     @patch('target_move_module_optimized.shutil.copy')
-    def test_successful_move(self, mock_copy):
-        move_remaining_files_to_neighbour(Path(self.source_folder), Path(self.fur_target_folder), Path(self.fur_neighbour_folder))
+    def test_successful_move(self, mock_copy, mock_logger_class):
+        # Mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
 
-        #assert copy was only called once
-        mock_copy.assert_called_once()
+        # Call the function
+        move_remaining_files_to_neighbour(
+            Path(self.source_folder), 
+            Path(self.fur_target_folder), 
+            Path(self.fur_neighbour_folder), 
+            mock_logger_instance
+        )
 
+        # Verify that shutil.copy was called with the correct arguments
+        mock_copy.assert_called_once_with(
+            Path(self.source_folder) / 'file4.fa', 
+            Path(self.fur_neighbour_folder)
+        )
+
+        # Verify debug call for copied file
+        mock_logger_instance.debug.assert_any_call(f'Copied to {Path(self.fur_neighbour_folder)}: file4.fa')
 
 
 if __name__ == '__main__':

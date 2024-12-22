@@ -41,8 +41,8 @@ def write_result(file:Path, params:dict):
 def main():
     '''Run the functions. Takes a fasta and converts it into a Primer3-compatible input file. Do what main does (aka parse arguments, run everything).'''
     #parse the args
-    parser = argparse.ArgumentParser(description='Converting Fastas (including FUR output) to Primer3-compatible output format')
-    parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.0.1")
+    parser = argparse.ArgumentParser(prog="DiPPER2",description='Converting Fastas (including FUR output) to Primer3-compatible output format', epilog="t.wacker2@exeter.ac.uk")
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.1.0-beta")
     parser.add_argument('-p', '--parameters', default="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200", type=str, help="Primer3 primer parameters. Default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200. Internal Probe is also picked by default." )
     parser.add_argument('-i', '--input_file', type=Path, required=True, help="The fasta file to be converted. Can be the FUR output file.")
 
