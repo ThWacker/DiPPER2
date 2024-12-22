@@ -118,6 +118,9 @@ fi
 # Get the script directory:
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
+# get the parent of the script directory
+
+PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 #check if environment exists or create one
 
 if [ ! -d dipper2 ]; then
@@ -125,7 +128,7 @@ if [ ! -d dipper2 ]; then
 fi
 
 dipper2/bin/pip install --upgrade pip
-dipper2/bin/pip install -r "$SCRIPT_DIR"/requirements.txt
+dipper2/bin/pip install -r "$PARENT_DIR"/requirements.txt
 source dipper2/bin/activate
 
 # Shift into assembly folder
