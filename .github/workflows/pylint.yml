@@ -33,7 +33,7 @@ jobs:
       continue-on-error: true
 
     - name: Archive lint results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: pylint-report
-        path: pylint-report.txt
+        path: reports/pylint-report.txt
