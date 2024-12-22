@@ -2,3 +2,4 @@ Bio
 biopython
 Jinja2
 pandas
+pylint
