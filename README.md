@@ -1,5 +1,5 @@
 [![CodeQL Advanced](https://github.com/ThWacker/DiPPER2/actions/workflows/codeql.yml/badge.svg)](https://github.com/ThWacker/DiPPER2/actions/workflows/codeql.yml)
-![](./logo/Dipper2_white.png)
+![](./logo/Dipper2_white.png) [![Python Lint and Code Quality](https://github.com/ThWacker/DiPPER2/actions/workflows/pylint.yml/badge.svg)](https://github.com/ThWacker/DiPPER2/actions/workflows/pylint.yml)
 # DiPPER2
 DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility
 
