@@ -1,4 +1,0 @@
-Bio
-biopython
-Jinja2
-pandas
