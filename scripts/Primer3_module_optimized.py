@@ -137,16 +137,21 @@ def move_files(source_folder: Path, destination_folder: Path, pattern: str, logg
     Returns:
         None
     """
-    # glob returns an iterator of Path objects that match the pattern
-    try:
-        for file in source_folder.glob(pattern):
+    files = list(source_folder.glob(pattern)) 
+    if not files:
+        logger.exception(f"No files matching {pattern} found in {source_folder}")
+        raise FileNotFoundError(f"No files matching {pattern} found in {source_folder}")
+
+    for file in files:
+        try:
             shutil.move(file, destination_folder / file.name)
             logger.info(f"Moved {file} to {destination_folder}")
-    # throw error if no files are found
-    except FileNotFoundError as e:
-        logger.exception("Error moving files", exc_info=1)
-        raise FileNotFoundError(f"Error moving files: {e}") from e
-
+        except FileNotFoundError as e:
+            logger.exception("Error moving files", exc_info=1)
+            raise FileNotFoundError(f"Error moving files: {e}") from e
+        except OSError as e:
+            logger.exception(f"OS error during moving files with shutil.move: {e}")
+            raise OSError("OS error during shutil.move") from e
 
 def main():
     """
