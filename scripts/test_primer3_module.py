@@ -267,7 +267,9 @@ class testParsePrimers(unittest.TestCase):
         self.assertTrue(
             "Error: No primers found in file" in mock_logger_instance.error.call_args[0][0]
         )
-
+class test_find_and_return_following_lines_and_target(unittest.TestCase):
+    def test(self):
+        print("placeholder")
 
 if __name__ == "__main__":
     unittest.main()

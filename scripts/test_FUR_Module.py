@@ -6,7 +6,7 @@ import tempfile
 import shutil
 import subprocess
 from unittest.mock import patch, MagicMock
-from FUR_module_optimized import (make_fur_db, run_fur, check_folders)
+from FUR_module_optimized import (make_fur_db, run_fur, check_folders, clean_up)
 from logging_handler import Logger
 
 class TestUtilFunctions (unittest.TestCase):
@@ -192,14 +192,29 @@ class TestFUR(unittest.TestCase):
 
         make_fur_db(target_folder, neighbour_folder, source, mock_logger_instance)
         mock_run.assert_called_once_with(['makeFurDb', '-t', str(target_folder), '-n', str(neighbour_folder), '-d', str(source / 'FUR.db')], check=True)
+
+    
+    @patch('FUR_module_optimized.Logger')
+    @patch('FUR_module_optimized.subprocess.run')
+    def test_successful_makeFurDb_reference(self, mock_run, mock_logger_class):
+        # Create a mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
+
+        target_folder = Path('/fake/target')
+        neighbour_folder = Path('/fake/neighbour')
+        source = Path('/fake/source')
+        reference= Path ('/fake/reference.fasta')
+
+        make_fur_db(target_folder, neighbour_folder, source, mock_logger_instance, reference)
+        mock_run.assert_called_once_with(['makeFurDb', '-t', str(target_folder), '-n', str(neighbour_folder),'-d', str(source / 'FUR.db'),'-r', str(reference)], check=True)
     
     @patch('FUR_module_optimized.Logger')
     @patch('FUR_module_optimized.Path.write_text')
     @patch('FUR_module_optimized.Path.stat')
     @patch('FUR_module_optimized.Path.exists')
     @patch('FUR_module_optimized.subprocess.run')
-    @patch('FUR_module_optimized.quit')
-    def test_run_fur(self, mock_quit, mock_subprocess_run, mock_exists, mock_stat, mock_write_text, mock_logger_class):
+    def test_run_fur(self, mock_subprocess_run, mock_exists, mock_stat, mock_write_text, mock_logger_class):
         # Create a mock logger instance
         mock_logger_instance = MagicMock()
         mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
@@ -219,6 +234,77 @@ class TestFUR(unittest.TestCase):
         run_fur(option, outfile_prefix, source, mock_logger_instance)
         mock_subprocess_run.assert_called_once_with(['fur', '-d', str(source / 'FUR.db'), '-u'], check=True, capture_output=True, text=True)
         mock_write_text.assert_called_once_with("FUR output", encoding="utf-8")
+
+    @patch('FUR_module_optimized.Logger')
+    @patch('FUR_module_optimized.Path.write_text')
+    @patch('FUR_module_optimized.Path.stat')
+    @patch('FUR_module_optimized.Path.exists')
+    @patch('FUR_module_optimized.subprocess.run')
+    def test_run_fur_error(self, mock_subprocess_run, mock_exists, mock_stat, mock_write_text, mock_logger_class):
+        # Create a mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
+
+        # mock run outcome as processerror
+        mock_subprocess_run.side_effect=subprocess.CalledProcessError(1, 'fur')
+
+        # make sure it thinks the file exists and is not empty
+        mock_exists.return_value = True
+        mock_stat.return_value.st_size = 100
+    
+        #parameters
+        option = "u"
+        outfile_prefix = "test_prefix"
+        source = Path('/fake/source')
+
+        #assert
+        with self.assertRaises(RuntimeError):
+            run_fur(option, outfile_prefix, source, mock_logger_instance)
+
+        # Check if logger.exception was called with the info message
+        mock_logger_instance.exception.assert_called_once()
+        self.assertTrue(
+            "FUR did not run to completion and a Runtime Error occured: Command 'fur' returned non-zero exit status 1" in mock_logger_instance.exception.call_args[0][0]
+        )
+        
+class TestCleanUp(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+        self.fur_output = Path(self.test_dir) / 'FUR.db'
+        with self.fur_output.open('w') as f:
+            f.write("a database")
+
+    def tearDown(self):
+        # Remove temporary directory and files after testing
+        shutil.rmtree(self.test_dir)
+    
+    @patch('FUR_module_optimized.shutil.rmtree')
+    @patch('FUR_module_optimized.Logger')
+    def test_clean_up(self, mock_logger_class, mock_shutil_rmtree):
+
+         # Create a mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
+
+        clean_up(Path(self.fur_output), mock_logger_instance)
+        mock_shutil_rmtree.assert_called_once()
+        mock_logger_instance.info.assert_called_once()
+        self.assertTrue(
+            f"The directory {self.fur_output} has been deleted." in mock_logger_instance.info.call_args[0][0]
+        )
+    
+    @patch('FUR_module_optimized.shutil.rmtree')
+    @patch('FUR_module_optimized.Logger')
+    def test_clean_up_nodb(self, mock_logger_class, mock_shutil_rmtree):
+
+         # Create a mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance
+
+        clean_up(Path("notaDB"), mock_logger_instance)
+        mock_shutil_rmtree.assert_not_called()
+        mock_logger_instance.info.assert_not_called()
+       
 
 if __name__ == '__main__':
     unittest.main()
