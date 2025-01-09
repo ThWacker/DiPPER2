@@ -4,15 +4,13 @@ import unittest
 from pathlib import Path
 import tempfile
 import shutil
-import subprocess
 from unittest.mock import patch, MagicMock
 
 # Assuming all your functions are imported from your script
 from Primer3_module_optimized import (
     move_files,
     parse_primers,
-    find_and_return_following_lines_and_target,
-    main,
+    find_and_return_following_lines_and_target
 )
 
 
@@ -268,8 +266,148 @@ class testParsePrimers(unittest.TestCase):
             "Error: No primers found in file" in mock_logger_instance.error.call_args[0][0]
         )
 class test_find_and_return_following_lines_and_target(unittest.TestCase):
-    def test(self):
-        print("placeholder")
+    def setUp(self):
+        # Setup temporary directories and files for testing
+        self.source_dir = tempfile.mkdtemp()
+        self.destination_dir = tempfile.mkdtemp()
+        self.file1 = Path(self.source_dir) / "file1.fasta"
+        data= '''
+                PRIMER_TASK=generic
+                PRIMER_PICK_LEFT_PRIMER=1
+                PRIMER_PICK_RIGHT_PRIMER=1
+                PRIMER_PICK_INTERNAL_OLIGO=1
+                PRIMER_MIN_SIZE=15
+                PRIMER_MAX_SIZE=25
+                PRIMER_PRODUCT_SIZE_RANGE=100-200
+                PRIMER_MIN_TM=58
+                PRIMER_OPT_TM=60
+                PRIMER_MAX_TM=62
+                PRIMER_INTERNAL_MIN_TM=63
+                PRIMER_INTERNAL_OPT_TM=65
+                PRIMER_INTERNAL_MAX_TM=67
+                SEQUENCE_TEMPLATE=GGCCCCATCCTCCTTAT
+                PRIMER_LEFT_NUM_RETURNED=5
+                PRIMER_RIGHT_NUM_RETURNED=5
+                PRIMER_INTERNAL_NUM_RETURNED=5
+                PRIMER_PAIR_NUM_RETURNED=5
+                PRIMER_PAIR_0_PENALTY=0.139728
+                PRIMER_LEFT_0_PENALTY=0.032416
+                PRIMER_RIGHT_0_PENALTY=0.107312
+                PRIMER_INTERNAL_0_PENALTY=3.417555
+                PRIMER_LEFT_0_SEQUENCE=TAGTGTCAGACCCTAGGGCC
+                PRIMER_RIGHT_0_SEQUENCE=CTAGCAATCTGGGCAGCTGT
+                PRIMER_INTERNAL_0_SEQUENCE=ACAAGCCTCCCATGCCAGGGCG
+                PRIMER_LEFT_0=996,20
+                PRIMER_RIGHT_0=1182,20
+                PRIMER_INTERNAL_0=1112,22
+                PRIMER_LEFT_0_TM=60.032
+                PRIMER_RIGHT_0_TM=60.107
+                PRIMER_INTERNAL_0_TM=63.582
+                PRIMER_LEFT_0_GC_PERCENT=60.000
+                PRIMER_RIGHT_0_GC_PERCENT=55.000
+                PRIMER_INTERNAL_0_GC_PERCENT=68.182
+                PRIMER_INTERNAL_0_SELF_ANY_TH=2.91
+                PRIMER_LEFT_0_SELF_ANY_TH=28.88
+                PRIMER_RIGHT_0_SELF_ANY_TH=16.64
+                PRIMER_INTERNAL_0_SELF_END_TH=0.00
+                PRIMER_LEFT_0_SELF_END_TH=18.31
+                PRIMER_RIGHT_0_SELF_END_TH=0.00
+                PRIMER_LEFT_0_HAIRPIN_TH=39.32
+                PRIMER_RIGHT_0_HAIRPIN_TH=37.94
+                PRIMER_INTERNAL_0_HAIRPIN_TH=45.45
+                PRIMER_LEFT_0_END_STABILITY=5.8000
+                PRIMER_RIGHT_0_END_STABILITY=4.4000
+                PRIMER_PAIR_0_COMPL_ANY_TH=0.00
+                PRIMER_PAIR_0_COMPL_END_TH=0.00
+                PRIMER_PAIR_0_PRODUCT_SIZE=187
+            '''
+        with self.file1.open("w") as f:
+            f.write(data)
+        data_conv='''
+                PRIMER_TASK=generic
+                PRIMER_PICK_LEFT_PRIMER=1
+                PRIMER_PICK_RIGHT_PRIMER=1
+                PRIMER_PICK_INTERNAL_OLIGO=0
+                PRIMER_MIN_SIZE=15
+                PRIMER_MAX_SIZE=25
+                PRIMER_PRODUCT_SIZE_RANGE=200-1000
+                PRIMER_MIN_TM=58
+                PRIMER_OPT_TM=60
+                PRIMER_MAX_TM=62
+                PRIMER_INTERNAL_MIN_TM=63
+                PRIMER_INTERNAL_OPT_TM=65
+                PRIMER_INTERNAL_MAX_TM=67
+                SEQUENCE_TEMPLATE=AATTACTACCCC
+                PRIMER_LEFT_NUM_RETURNED=5
+                PRIMER_RIGHT_NUM_RETURNED=5
+                PRIMER_INTERNAL_NUM_RETURNED=0
+                PRIMER_PAIR_NUM_RETURNED=5
+                PRIMER_PAIR_0_PENALTY=0.063306
+                PRIMER_LEFT_0_PENALTY=0.031585
+                PRIMER_RIGHT_0_PENALTY=0.031721
+                PRIMER_LEFT_0_SEQUENCE=TCGTCGTTGGTCCAGACTTG
+                PRIMER_RIGHT_0_SEQUENCE=AAGAATACGATCGTCGCCCC
+                PRIMER_LEFT_0=1051,20
+                PRIMER_RIGHT_0=1278,20
+                PRIMER_LEFT_0_TM=59.968
+                PRIMER_RIGHT_0_TM=59.968
+                PRIMER_LEFT_0_GC_PERCENT=55.000
+                PRIMER_RIGHT_0_GC_PERCENT=55.000
+                PRIMER_LEFT_0_SELF_ANY_TH=9.04
+                PRIMER_RIGHT_0_SELF_ANY_TH=26.48
+                PRIMER_LEFT_0_SELF_END_TH=0.00
+                PRIMER_RIGHT_0_SELF_END_TH=10.63
+                PRIMER_LEFT_0_HAIRPIN_TH=33.10
+                PRIMER_RIGHT_0_HAIRPIN_TH=45.12
+                PRIMER_LEFT_0_END_STABILITY=3.1600
+                PRIMER_RIGHT_0_END_STABILITY=5.8000
+                PRIMER_PAIR_0_COMPL_ANY_TH=0.00
+                PRIMER_PAIR_0_COMPL_END_TH=0.00
+                PRIMER_PAIR_0_PRODUCT_SIZE=228'''
+        self.file2 = Path(self.source_dir) / "file.fasta" 
+        with self.file2.open("w") as f:
+            f.write(data_conv)      
+    def tearDown(self):
+        # Remove temporary directory and files after testing
+        shutil.rmtree(self.source_dir)
 
+    @patch("Primer3_module_optimized.Logger")
+    def test_find_and_return_qPCR_success(self, mock_logger_class):
+        # Create a mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance 
+        
+        #build dictionary
+        data=['PRIMER_LEFT_0=996,20', 'PRIMER_RIGHT_0=1182,20', 'PRIMER_INTERNAL_0=1112,22', 'PRIMER_LEFT_0_TM=60.032', 'PRIMER_RIGHT_0_TM=60.107', 'PRIMER_INTERNAL_0_TM=63.582', 'PRIMER_LEFT_0_GC_PERCENT=60.000', 'PRIMER_RIGHT_0_GC_PERCENT=55.000', 'PRIMER_INTERNAL_0_GC_PERCENT=68.182', 'PRIMER_INTERNAL_0_SELF_ANY_TH=2.91', 'PRIMER_LEFT_0_SELF_ANY_TH=28.88', 'PRIMER_RIGHT_0_SELF_ANY_TH=16.64', 'PRIMER_INTERNAL_0_SELF_END_TH=0.00', 'PRIMER_LEFT_0_SELF_END_TH=18.31', 'PRIMER_RIGHT_0_SELF_END_TH=0.00', 'PRIMER_LEFT_0_HAIRPIN_TH=39.32', 'PRIMER_RIGHT_0_HAIRPIN_TH=37.94', 'PRIMER_INTERNAL_0_HAIRPIN_TH=45.45', 'PRIMER_LEFT_0_END_STABILITY=5.8000', 'PRIMER_RIGHT_0_END_STABILITY=4.4000', 'PRIMER_PAIR_0_COMPL_ANY_TH=0.00', 'PRIMER_PAIR_0_COMPL_END_TH=0.00', 'PRIMER_PAIR_0_PRODUCT_SIZE=187']
+        
+        dictionary={'Target_19': 'SEQUENCE_TEMPLATE=GGCCCCATCCTCCTTAT', 'Primer_19': ['PRIMER_LEFT_0_SEQUENCE=TAGTGTCAGACCCTAGGGCC','PRIMER_RIGHT_0_SEQUENCE=CTAGCAATCTGGGCAGCTGT','PRIMER_INTERNAL_0_SEQUENCE=ACAAGCCTCCCATGCCAGGGCG'], 'Data_primer_19': data}
+        
+        #fake list
+        list=[["PRIMER_PAIR_0_PENALTY", "0.139728"],]
+
+        #run and get results
+        results=find_and_return_following_lines_and_target(Path(self.file1), list, "y")
+
+        #assert it is correct
+        self.assertEqual(dictionary, results)
+
+    @patch("Primer3_module_optimized.Logger")
+    def test_find_and_return_conv_success(self, mock_logger_class):
+        # Create a mock logger instance
+        mock_logger_instance = MagicMock()
+        mock_logger_class.return_value.get_logger.return_value = mock_logger_instance 
+        
+        #build dictionary
+        data=['PRIMER_LEFT_0=1051,20', 'PRIMER_RIGHT_0=1278,20', 'PRIMER_LEFT_0_TM=59.968', 'PRIMER_RIGHT_0_TM=59.968', 'PRIMER_LEFT_0_GC_PERCENT=55.000', 'PRIMER_RIGHT_0_GC_PERCENT=55.000', 'PRIMER_LEFT_0_SELF_ANY_TH=9.04', 'PRIMER_RIGHT_0_SELF_ANY_TH=26.48', 'PRIMER_LEFT_0_SELF_END_TH=0.00', 'PRIMER_RIGHT_0_SELF_END_TH=10.63', 'PRIMER_LEFT_0_HAIRPIN_TH=33.10', 'PRIMER_RIGHT_0_HAIRPIN_TH=45.12', 'PRIMER_LEFT_0_END_STABILITY=3.1600', 'PRIMER_RIGHT_0_END_STABILITY=5.8000', 'PRIMER_PAIR_0_COMPL_ANY_TH=0.00', 'PRIMER_PAIR_0_COMPL_END_TH=0.00', 'PRIMER_PAIR_0_PRODUCT_SIZE=228']
+        dictionary={'Target_19': 'SEQUENCE_TEMPLATE=AATTACTACCCC', 'Primer_19': ['PRIMER_LEFT_0_SEQUENCE=TCGTCGTTGGTCCAGACTTG', 'PRIMER_RIGHT_0_SEQUENCE=AAGAATACGATCGTCGCCCC', 'PRIMER_INTERNAL_0_SEQUENCE=NA'], 'Data_primer_19': data}
+        
+        #fake list
+        list=[["PRIMER_PAIR_0_PENALTY", "0.063306"],]
+
+        #run and get results
+        results=find_and_return_following_lines_and_target(Path(self.file2), list, "n")
+        print(f"{results}")
+        #assert it is correct
+        self.assertEqual(dictionary, results)
 if __name__ == "__main__":
     unittest.main()
