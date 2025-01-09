@@ -100,7 +100,8 @@ def find_and_return_following_lines_and_target(
                     found_data[f"Primer_{i}"] = primer_sequences
                     found_data[f"Data_primer_{i}"] = primer_data
         else:
-            # If 'qpcr' is not 'y', follow a different data extraction process
+            # If 'qpcr' is not 'y', follow a different data extraction process that takes care of the 
+            # fact that internal probe is not part of primer3 output. Set to NA instead. 
             for i, line in enumerate(lines):
                 # If the 'joined_top_line' is found in the current line
                 if joined_top_line in line:
