@@ -284,7 +284,7 @@ def run_seqkit_locate(amplicon: str, ref_file: Path,logger: Logger):
         # get both the output and potential errors
         output, error = seqkit_out.communicate()
 
-        # check for errors
+        # check for errors THIS IS REDUNDANT, REMOVE IN NEXT ITERATION OF IMPROVAL
         if seqkit_out.returncode != 0:
             logger.error(f"Error output from seqkit: {error}")
             raise subprocess.CalledProcessError(seqkit_out.returncode, "seqkit locate")
@@ -328,7 +328,7 @@ def get_longest_target(directory: Path) -> Path:
         directory(Path): within the directory with the target assemblies, find the longest assembly.
 
     Returns:
-        The path to the file with the longest assembly
+        The string representation of the path to the file with the longest assembly
     """
     longest_length = 0
     longest_file = None
