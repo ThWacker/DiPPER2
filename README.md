@@ -1,6 +1,6 @@
 [![CodeQL Advanced](https://github.com/ThWacker/DiPPER2/actions/workflows/codeql.yml/badge.svg)](https://github.com/ThWacker/DiPPER2/actions/workflows/codeql.yml) [![Python Lint and Code Quality](https://github.com/ThWacker/DiPPER2/actions/workflows/pylint.yml/badge.svg)](https://github.com/ThWacker/DiPPER2/actions/workflows/pylint.yml)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-![Static Badge](https://img.shields.io/badge/code%20coverage%2C%2078%25%2C%20green)
+
 ![](./logo/Dipper2_white.png) 
 # DiPPER2
 DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility
