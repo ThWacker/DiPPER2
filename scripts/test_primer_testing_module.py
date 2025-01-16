@@ -375,6 +375,14 @@ class test_longest_target(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.sourced)
 
+    
+    def test_success(self):
+        #run the function
+        result=get_longest_target(Path(self.sourced))
+        expect=Path(self.sourced)/"longest_file.fa"
+
+        #assert this is true
+        self.assertEqual(result, str(expect))
 
     def test_not_fasta(self):
         #there is only the readme, which is skipped, so longest_file is None, which raises this error 
@@ -382,7 +390,7 @@ class test_longest_target(unittest.TestCase):
             get_longest_target(Path(self.other))
 
 
-class TestRunSeqkitAmplicon(unittest.TestCase):
+class test_run_seqkit_amplicon_w_optional_timeout(unittest.TestCase):
 
     @patch("subprocess.Popen")
     @patch("Primer_Testing_module_optimized.Logger")  
@@ -414,12 +422,14 @@ class TestRunSeqkitAmplicon(unittest.TestCase):
         # Assertions
         self.assertEqual(result, "output")
         mock_logger_instance.info.assert_called_with(
-            f"Seqkit amplicon ran successfully. Output size: 6 characters."
+            "Seqkit amplicon ran successfully. Output size: 6 characters."
         )
         mock_popen.assert_any_call(
             ["seqkit", "amplicon", "-F", frwd, "-R", rev, "--bed", "-m", str(number)],
             stdin=mock_cat_process.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
         )
+        #since we use text=TRUE, the result must be a string
+        self.assertIsInstance(result, str)
 
 
     @patch("subprocess.Popen")
@@ -525,7 +535,82 @@ class TestRunSeqkitAmplicon(unittest.TestCase):
         with self.assertRaises(Exception):
             run_seqkit_amplicon_with_optional_timeout(frwd, rev, concat, number, mock_logger_instance, timeout)
 
-        
+       
+class TestRunSeqkitLocate(unittest.TestCase):
+
+    @patch("subprocess.Popen")
+    @patch("Primer_Testing_module_optimized.Logger")  
+    def test_run_seqkit_locate_success(self, mock_logger, mock_popen):
+        # Mock the logger
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+
+        # Mock subprocess.Popen to simulate successful seqkit output
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = ("seqkit output", "")  # Simulate output and no error
+        mock_process.returncode = 0
+        mock_popen.return_value = mock_process
+
+        # Test data
+        amplicon = "amplicon_sequence"
+        ref_file = Path("ref_file.fasta")
+
+        # Run the function
+        result = run_seqkit_locate(amplicon, ref_file, mock_logger_instance)
+
+        # Assert that the subprocess.Popen was called with the correct arguments
+        mock_popen.assert_called_with(
+            ["seqkit", "locate", "-p", amplicon, "--bed", "-m", "2"],
+            stdin=mock_process.stdout,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+
+        # Assert the result returned is the expected output
+        self.assertEqual(result, "seqkit output")
+
+        # Assert logger methods were called
+        mock_logger_instance.info.assert_called_with(
+            f"Running seqkit locate on the following assembly {ref_file} with the amplicon."
+        )
+        mock_logger_instance.debug.assert_called_with("seqkit locate ran successfully, returning the output...")
+
+    @patch("subprocess.Popen")
+    @patch("Primer_Testing_module_optimized.Logger")  
+    def test_run_seqkit_locate_error(self, mock_logger, mock_popen):
+        # Mock the logger
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+
+        # Mock subprocess.Popen to simulate error in seqkit output
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = ("", "Error in seqkit")
+        mock_process.returncode = 1  # Non-zero return code indicates an error
+        mock_popen.return_value = mock_process
+
+        # Test data
+        amplicon = "amplicon_sequence"
+        ref_file = Path("ref_file.fasta")
+
+        # Run the function and expect it to raise subprocess.CalledProcessError
+        with self.assertRaises(subprocess.CalledProcessError):
+            run_seqkit_locate(amplicon, ref_file, mock_logger_instance)
+
+        # Assert that the subprocess was called with the correct arguments
+        mock_popen.assert_called_with(
+            ["seqkit", "locate", "-p", amplicon, "--bed", "-m", "2"],
+            stdin=mock_process.stdout,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+
+        # Assert the logger error method was called
+        mock_logger_instance.error.assert_called_with("Error output from seqkit: Error in seqkit")
+        mock_logger_instance.exception.assert_called_with(
+            'seqkit locate failed with errorcode 1: None', exc_info=1
+        ) 
 
 
         
