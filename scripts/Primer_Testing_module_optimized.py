@@ -351,6 +351,10 @@ def get_longest_target(directory: Path) -> Path:
             if total_length > longest_length:
                 longest_length = total_length
                 longest_file = filepath
+        
+    # make sure that this function returns something or fails gracefully    
+    if longest_file is None:
+        raise RuntimeError("No valid FASTA files found in the directory.")
     return longest_file
 
 
@@ -456,7 +460,7 @@ def main():
                     f"Could not extract primer sequences from {file_path}: {e}",
                     exc_info=1,
                 )
-                raise Exception(
+                raise RuntimeError(
                     f"Could not extract primer sequences from {file_path}: {e}"
                 ) from e
 
@@ -482,7 +486,7 @@ def main():
                     logger.exception(
                         f"Unknown exception/ unexpected error running seqkit amplicon: {e}"
                     )
-                    raise Exception(
+                    raise RuntimeError(
                         f"Unknown exception/ unexpected error running seqkit amplicon: {e}"
                     ) from e
 
