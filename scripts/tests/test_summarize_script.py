@@ -347,23 +347,6 @@ class TestRunTests(unittest.TestCase):
           f.write("some\ttab\tseparated\tvalues\tincluding\tamplicon\tATCGGCTAC\n")
           f.write("some\ttab\tseparated\tvalues\tincluding\tamplicon\tATCGGCTAC\n")
           f.write("some\ttab\tseparated\tvalues\tincluding\tamplicon\tATCGGCTAC")
-        # # set up fail directory with two few amplicons for count 1, amplicons of wrong length for target and amplicons of correct length for neighbour
-        # self.fail_dir = tempfile.mkdtemp()
-        # #m2 must have same amplicon length: FAIL
-        # self.seqkit_file = Path(self.fail_dir) / 'Test_Primer_123.txt_seqkit_amplicon_against_target_m0.txt'
-        # with self.seqkit_file.open('w') as f:
-        #     f.write("some\ttab\tseparated\tvalues\tincluding\tamplicon\tATCGGCT\n")
-        # self.seqkit_file = Path(self.fail_dir) / 'Test_Primer_123.txt_seqkit_amplicon_against_target_m1.txt'
-        # with self.seqkit_file.open('w') as f:
-        #     f.write("some\ttab\tseparated\tvalues\tincluding\tamplicon\tATCGGCTA\n")
-        
-        # self.seqkit_file = Path(self.fail_dir) / 'Test_Primer_123.txt_seqkit_amplicon_against_target_m3.txt'
-        # with self.seqkit_file.open('w') as f:
-        #     f.write("some\ttab\tseparated\tvalues\tincluding\tamplicon\tATCGGCTGT\n")
-        
-        # self.seqkit_file = Path(self.fail_dir) / 'Test_Primer_123.txt_seqkit_amplicon_against_neighbour_m0.txt'
-        # with self.seqkit_file.open('w') as f:
-        #     f.write("some\ttab\tseparated\tvalues\tincluding\tamplicon\tATCGGCT\n")
     
     def tearDown(self):
         # Remove temporary directory and files after testing
@@ -423,26 +406,6 @@ class TestRunTests(unittest.TestCase):
         mock_logger_instance.exception.assert_called_once()
         self.assertTrue("Value error when trying to find matching document name: No match found in the document name." in mock_logger_instance.exception.call_args[0][0])
 
-    # # #ASK HENRY!
-    # @patch('Summarize_results_module_improved.Path.glob')
-    # @patch('Summarize_results_module_improved.Path.open')
-    # @patch('Summarize_results_module_improved.quit_program')
-    # def test_os_error_script(self, mock_quit_program, mock_open, mock_glob):
-    
-    #     # Setting up mock for files
-    #     mock_file = MagicMock()
-    #     mock_file.name = "test_file_m1.txt"
-    #     mock_glob.return_value = [mock_file]
-
-    #     # Simulate OSError when trying to open a file
-    #     mock_open.side_effect = OSError("Unable to open file")
-        
-    #     with self.assertRaises(OSError):
-    #         run_tests(Path('/fake/folder'), "test_file_m1", 0, 0, 'target')
-        
-    #     # Ensure quit_program is called with the correct message
-    #     mock_quit_program.assert_called_once_with("could not open or read file: Unable to open file", OSError("Unable to open file"))
-    
     @patch('Summarize_results_module_improved.Logger')
     def test_sensitvity_successfully(self, mock_logger_class):
         #Create a mock logger instance

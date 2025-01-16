@@ -79,7 +79,7 @@ def extract_primer_sequences(file: Path, logger: Logger) -> tuple[str, str, str]
     )
 
 
-def concat_files(folder: Path, name: str, source: Path,logger: Logger) -> str:
+def concat_files(folder: Path, name: str, source: Path, logger: Logger) -> str:
     """
     Concatenate the content of all files found in a folder.
 
@@ -92,29 +92,41 @@ def concat_files(folder: Path, name: str, source: Path,logger: Logger) -> str:
         the filename of the concatenated fasta file
 
     Raises:
-        FileNotFoundError
+        FileNotFoundError: If no files were found or no data was written to the output file.
     """
-    # create outfile
+    # Create output file path
     outfilename = source / f"{name}_concatenated.fasta"
 
-    # open the outfile in binary mode, write the contents of all other files to concat file
+    # Flag to track if any file was processed (not the most elegant way, but here we are)
+    files_written = 0
+
+    # Open the output file in binary mode, write the contents of all other files to concat file
     with open(outfilename, "wb") as outfile:
         try:
             for filename in folder.glob("*"):
-                if filename.name == outfilename:
+                if filename.name == outfilename.name:  # Skip the output file
                     continue
                 with filename.open("rb") as readfile:
                     shutil.copyfileobj(readfile, outfile)
+                    files_written += 1
         except FileNotFoundError as e:
             logger.exception(
-                f"Could not open or read files {folder}. Concatenation failed",
+                f"Could not open or read files in {folder}. Concatenation failed.",
                 exc_info=1,
             )
             raise FileNotFoundError(
-                f"Could not open or read files {folder}. Concatenation failed: {e}"
+                f"Could not open or read files in {folder}. Concatenation failed: {e}"
             ) from e
-    return outfilename
 
+    # Raise an exception if no files were processed
+    if files_written == 0:
+        logger.exception(
+                f"Could not open or read files in {folder}. Concatenation failed.",
+                exc_info=1,
+            )
+        raise FileNotFoundError(f"No files found to concatenate in folder: {folder}")
+
+    return outfilename
 
 def run_seqkit_amplicon_with_optional_timeout(
     frwd: str, rev: str, concat: str, number: int, logger: Logger, timeout: int = None
@@ -272,7 +284,7 @@ def run_seqkit_locate(amplicon: str, ref_file: Path,logger: Logger):
         # get both the output and potential errors
         output, error = seqkit_out.communicate()
 
-        # check for errors
+        # check for errors THIS IS REDUNDANT, REMOVE IN NEXT ITERATION OF IMPROVAL
         if seqkit_out.returncode != 0:
             logger.error(f"Error output from seqkit: {error}")
             raise subprocess.CalledProcessError(seqkit_out.returncode, "seqkit locate")
@@ -316,7 +328,7 @@ def get_longest_target(directory: Path) -> Path:
         directory(Path): within the directory with the target assemblies, find the longest assembly.
 
     Returns:
-        The path to the file with the longest assembly
+        The string representation of the path to the file with the longest assembly
     """
     longest_length = 0
     longest_file = None
@@ -339,19 +351,34 @@ def get_longest_target(directory: Path) -> Path:
             if total_length > longest_length:
                 longest_length = total_length
                 longest_file = filepath
+        
+    # make sure that this function returns something or fails gracefully    
+    if longest_file is None:
+        raise RuntimeError("No valid FASTA files found in the directory.")
     return longest_file
 
 
-def delete_concats(target: Path, neighbour: Path,logger: Logger):
+def delete_concats(target: Path, neighbour: Path, logger: Logger):
     """
     Delete concatenated fasta files.
+
+    Args:
+        target(Path): the concatenated targets
+        neighbour(Path): the concatenated neighbours
+    
+    Returns:
+        None
+    
+    Raises:
+        FileNotFoundError
     """
     try:
         os.remove(target)
         os.remove(neighbour)
         logger.info("Concatenated files deleted.")
-    except OSError as e:
-        logger.info(f"Error deleting concatenated files: {e}")
+    except FileNotFoundError as e:
+        logger.error(f"Error deleting concatenated files: {e}")
+
 
 
 def main():
@@ -433,7 +460,7 @@ def main():
                     f"Could not extract primer sequences from {file_path}: {e}",
                     exc_info=1,
                 )
-                raise Exception(
+                raise RuntimeError(
                     f"Could not extract primer sequences from {file_path}: {e}"
                 ) from e
 
@@ -459,7 +486,7 @@ def main():
                     logger.exception(
                         f"Unknown exception/ unexpected error running seqkit amplicon: {e}"
                     )
-                    raise Exception(
+                    raise RuntimeError(
                         f"Unknown exception/ unexpected error running seqkit amplicon: {e}"
                     ) from e
 
@@ -544,10 +571,10 @@ def main():
                     check=True,  # Raise an error if the subprocess fails
                 )
                 output_tar = result.stdout  # Store the output of the blastx command
-            except Exception as e:
+            except RuntimeError as e:
                 # If an error occurs while running blastx, log it and raise an exception
                 logger.exception(f"Blastx failed: {e}")
-                raise Exception(f"Blastx failed: {e}") from e
+                raise RuntimeError(f"Blastx failed: {e}") from e
 
             # If no output is generated by blastx, log a message and proceed with further steps
             if not output_tar:

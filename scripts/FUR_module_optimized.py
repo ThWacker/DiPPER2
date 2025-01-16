@@ -87,7 +87,7 @@ def run_fur(option: str, outfile_prefix: str, source: Path, logger: Logger):
 
     return error
 
-def clean_up(db, logger: Logger):
+def clean_up(db:Path, logger: Logger):
     """
     Clean up temporary files.
     
