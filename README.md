@@ -1,6 +1,6 @@
 [![CodeQL Advanced](https://github.com/ThWacker/DiPPER2/actions/workflows/codeql.yml/badge.svg)](https://github.com/ThWacker/DiPPER2/actions/workflows/codeql.yml) [![Python Lint and Code Quality](https://github.com/ThWacker/DiPPER2/actions/workflows/pylint.yml/badge.svg)](https://github.com/ThWacker/DiPPER2/actions/workflows/pylint.yml)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-![Static Badge](https://img.shields.io/badge/unittest_code_coverage-78%25-brightgreen)
+![Static Badge](https://img.shields.io/badge/unittest_code_coverage-78%25-yellow)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ThWacker/DiPPER2)
 
 ![](./logo/Dipper2_white.png) 
