@@ -4,7 +4,10 @@ import unittest
 from pathlib import Path
 import tempfile
 import shutil
-from unittest.mock import patch, MagicMock, Mock
+import subprocess
+from unittest.mock import patch, MagicMock
+
+from Bio import SeqIO
 from Primer_Testing_module_optimized import (
     check_folders,
     check_program_installed,
@@ -324,6 +327,207 @@ class test_move_files_with_pattern(unittest.TestCase):
 
         # Assert shutil.move was not called since no files matched
         mock_shutil_move.assert_called_once()
-    
+
+class test_get_amplicon(unittest.TestCase):
+    def setUp(self):
+        self.source=tempfile.mkdtemp()
+        self.file1=Path(self.source)/"seqkit_amplicon_output.txt"
+        data="CP162103.1	2274251	2274479	.	0	-	TCGTCGTTGGTCCAGACTTGGCGT"
+        with self.file1.open('w') as f:
+            f.write(data)
+
+    def tearDown(self):
+        shutil.rmtree(self.source)
+
+    def test_get_amplicon_success(self):
+        expected="TCGTCGTTGGTCCAGACTTGGCGT"
+
+        #run the function
+        actual=get_amplicon(Path(self.file1))
+
+        #assert that result matches expectation
+        self.assertEqual(expected, actual)
+
+class test_longest_target(unittest.TestCase):
+    def setUp(self):
+        self.sourced=tempfile.mkdtemp()
+        self.file1=Path(self.sourced)/"shortest_file.fna"
+        data=">test\nTCGTCGTTGGTCCAGACTTGGCGT\n"
+        with self.file1.open('w') as f:
+            f.write(data)
+
+        self.file2=Path(self.sourced)/"intermediate_file.fasta"
+        data2=">test\nTCGTCGTTGGTCCAGACTTGGCGTTCGTCGTTGGTCCAGACTTGGCGT\n"
+        with self.file2.open('w') as f:
+            f.write(data2)
+
+        self.file3=Path(self.sourced)/"longest_file.fa"
+        data3=">test\nTCGTCGTTGGTCCAGACTTGGCGTTCGTCGTTGGTCCAGACTTGGCGTTCGTCGTTGGTCCAGACTTGGCGT\n"
+        with self.file3.open('w') as f:
+            f.write(data3)
+        
+        self.other=tempfile.mkdtemp()
+        self.file4=Path(self.other)/"README.md"
+        data4="Not a fasta file"
+        with self.file4.open('w') as f:
+            f.write(data4)
+
+    def tearDown(self):
+        shutil.rmtree(self.sourced)
+
+
+    def test_not_fasta(self):
+        #there is only the readme, which is skipped, so longest_file is None, which raises this error 
+        with self.assertRaises(RuntimeError):
+            get_longest_target(Path(self.other))
+
+
+class TestRunSeqkitAmplicon(unittest.TestCase):
+
+    @patch("subprocess.Popen")
+    @patch("Primer_Testing_module_optimized.Logger")  
+    def test_valid_input_no_timeout(self, mock_logger, mock_popen):
+        # Prepare mock logger
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+
+        # Prepare mock for subprocess.Popen
+        mock_cat_process = MagicMock()
+        mock_seqkit_process = MagicMock()
+
+        # Mock the subprocess calls for 'cat' and 'seqkit'
+        mock_cat_process.stdout = MagicMock()  # Mock stdout for the 'cat' process
+        mock_seqkit_process.communicate.return_value = ("output", "")  # Simulating success output
+        mock_seqkit_process.returncode = 0
+        mock_popen.side_effect = [mock_cat_process, mock_seqkit_process]
+
+        # Test data
+        frwd = "forward_primer"
+        rev = "reverse_primer"
+        concat = "file.fasta"
+        number = 1
+        timeout = None
+
+        # Run the function
+        result = run_seqkit_amplicon_with_optional_timeout(frwd, rev, concat, number, mock_logger_instance, timeout)
+
+        # Assertions
+        self.assertEqual(result, "output")
+        mock_logger_instance.info.assert_called_with(
+            f"Seqkit amplicon ran successfully. Output size: 6 characters."
+        )
+        mock_popen.assert_any_call(
+            ["seqkit", "amplicon", "-F", frwd, "-R", rev, "--bed", "-m", str(number)],
+            stdin=mock_cat_process.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+
+
+    @patch("subprocess.Popen")
+    @patch("Primer_Testing_module_optimized.Logger")  
+    def test_timeout_expired(self, mock_logger, mock_popen):
+        # Prepare mock logger
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+
+        # Mock subprocess to simulate timeout
+        mock_process = MagicMock()
+        mock_process.communicate.side_effect = subprocess.TimeoutExpired("seqkit amplicon", 10)
+        mock_popen.return_value = mock_process
+
+        # Test data
+        frwd = "forward_primer"
+        rev = "reverse_primer"
+        concat = "file.fasta"
+        number = 1
+        timeout = 10
+
+        # Run the function (expecting timeout)
+        result = run_seqkit_amplicon_with_optional_timeout(frwd, rev, concat, number, mock_logger_instance, timeout)
+
+        # Assertions
+        self.assertIsNone(result)
+        mock_logger_instance.warning.assert_called_with(f"Seqkit amplicon timed out after {timeout} seconds.")
+
+    @patch("subprocess.Popen")
+    @patch("Primer_Testing_module_optimized.Logger")  
+    def test_missing_parameters(self, mock_logger, mock_popen):
+        # Prepare mock logger
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+
+        # Test invalid case where no forward primer is provided
+        frwd = ""
+        rev = "reverse_primer"
+        concat = "file.fasta"
+        number = 1
+        timeout = None
+
+        with self.assertRaises(ValueError):
+            run_seqkit_amplicon_with_optional_timeout(frwd, rev, concat, number, mock_logger_instance, timeout)
+
+    @patch("subprocess.Popen")
+    @patch("Primer_Testing_module_optimized.Logger")  
+    def test_negative_mismatch(self, mock_logger, mock_popen):
+        # Prepare mock logger
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+
+        # Test invalid mismatch number
+        frwd = "forward_primer"
+        rev = "reverse_primer"
+        concat = "file.fasta"
+        number = -1
+        timeout = None
+
+        with self.assertRaises(ValueError):
+            run_seqkit_amplicon_with_optional_timeout(frwd, rev, concat, number, mock_logger_instance, timeout)
+
+    @patch("subprocess.Popen")
+    @patch("Primer_Testing_module_optimized.Logger")  
+    def test_seqkit_failure(self, mock_logger, mock_popen):
+        # Prepare mock logger
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+
+        # Mock subprocess to simulate seqkit failure (non-zero returncode)
+        mock_process = MagicMock()
+        mock_process.communicate.return_value = ("", "error")
+        mock_process.returncode = 1
+        mock_popen.return_value = mock_process
+
+        # Test data
+        frwd = "forward_primer"
+        rev = "reverse_primer"
+        concat = "file.fasta"
+        number = 1
+        timeout = None
+
+        with self.assertRaises(subprocess.CalledProcessError):
+            run_seqkit_amplicon_with_optional_timeout(frwd, rev, concat, number, mock_logger_instance, timeout)
+
+    @patch("subprocess.Popen")
+    @patch("Primer_Testing_module_optimized.Logger")  
+    def test_general_exception(self, mock_logger, mock_popen):
+        # Prepare mock logger
+        mock_logger_instance = MagicMock()
+        mock_logger.return_value = mock_logger_instance
+
+        # Simulate a general unexpected exception
+        mock_popen.side_effect = Exception("Unexpected error")
+
+        # Test data
+        frwd = "forward_primer"
+        rev = "reverse_primer"
+        concat = "file.fasta"
+        number = 1
+        timeout = None
+
+        with self.assertRaises(Exception):
+            run_seqkit_amplicon_with_optional_timeout(frwd, rev, concat, number, mock_logger_instance, timeout)
+
+        
+
+
+        
 if __name__ == "__main__":
     unittest.main()
