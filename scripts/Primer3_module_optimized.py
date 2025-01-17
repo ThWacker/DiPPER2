@@ -20,7 +20,7 @@ def parse_primers(file_name: str, logger: Logger) -> list:
         file_name (str): the file name of the primer3 output
 
     Returns:
-        sorted_lines(list): the first 4 elements of a list of penalty sorted incrementally
+        sorted_lines (list): the first 4 elements of a list of penalty sorted incrementally
     """
     with open(file_name, "r", encoding="utf-8") as file:
         lines = file.readlines()
@@ -61,12 +61,12 @@ def find_and_return_following_lines_and_target(
     Find the primer penalty and return following lines aka primers and targets for the top primer penalties.
 
     Args:
-        file_name(str): the primer3 output file
-        top_lines(list): list with the 4 lowest primer penalties
-        qPCR(str): yes/no toggle to decide if internal probe is also returned or not
+        file_name (str): the primer3 output file
+        top_lines (list): list with the 4 lowest primer penalties
+        qPCR (str): yes/no toggle to decide if internal probe is also returned or not
 
     Returns:
-        found_data(dict): a dictionary containing primers and targets, as well as data (Tm etc.) of primers
+        found_data (dict): a dictionary containing primers and targets, as well as data (Tm etc.) of primers
     """
     #initialize dictionary
     found_data = {}
@@ -131,9 +131,9 @@ def move_files(source_folder: Path, destination_folder: Path, pattern: str, logg
     Move files matching pattern from source_folder to destination_folder.
 
     Args:
-        source_folder(Path): Path object containing the files that are supposed to be moved into the destination folder
-        destination_folder(Path): Path object the files are supposed to be shifted to
-        pattern(str): pattern to be matched to identify which files from the source folder go into the destination folder
+        source_folder (Path): Path object containing the files that are supposed to be moved into the destination folder
+        destination_folder (Path): Path object the files are supposed to be shifted to
+        pattern (str): pattern to be matched to identify which files from the source folder go into the destination folder
 
     Returns:
         None

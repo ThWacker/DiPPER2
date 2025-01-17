@@ -13,7 +13,7 @@ def check_folders(*folders: Path,logger: Logger):
     Check if folders exist and are non-empty.
 
     Args:
-        folders(Path): path object(s) of one or more folders
+        folders (Path): path object(s) of one or more folders
 
     Returns:
         None
@@ -31,9 +31,9 @@ def make_fur_db(target_folder: Path, neighbour_folder: Path, source: Path, logge
     Create the FUR database.
     
     Args:
-        target_folder(Path): the folder with the target accessions
-        neighbour_folder(Path): the folder with the neighbour accessions
-        source(Path): one folder to rule them all (the folder with all results from DiPPER2 run)
+        target_folder (Path): the folder with the target accessions
+        neighbour_folder (Path): the folder with the neighbour accessions
+        source (Path): one folder to rule them all (the folder with all results from DiPPER2 run)
     
     Returns:
         None
@@ -57,9 +57,9 @@ def run_fur(option: str, outfile_prefix: str, source: Path, logger: Logger):
     Run the FUR command and handle the output.
     
     Args: 
-        option(str): one of the flags from FUR (u, U or m)
-        outfile_prefix(str): the outfile prefix
-        source(Path): one folder to rule them all (the folder with all results from this DiPPER2 run)
+        option (str): one of the flags from FUR (u, U or m)
+        outfile_prefix (str): the outfile prefix
+        source (Path): one folder to rule them all (the folder with all results from this DiPPER2 run)
     
     Returns:
         The StdErr output of FUR, which contains basic stats. 
@@ -92,7 +92,7 @@ def clean_up(db:Path, logger: Logger):
     Clean up temporary files.
     
     Args:
-        db(Path): the FUR database
+        db (Path): the FUR database
     
     Returns:
         None

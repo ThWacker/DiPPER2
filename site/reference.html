@@ -285,9 +285,10 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>source_folder(Path)</code>
+                <code>source_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -300,9 +301,10 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>fur_target_folder(Path)</code>
+                <code>fur_target_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -315,9 +317,10 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>fur_neighbour_folder(Path)</code>
+                <code>fur_neighbour_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -330,9 +333,10 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>logger(Logger)</code>
+                <code>logger</code>
             </td>
             <td>
+                  <code><span title="logging_handler.Logger">Logger</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -397,10 +401,10 @@
 <span class="sd">    Move remaining files to the neighbour folder.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        source_folder(Path): the folder with all results of this run</span>
-<span class="sd">        fur_target_folder(Path): folder with the target accession assemblies</span>
-<span class="sd">        fur_neighbour_folder(Path): the folder with the neighbour accession assemblies</span>
-<span class="sd">        logger(Logger): the logger</span>
+<span class="sd">        source_folder (Path): the folder with all results of this run</span>
+<span class="sd">        fur_target_folder (Path): folder with the target accession assemblies</span>
+<span class="sd">        fur_neighbour_folder (Path): the folder with the neighbour accession assemblies</span>
+<span class="sd">        logger (Logger): the logger</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -448,9 +452,10 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>targets_file(Path)</code>
+                <code>targets_file</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -512,7 +517,7 @@
 <span class="sd">    Parse the list of targets from a file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        targets_file(Path): a file with a list of targets</span>
+<span class="sd">        targets_file (Path): a file with a list of targets</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of Accessions with the version number stripped off</span>
@@ -559,9 +564,10 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>list_targets(list)</code>
+                <code>list_targets</code>
             </td>
             <td>
+                  <code>list</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -574,9 +580,10 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>source_folder(Path)</code>
+                <code>source_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -589,9 +596,10 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>fur_target_folder(Path)</code>
+                <code>fur_target_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -604,9 +612,10 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>logger(Logger)</code>
+                <code>logger</code>
             </td>
             <td>
+                  <code><span title="logging_handler.Logger">Logger</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -686,10 +695,10 @@
 <span class="sd">    Process each target file based on the list of targets.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        list_targets(list): The list with the target accessions</span>
-<span class="sd">        source_folder(Path): a path object of the folder to rule them all (all results of this DiPPER2 run are in this folder)</span>
-<span class="sd">        fur_target_folder(Path): the target folder the accessions that are targets will be copiedn in. </span>
-<span class="sd">        logger(Logger): the logger</span>
+<span class="sd">        list_targets (list): The list with the target accessions</span>
+<span class="sd">        source_folder (Path): a path object of the folder to rule them all (all results of this DiPPER2 run are in this folder)</span>
+<span class="sd">        fur_target_folder (Path): the target folder the accessions that are targets will be copiedn in. </span>
+<span class="sd">        logger (Logger): the logger</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -785,9 +794,10 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>folders(Path)</code>
+                <code>folders</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -795,7 +805,7 @@
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>()</code>
             </td>
           </tr>
       </tbody>
@@ -846,7 +856,7 @@
 <span class="sd">    Check if folders exist and are non-empty.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        folders(Path): path object(s) of one or more folders</span>
+<span class="sd">        folders (Path): path object(s) of one or more folders</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -891,9 +901,10 @@
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>db(Path)</code>
+                <code>db</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -943,19 +954,19 @@
 <span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
-<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clean_up</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clean_up</span><span class="p">(</span><span class="n">db</span><span class="p">:</span><span class="n">Path</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clean up temporary files.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        db(Path): the FUR database</span>
+<span class="sd">        db (Path): the FUR database</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">db</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The directory </span><span class="si">{</span><span class="n">db</span><span class="si">}</span><span class="s2"> has been deleted.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The directory </span><span class="si">{</span><span class="n">db</span><span class="si">}</span><span class="s2"> has been deleted.&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1041,7 +1052,9 @@ Requires a folder, has defaults for everything else.</p>
 <span class="normal">164</span>
 <span class="normal">165</span>
 <span class="normal">166</span>
-<span class="normal">167</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The main function of the FUR module that is called by the wrapper. </span>
 <span class="sd">    Requires a folder, has defaults for everything else. </span>
@@ -1055,7 +1068,9 @@ Requires a folder, has defaults for everything else.</p>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--version&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;version&#39;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(prog)s</span><span class="s1"> 0.0.1&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;--folder&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Results folder name, which includes results folders from previous steps&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="s1">&#39;--reference&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional reference for the makeFurDb step&quot;</span> <span class="p">)</span>
-
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-V&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;increase logging verbosity&quot;</span>
+    <span class="p">)</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
     <span class="c1"># find the source folder, define the FUR.target and FUR.neighbour folders</span>
@@ -1069,7 +1084,7 @@ Requires a folder, has defaults for everything else.</p>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logger_instance</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
     <span class="c1"># Basic info</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The parameters are:</span><span class="se">\n</span><span class="s1"> for the FUR parameter </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">parameter</span><span class="si">}</span><span class="se">\n</span><span class="s1"> for the outfile prefix: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">outfile_prefix</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The parameters are:</span><span class="se">\n</span><span class="s1"> for the FUR parameter </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">parameter</span><span class="si">}</span><span class="se">\n</span><span class="s1"> for the outfile prefix: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">outfile_prefix</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="c1">#check if they exist</span>
     <span class="n">check_folders</span><span class="p">(</span><span class="n">target_folder</span><span class="p">,</span> <span class="n">neighbour_folder</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
@@ -1138,9 +1153,10 @@ Requires a folder, has defaults for everything else.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>target_folder(Path)</code>
+                <code>target_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1153,9 +1169,10 @@ Requires a folder, has defaults for everything else.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>neighbour_folder(Path)</code>
+                <code>neighbour_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1168,9 +1185,10 @@ Requires a folder, has defaults for everything else.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>source(Path)</code>
+                <code>source</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1237,9 +1255,9 @@ Requires a folder, has defaults for everything else.</p>
 <span class="sd">    Create the FUR database.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        target_folder(Path): the folder with the target accessions</span>
-<span class="sd">        neighbour_folder(Path): the folder with the neighbour accessions</span>
-<span class="sd">        source(Path): one folder to rule them all (the folder with all results from DiPPER2 run)</span>
+<span class="sd">        target_folder (Path): the folder with the target accessions</span>
+<span class="sd">        neighbour_folder (Path): the folder with the neighbour accessions</span>
+<span class="sd">        source (Path): one folder to rule them all (the folder with all results from DiPPER2 run)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -1290,9 +1308,10 @@ Requires a folder, has defaults for everything else.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>option(str)</code>
+                <code>option</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1305,9 +1324,10 @@ Requires a folder, has defaults for everything else.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>outfile_prefix(str)</code>
+                <code>outfile_prefix</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1320,9 +1340,10 @@ Requires a folder, has defaults for everything else.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>source(Path)</code>
+                <code>source</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1398,9 +1419,9 @@ Requires a folder, has defaults for everything else.</p>
 <span class="sd">    Run the FUR command and handle the output.</span>
 
 <span class="sd">    Args: </span>
-<span class="sd">        option(str): one of the flags from FUR (u, U or m)</span>
-<span class="sd">        outfile_prefix(str): the outfile prefix</span>
-<span class="sd">        source(Path): one folder to rule them all (the folder with all results from this DiPPER2 run)</span>
+<span class="sd">        option (str): one of the flags from FUR (u, U or m)</span>
+<span class="sd">        outfile_prefix (str): the outfile prefix</span>
+<span class="sd">        source (Path): one folder to rule them all (the folder with all results from this DiPPER2 run)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The StdErr output of FUR, which contains basic stats. </span>
@@ -1493,9 +1514,10 @@ Requires a folder, has defaults for everything else.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>file_name(str)</code>
+                <code>file_name</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1508,9 +1530,10 @@ Requires a folder, has defaults for everything else.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>top_lines(list)</code>
+                <code>top_lines</code>
             </td>
             <td>
+                  <code>list</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1523,9 +1546,10 @@ Requires a folder, has defaults for everything else.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>qPCR(str)</code>
+                <code>qPCR</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1632,19 +1656,20 @@ Requires a folder, has defaults for everything else.</p>
 <span class="normal">122</span>
 <span class="normal">123</span>
 <span class="normal">124</span>
-<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">find_and_return_following_lines_and_target</span><span class="p">(</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">find_and_return_following_lines_and_target</span><span class="p">(</span>
     <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">top_lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">qpcr</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Find the primer penalty and return following lines aka primers and targets for the top primer penalties.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        file_name(str): the primer3 output file</span>
-<span class="sd">        top_lines(list): list with the 4 lowest primer penalties</span>
-<span class="sd">        qPCR(str): yes/no toggle to decide if internal probe is also returned or not</span>
+<span class="sd">        file_name (str): the primer3 output file</span>
+<span class="sd">        top_lines (list): list with the 4 lowest primer penalties</span>
+<span class="sd">        qPCR (str): yes/no toggle to decide if internal probe is also returned or not</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        found_data(dict): a dictionary containing primers and targets, as well as data (Tm etc.) of primers</span>
+<span class="sd">        found_data (dict): a dictionary containing primers and targets, as well as data (Tm etc.) of primers</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1">#initialize dictionary</span>
     <span class="n">found_data</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1678,7 +1703,8 @@ Requires a folder, has defaults for everything else.</p>
                     <span class="n">found_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Primer_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">primer_sequences</span>
                     <span class="n">found_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Data_primer_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">primer_data</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># If &#39;qpcr&#39; is not &#39;y&#39;, follow a different data extraction process</span>
+            <span class="c1"># If &#39;qpcr&#39; is not &#39;y&#39;, follow a different data extraction process that takes care of the </span>
+            <span class="c1"># fact that internal probe is not part of primer3 output. Set to NA instead. </span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
                 <span class="c1"># If the &#39;joined_top_line&#39; is found in the current line</span>
                 <span class="k">if</span> <span class="n">joined_top_line</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
@@ -1723,13 +1749,7 @@ tbc</p>
 
             <details class="quote">
               <summary>Source code in <code>scripts/Primer3_module_optimized.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span>
 <span class="normal">160</span>
@@ -1942,7 +1962,13 @@ tbc</p>
 <span class="normal">367</span>
 <span class="normal">368</span>
 <span class="normal">369</span>
-<span class="normal">370</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    main function doing too much at the moment.</span>
 <span class="sd">    tbc</span>
@@ -1962,7 +1988,7 @@ tbc</p>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;string from config file that defines the primer3_core parameters for fur2prim. Default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-V&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(prog)s</span><span class="s2"> 0.1.0-beta&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(prog)s</span><span class="s2"> 0.1.0-beta&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--outfile_prefix&quot;</span><span class="p">,</span>
@@ -1984,7 +2010,7 @@ tbc</p>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;n&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Toggle whether to expect an internal probe sequence (qPCR) or not. Default is no(n).&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;increase logging verbosity&quot;</span> <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-V&#39;</span><span class="p">,</span> <span class="s1">&#39;--verbose&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;increase logging verbosity&quot;</span> <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
@@ -2195,9 +2221,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>source_folder(Path)</code>
+                <code>source_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2210,9 +2237,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>destination_folder(Path)</code>
+                <code>destination_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2225,9 +2253,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>pattern(str)</code>
+                <code>pattern</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2266,8 +2295,7 @@ tbc</p>
 
             <details class="quote">
               <summary>Source code in <code>scripts/Primer3_module_optimized.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
-<span class="normal">129</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
 <span class="normal">132</span>
@@ -2286,27 +2314,40 @@ tbc</p>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
-<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">move_files</span><span class="p">(</span><span class="n">source_folder</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">destination_folder</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">move_files</span><span class="p">(</span><span class="n">source_folder</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">destination_folder</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Move files matching pattern from source_folder to destination_folder.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        source_folder(Path): Path object containing the files that are supposed to be moved into the destination folder</span>
-<span class="sd">        destination_folder(Path): Path object the files are supposed to be shifted to</span>
-<span class="sd">        pattern(str): pattern to be matched to identify which files from the source folder go into the destination folder</span>
+<span class="sd">        source_folder (Path): Path object containing the files that are supposed to be moved into the destination folder</span>
+<span class="sd">        destination_folder (Path): Path object the files are supposed to be shifted to</span>
+<span class="sd">        pattern (str): pattern to be matched to identify which files from the source folder go into the destination folder</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># glob returns an iterator of Path objects that match the pattern</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">source_folder</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">):</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">source_folder</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span> 
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No files matching </span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2"> found in </span><span class="si">{</span><span class="n">source_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No files matching </span><span class="si">{</span><span class="n">pattern</span><span class="si">}</span><span class="s2"> found in </span><span class="si">{</span><span class="n">source_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
             <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">destination_folder</span> <span class="o">/</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Moved </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">destination_folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="c1"># throw error if no files are found</span>
-    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error moving files&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error moving files: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error moving files&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error moving files: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;OS error during moving files with shutil.move: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;OS error during shutil.move&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2428,7 +2469,7 @@ tbc</p>
 <span class="sd">        file_name (str): the file name of the primer3 output</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        sorted_lines(list): the first 4 elements of a list of penalty sorted incrementally</span>
+<span class="sd">        sorted_lines (list): the first 4 elements of a list of penalty sorted incrementally</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
@@ -2525,9 +2566,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>folders(Path)</code>
+                <code>folders</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2535,7 +2577,7 @@ tbc</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>()</code>
             </td>
           </tr>
       </tbody>
@@ -2586,7 +2628,7 @@ tbc</p>
 <span class="sd">    Check if folders exist and are non-empty.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        folders(Path): path object(s) of one or more folders</span>
+<span class="sd">        folders (Path): path object(s) of one or more folders</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -2631,9 +2673,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>programm(str)</code>
+                <code>programm</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2687,7 +2730,7 @@ tbc</p>
 <span class="sd">    Check if a program is installed and available in the PATH.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        programm(str): the program to check</span>
+<span class="sd">        programm (str): the program to check</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -2727,9 +2770,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>folder(Path)</code>
+                <code>folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2742,9 +2786,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>name(str)</code>
+                <code>name</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2757,9 +2802,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>source(Path)</code>
+                <code>source</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2790,6 +2836,29 @@ tbc</p>
             <td>
               <div class="doc-md-description">
                 <p>the filename of the concatenated fasta file</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>FileNotFoundError</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If no files were found or no data was written to the output file.</p>
               </div>
             </td>
           </tr>
@@ -2832,40 +2901,66 @@ tbc</p>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">concat_files</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">concat_files</span><span class="p">(</span><span class="n">folder</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Concatenate the content of all files found in a folder.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        folder(Path): a path object of the folder which contains the fastas to be concatenated</span>
-<span class="sd">        name(str): target or neighbour</span>
-<span class="sd">        source(Path): Path object to the folder that rules it all (the results folder of this DiPPER2 run)</span>
+<span class="sd">        folder (Path): a path object of the folder which contains the fastas to be concatenated</span>
+<span class="sd">        name (str): target or neighbour</span>
+<span class="sd">        source (Path): Path object to the folder that rules it all (the results folder of this DiPPER2 run)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        the filename of the concatenated fasta file</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        FileNotFoundError</span>
+<span class="sd">        FileNotFoundError: If no files were found or no data was written to the output file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># create outfile</span>
+    <span class="c1"># Create output file path</span>
     <span class="n">outfilename</span> <span class="o">=</span> <span class="n">source</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_concatenated.fasta&quot;</span>
 
-    <span class="c1"># open the outfile in binary mode, write the contents of all other files to concat file</span>
+    <span class="c1"># Flag to track if any file was processed (not the most elegant way, but here we are)</span>
+    <span class="n">files_written</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Open the output file in binary mode, write the contents of all other files to concat file</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfilename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">folder</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">outfilename</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">outfilename</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>  <span class="c1"># Skip the output file</span>
                     <span class="k">continue</span>
                 <span class="k">with</span> <span class="n">filename</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">readfile</span><span class="p">:</span>
                     <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">readfile</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+                    <span class="n">files_written</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Could not open or read files </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">. Concatenation failed&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not open or read files in </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">. Concatenation failed.&quot;</span><span class="p">,</span>
                 <span class="n">exc_info</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Could not open or read files </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">. Concatenation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not open or read files in </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">. Concatenation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+
+    <span class="c1"># Raise an exception if no files were processed</span>
+    <span class="k">if</span> <span class="n">files_written</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not open or read files in </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">. Concatenation failed.&quot;</span><span class="p">,</span>
+                <span class="n">exc_info</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No files found to concatenate in folder: </span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">outfilename</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2886,27 +2981,116 @@ tbc</p>
 
         <p>Delete concatenated fasta files.</p>
 
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>target</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>the concatenated targets</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>neighbour</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>the concatenated neighbours</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>None</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
             <details class="quote">
               <summary>Source code in <code>scripts/Primer_Testing_module_optimized.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">345</span>
-<span class="normal">346</span>
-<span class="normal">347</span>
-<span class="normal">348</span>
-<span class="normal">349</span>
-<span class="normal">350</span>
-<span class="normal">351</span>
-<span class="normal">352</span>
-<span class="normal">353</span>
-<span class="normal">354</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">delete_concats</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">neighbour</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">delete_concats</span><span class="p">(</span><span class="n">target</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">neighbour</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Delete concatenated fasta files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        target (Path): the concatenated targets</span>
+<span class="sd">        neighbour (Path): the concatenated neighbours</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">neighbour</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Concatenated files deleted.&quot;</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error deleting concatenated files: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error deleting concatenated files: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2940,9 +3124,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>file(Path)</code>
+                <code>file</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3018,7 +3203,7 @@ tbc</p>
 <span class="sd">    Extract primer sequences from a file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        file(Path): a path object of the file containing primers (generated by Primer3 module)</span>
+<span class="sd">        file (Path): a path object of the file containing primers (generated by Primer3 module)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        a tuple of the primers and the internal probe.</span>
@@ -3079,9 +3264,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>file(Path)</code>
+                <code>file</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3120,26 +3306,26 @@ tbc</p>
 
             <details class="quote">
               <summary>Source code in <code>scripts/Primer_Testing_module_optimized.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span>
-<span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span>
-<span class="normal">305</span>
-<span class="normal">306</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">306</span>
 <span class="normal">307</span>
-<span class="normal">308</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_amplicon</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_amplicon</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extract the amplicon from the sequence file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        file(Path): the bed-file with the amplicon in column 7</span>
+<span class="sd">        file (Path): the bed-file with the amplicon in column 7</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The amplicon as a string.</span>
@@ -3182,9 +3368,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>directory(Path)</code>
+                <code>directory</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3214,7 +3401,7 @@ tbc</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The path to the file with the longest assembly</p>
+                <p>The string representation of the path to the file with the longest assembly</p>
               </div>
             </td>
           </tr>
@@ -3223,19 +3410,7 @@ tbc</p>
 
             <details class="quote">
               <summary>Source code in <code>scripts/Primer_Testing_module_optimized.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">311</span>
-<span class="normal">312</span>
-<span class="normal">313</span>
-<span class="normal">314</span>
-<span class="normal">315</span>
-<span class="normal">316</span>
-<span class="normal">317</span>
-<span class="normal">318</span>
-<span class="normal">319</span>
-<span class="normal">320</span>
-<span class="normal">321</span>
-<span class="normal">322</span>
-<span class="normal">323</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">323</span>
 <span class="normal">324</span>
 <span class="normal">325</span>
 <span class="normal">326</span>
@@ -3254,15 +3429,31 @@ tbc</p>
 <span class="normal">339</span>
 <span class="normal">340</span>
 <span class="normal">341</span>
-<span class="normal">342</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_longest_target</span><span class="p">(</span><span class="n">directory</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_longest_target</span><span class="p">(</span><span class="n">directory</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Within the target folder find the longest fasta</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        directory(Path): within the directory with the target assemblies, find the longest assembly.</span>
+<span class="sd">        directory (Path): within the directory with the target assemblies, find the longest assembly.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The path to the file with the longest assembly</span>
+<span class="sd">        The string representation of the path to the file with the longest assembly</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">longest_length</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">longest_file</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3285,6 +3476,10 @@ tbc</p>
             <span class="k">if</span> <span class="n">total_length</span> <span class="o">&gt;</span> <span class="n">longest_length</span><span class="p">:</span>
                 <span class="n">longest_length</span> <span class="o">=</span> <span class="n">total_length</span>
                 <span class="n">longest_file</span> <span class="o">=</span> <span class="n">filepath</span>
+
+    <span class="c1"># make sure that this function returns something or fails gracefully    </span>
+    <span class="k">if</span> <span class="n">longest_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No valid FASTA files found in the directory.&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">longest_file</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3319,9 +3514,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>source_dir(Path)</code>
+                <code>source_dir</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3334,9 +3530,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>pattern(str)</code>
+                <code>pattern</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3349,9 +3546,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>destination_dir(Path)</code>
+                <code>destination_dir</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3389,33 +3587,33 @@ tbc</p>
 
             <details class="quote">
               <summary>Source code in <code>scripts/Primer_Testing_module_optimized.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">234</span>
 <span class="normal">235</span>
 <span class="normal">236</span>
 <span class="normal">237</span>
 <span class="normal">238</span>
 <span class="normal">239</span>
 <span class="normal">240</span>
-<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">move_files_with_pattern</span><span class="p">(</span><span class="n">source_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">destination_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">move_files_with_pattern</span><span class="p">(</span><span class="n">source_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">destination_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Move files containing a specific pattern from source to destination.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        source_dir(Path): path object of folder containing files to be moved</span>
-<span class="sd">        pattern(str): the pattern that needs to be in the file name for the file to be shifted into the destination folder</span>
-<span class="sd">        destination_dir(Path): path object of the folder the files with a matching pattern in the file are moved to</span>
+<span class="sd">        source_dir (Path): path object of folder containing files to be moved</span>
+<span class="sd">        pattern (str): the pattern that needs to be in the file name for the file to be shifted into the destination folder</span>
+<span class="sd">        destination_dir (Path): path object of the folder the files with a matching pattern in the file are moved to</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -3599,19 +3797,7 @@ tbc</p>
 
             <details class="quote">
               <summary>Source code in <code>scripts/Primer_Testing_module_optimized.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">131</span>
 <span class="normal">132</span>
 <span class="normal">133</span>
 <span class="normal">134</span>
@@ -3699,7 +3885,19 @@ tbc</p>
 <span class="normal">216</span>
 <span class="normal">217</span>
 <span class="normal">218</span>
-<span class="normal">219</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_seqkit_amplicon_with_optional_timeout</span><span class="p">(</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_seqkit_amplicon_with_optional_timeout</span><span class="p">(</span>
     <span class="n">frwd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rev</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">concat</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3833,9 +4031,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>amplicon(str)</code>
+                <code>amplicon</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3848,9 +4047,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>ref_file(Path)</code>
+                <code>ref_file</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3888,19 +4088,7 @@ tbc</p>
 
             <details class="quote">
               <summary>Source code in <code>scripts/Primer_Testing_module_optimized.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">256</span>
 <span class="normal">257</span>
 <span class="normal">258</span>
 <span class="normal">259</span>
@@ -3935,12 +4123,24 @@ tbc</p>
 <span class="normal">288</span>
 <span class="normal">289</span>
 <span class="normal">290</span>
-<span class="normal">291</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_seqkit_locate</span><span class="p">(</span><span class="n">amplicon</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ref_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run_seqkit_locate</span><span class="p">(</span><span class="n">amplicon</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ref_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span><span class="n">logger</span><span class="p">:</span> <span class="n">Logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Runs seqkit locate on a reference or an assembly with the amplicon, finds its coordinates and returns them in a bed file</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        amplicon(str): the amplicon</span>
-<span class="sd">        ref_file(Path): path object of file used as reference</span>
+<span class="sd">        amplicon (str): the amplicon</span>
+<span class="sd">        ref_file (Path): path object of file used as reference</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        seqkit locate output in bed format</span>
@@ -3966,7 +4166,7 @@ tbc</p>
         <span class="c1"># get both the output and potential errors</span>
         <span class="n">output</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">seqkit_out</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
 
-        <span class="c1"># check for errors</span>
+        <span class="c1"># check for errors THIS IS REDUNDANT, REMOVE IN NEXT ITERATION OF IMPROVAL</span>
         <span class="k">if</span> <span class="n">seqkit_out</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error output from seqkit: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">(</span><span class="n">seqkit_out</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span> <span class="s2">&quot;seqkit locate&quot;</span><span class="p">)</span>
@@ -4049,9 +4249,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>folders(Path)</code>
+                <code>folders</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4059,7 +4260,7 @@ tbc</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>()</code>
             </td>
           </tr>
       </tbody>
@@ -4110,7 +4311,7 @@ tbc</p>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if folders exist and are non-empty. Forces sys.exit if either is not true.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        folders(Path): one or multiple path objects of folders</span>
+<span class="sd">        folders (Path): one or multiple path objects of folders</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -4157,9 +4358,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>folda(Path)</code>
+                <code>folda</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4214,7 +4416,7 @@ tbc</p>
 <span class="sd">    Counts the number of files in a folder.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        folda(Path): a Path object that is the folder you want to count the files in</span>
+<span class="sd">        folda (Path): a Path object that is the folder you want to count the files in</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        the number of files as an integer</span>
@@ -4254,9 +4456,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>file_path(Path)</code>
+                <code>file_path</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4269,9 +4472,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>folder(Path)</code>
+                <code>folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4346,8 +4550,8 @@ tbc</p>
 <span class="sd">    Extract the primer number, primer sequences, and amplicon length from a file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        file_path(Path): the filepath of the primerset in question (to get the number; generated by Primer3 module)</span>
-<span class="sd">        folder(Path): the path object with the in silico testing results files</span>
+<span class="sd">        file_path (Path): the filepath of the primerset in question (to get the number; generated by Primer3 module)</span>
+<span class="sd">        folder (Path): the path object with the in silico testing results files</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        a tuple with the identification number of the primer, the primers and the amplicon length</span>
@@ -4402,9 +4606,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>filename(str)</code>
+                <code>filename</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4466,7 +4671,7 @@ tbc</p>
 <span class="sd">    Extract the primer number from the file name.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        filename(str): the file&#39;s name</span>
+<span class="sd">        filename (str): the file&#39;s name</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        an integer that is the identifier of the primer and all its associated results</span>
@@ -4513,9 +4718,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>file(Path)</code>
+                <code>file</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4591,7 +4797,7 @@ tbc</p>
 <span class="sd">    Extract primer sequences from a file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        file(Path): a path object of the file containing primers (generated by Primer3 module)</span>
+<span class="sd">        file (Path): a path object of the file containing primers (generated by Primer3 module)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        a tuple of the primers and the internal probe.</span>
@@ -4652,9 +4858,10 @@ tbc</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>header(str)</code>
+                <code>header</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4667,9 +4874,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>primer_frwd(str)</code>
+                <code>primer_frwd</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4682,9 +4890,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>primer_rev(str)</code>
+                <code>primer_rev</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4697,9 +4906,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>primer_internal(str)</code>
+                <code>primer_internal</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4712,9 +4922,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>sensi_pass(str)</code>
+                <code>sensi_pass</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4727,9 +4938,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>speci_pass(str)</code>
+                <code>speci_pass</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4742,9 +4954,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>speci_ass_no(int)</code>
+                <code>speci_ass_no</code>
             </td>
             <td>
+                  <code>int</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4757,9 +4970,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>speci_m(str)</code>
+                <code>speci_m</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4772,9 +4986,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>sensi(dict)</code>
+                <code>sensi</code>
             </td>
             <td>
+                  <code>dict</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4787,9 +5002,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>speci(dict)</code>
+                <code>speci</code>
             </td>
             <td>
+                  <code>dict</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4802,9 +5018,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>res_target_str(str)</code>
+                <code>res_target_str</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4817,9 +5034,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>primer_fold(Path)</code>
+                <code>primer_fold</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4832,9 +5050,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>target_fold(Path)</code>
+                <code>target_fold</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4847,9 +5066,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>seqkit_fold(Path)</code>
+                <code>seqkit_fold</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4862,9 +5082,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>source_fold(Path)</code>
+                <code>source_fold</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4877,9 +5098,10 @@ tbc</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>qPCR(str)</code>
+                <code>qPCR</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5029,22 +5251,22 @@ tbc</p>
 
 <span class="sd">    Args:</span>
 <span class="sd">        All args are generated by the generate_results function</span>
-<span class="sd">        header(str): the header with type of primer and file name of primer</span>
-<span class="sd">        primer_frwd(str): the forward primer</span>
-<span class="sd">        primer_rev(str): the reverse primer</span>
-<span class="sd">        primer_internal(str): the internal probe (qPCR only, otherwise set to NA)</span>
-<span class="sd">        sensi_pass(str): did it pass the sensitivity tests? (either &quot;passed&quot; or &quot;failed&quot;)</span>
-<span class="sd">        speci_pass(str): did it pass the specificity tests? (either &quot;passed&quot; or &quot;failed&quot;)</span>
-<span class="sd">        speci_ass_no(int): number of assemblies tested for specificity</span>
-<span class="sd">        speci_m(str): the number of mismatches allowed in the test for seqkit</span>
-<span class="sd">        sensi(dict): the dictionary with all sensitivity testing results</span>
-<span class="sd">        speci(dict): the dictionary with all the specificity testing results</span>
-<span class="sd">        res_target_str(str): results of the blastx testing</span>
-<span class="sd">        primer_fold(Path): the path object of the folder the primers are in</span>
-<span class="sd">        target_fold(Path): the Path object of the folder the targets are in</span>
-<span class="sd">        seqkit_fold(Path): the Path object of the folder with the in silico testing results</span>
-<span class="sd">        source_fold(Path): the Path object of the folder the entire thing is in (parent folder of all DiPPER2 results)</span>
-<span class="sd">        qPCR(str): toggle of y or n to change formatting according to whether it is qPCR or not</span>
+<span class="sd">        header (str): the header with type of primer and file name of primer</span>
+<span class="sd">        primer_frwd (str): the forward primer</span>
+<span class="sd">        primer_rev (str): the reverse primer</span>
+<span class="sd">        primer_internal (str): the internal probe (qPCR only, otherwise set to NA)</span>
+<span class="sd">        sensi_pass (str): did it pass the sensitivity tests? (either &quot;passed&quot; or &quot;failed&quot;)</span>
+<span class="sd">        speci_pass (str): did it pass the specificity tests? (either &quot;passed&quot; or &quot;failed&quot;)</span>
+<span class="sd">        speci_ass_no (int): number of assemblies tested for specificity</span>
+<span class="sd">        speci_m (str): the number of mismatches allowed in the test for seqkit</span>
+<span class="sd">        sensi (dict): the dictionary with all sensitivity testing results</span>
+<span class="sd">        speci (dict): the dictionary with all the specificity testing results</span>
+<span class="sd">        res_target_str (str): results of the blastx testing</span>
+<span class="sd">        primer_fold (Path): the path object of the folder the primers are in</span>
+<span class="sd">        target_fold (Path): the Path object of the folder the targets are in</span>
+<span class="sd">        seqkit_fold (Path): the Path object of the folder with the in silico testing results</span>
+<span class="sd">        source_fold (Path): the Path object of the folder the entire thing is in (parent folder of all DiPPER2 results)</span>
+<span class="sd">        qPCR (str): toggle of y or n to change formatting according to whether it is qPCR or not</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -5124,9 +5346,10 @@ and finally also gets the blast results. It then calls the print results functio
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>destination_folder_primer(Path)</code>
+                <code>destination_folder_primer</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5139,9 +5362,10 @@ and finally also gets the blast results. It then calls the print results functio
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>destination_folder_target(Path)</code>
+                <code>destination_folder_target</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5154,9 +5378,10 @@ and finally also gets the blast results. It then calls the print results functio
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>destination_folder_seqkit(Path)</code>
+                <code>destination_folder_seqkit</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5169,9 +5394,10 @@ and finally also gets the blast results. It then calls the print results functio
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>file_path(Path)</code>
+                <code>file_path</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5184,9 +5410,10 @@ and finally also gets the blast results. It then calls the print results functio
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>count_target(int)</code>
+                <code>count_target</code>
             </td>
             <td>
+                  <code>int</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5199,9 +5426,10 @@ and finally also gets the blast results. It then calls the print results functio
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>count_neighbour(int)</code>
+                <code>count_neighbour</code>
             </td>
             <td>
+                  <code>int</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5214,9 +5442,10 @@ and finally also gets the blast results. It then calls the print results functio
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>source_folder(Path)</code>
+                <code>source_folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5229,9 +5458,10 @@ and finally also gets the blast results. It then calls the print results functio
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>qPCR(str)</code>
+                <code>qPCR</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5404,14 +5634,14 @@ and finally also gets the blast results. It then calls the print results functio
 <span class="sd">    and finally also gets the blast results. It then calls the print results function to generate an output file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        destination_folder_primer(Path): the folder that stores primers and primer data, as well as in silico tests</span>
-<span class="sd">        destination_folder_target(Path): the folder that stores the target fastas and the blastx results</span>
-<span class="sd">        destination_folder_seqkit(Path): subfolder of the primer folder where the in silico results are stored</span>
-<span class="sd">        file_path(Path): a primer fasta file</span>
-<span class="sd">        count_target(int): the number of targets</span>
-<span class="sd">        count_neighbour(int): the number of neighbours</span>
-<span class="sd">        source_folder(Path): one folder to rule them all (the folder with all DiPPER results of this run)</span>
-<span class="sd">        qPCR(str): a toggle whether qPCR primers are wanted and have been generated or not</span>
+<span class="sd">        destination_folder_primer (Path): the folder that stores primers and primer data, as well as in silico tests</span>
+<span class="sd">        destination_folder_target (Path): the folder that stores the target fastas and the blastx results</span>
+<span class="sd">        destination_folder_seqkit (Path): subfolder of the primer folder where the in silico results are stored</span>
+<span class="sd">        file_path (Path): a primer fasta file</span>
+<span class="sd">        count_target (int): the number of targets</span>
+<span class="sd">        count_neighbour (int): the number of neighbours</span>
+<span class="sd">        source_folder (Path): one folder to rule them all (the folder with all DiPPER results of this run)</span>
+<span class="sd">        qPCR (str): a toggle whether qPCR primers are wanted and have been generated or not</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
@@ -5541,9 +5771,10 @@ and finally also gets the blast results. It then calls the print results functio
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>file(Path)</code>
+                <code>file</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5600,7 +5831,7 @@ and finally also gets the blast results. It then calls the print results functio
 <span class="sd">    Extract the amplicon length from the sequence file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        file(Path): a path object of the m0 mismatch target in silico test file (seqkit amplicon results for Sensitivity testing at m0)</span>
+<span class="sd">        file (Path): a path object of the m0 mismatch target in silico test file (seqkit amplicon results for Sensitivity testing at m0)</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        the integer that is the amplicon length&quot;&quot;&quot;</span>
@@ -5642,9 +5873,10 @@ and finally also gets the blast results. It then calls the print results functio
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>blastx_file(Path)</code>
+                <code>blastx_file</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5729,7 +5961,7 @@ and finally also gets the blast results. It then calls the print results functio
 <span class="sd">    Parse a BLASTX output file to find the highest scoring accession and its evalue.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        blastx_file(Path): a path object of the blastx results file for the target in question.</span>
+<span class="sd">        blastx_file (Path): a path object of the blastx results file for the target in question.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        a tuple of the Accession of the highest scoring entry, its evalue and its bitscore</span>
@@ -5799,9 +6031,10 @@ and finally also gets the blast results. It then calls the print results functio
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>destination_folder_tar(Path)</code>
+                <code>destination_folder_tar</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5814,9 +6047,10 @@ and finally also gets the blast results. It then calls the print results functio
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>number(int)</code>
+                <code>number</code>
             </td>
             <td>
+                  <code>int</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -5959,8 +6193,8 @@ and finally also gets the blast results. It then calls the print results functio
 <span class="sd">    Handle BLAST results and use efetch to get the highest scoring accession&#39;s title (description).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        destination_folder_tar(Path): the FUR.P3.TARGETS folder</span>
-<span class="sd">        number(int): the identification number of the primer</span>
+<span class="sd">        destination_folder_tar (Path): the FUR.P3.TARGETS folder</span>
+<span class="sd">        number (int): the identification number of the primer</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        a string with information on the highest scoring target</span>
@@ -6083,9 +6317,10 @@ and finally also gets the blast results. It then calls the print results functio
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>test_res(dict)</code>
+                <code>test_res</code>
             </td>
             <td>
+                  <code>dict</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6098,9 +6333,10 @@ and finally also gets the blast results. It then calls the print results functio
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>flavour(str)</code>
+                <code>flavour</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6223,8 +6459,8 @@ and finally also gets the blast results. It then calls the print results functio
 <span class="sd">    printable</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        test_res(dict): a dictionary of the test results for sensitivity or specificity testing</span>
-<span class="sd">        flavour(str): target or neighbour</span>
+<span class="sd">        test_res (dict): a dictionary of the test results for sensitivity or specificity testing</span>
+<span class="sd">        flavour (str): target or neighbour</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        a tuple with a pass or fail verdict (str), the number of processed assemblies (int) and the mismatches the test failed for (str; a concatenated string separated by colons)  </span>
@@ -6325,9 +6561,10 @@ and finally also gets the blast results. It then calls the print results functio
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>name(str)</code>
+                <code>name</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6383,7 +6620,7 @@ and finally also gets the blast results. It then calls the print results functio
 <span class="sd">    Check whether `name` is on PATH and marked as executable.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        name(str): the name of the program</span>
+<span class="sd">        name (str): the name of the program</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        True or False (boolean)</span>
@@ -6508,7 +6745,7 @@ and finally also gets the blast results. It then calls the print results functio
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Summarize the results and generate html results&quot;</span><span class="p">,</span>
         <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;Theresa Wacker T.Wacker2@exeter.ac.uk&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-V&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(prog)s</span><span class="s2"> 0.1.0-beta&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--version&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(prog)s</span><span class="s2"> 0.1.0-beta&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--folder&quot;</span><span class="p">,</span>
@@ -6524,7 +6761,7 @@ and finally also gets the blast results. It then calls the print results functio
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Toggles between qPCR (y) or no qPCR (n) results. Default is &#39;n&#39;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;increase logging verbosity&quot;</span>
+        <span class="s2">&quot;-V&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;increase logging verbosity&quot;</span>
     <span class="p">)</span>
     <span class="c1"># get args</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
@@ -6621,9 +6858,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>header(str)</code>
+                <code>header</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6636,9 +6874,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>primer_frwd(str)</code>
+                <code>primer_frwd</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6651,9 +6890,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>primer_rev(str)</code>
+                <code>primer_rev</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6666,9 +6906,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>primer_internal(str)</code>
+                <code>primer_internal</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6681,9 +6922,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>sensi_pass(str)</code>
+                <code>sensi_pass</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6696,9 +6938,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>speci_pass(str)</code>
+                <code>speci_pass</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6711,9 +6954,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>speci_ass_no(int)</code>
+                <code>speci_ass_no</code>
             </td>
             <td>
+                  <code>int</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6726,9 +6970,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>speci_m(str)</code>
+                <code>speci_m</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6741,9 +6986,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>sensi(dict)</code>
+                <code>sensi</code>
             </td>
             <td>
+                  <code>dict</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6756,9 +7002,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>speci(dict)</code>
+                <code>speci</code>
             </td>
             <td>
+                  <code>dict</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6771,9 +7018,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>res_target_str(str)</code>
+                <code>res_target_str</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6786,9 +7034,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>primer_fold(Path)</code>
+                <code>primer_fold</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6801,9 +7050,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>target_fold(Path)</code>
+                <code>target_fold</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6816,9 +7066,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>seqkit_fold(Path)</code>
+                <code>seqkit_fold</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6831,9 +7082,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>source_fold(Path)</code>
+                <code>source_fold</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -6846,9 +7098,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>qPCR(str)</code>
+                <code>qPCR</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7005,22 +7258,22 @@ Print results to a text file and a PDF (currently not implemented). Also generat
 <span class="sd">    Print results to a text file and a PDF (currently not implemented). Also generate an html.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        header(str): the header with type of primer and file name of primer</span>
-<span class="sd">        primer_frwd(str): the forward primer</span>
-<span class="sd">        primer_rev(str): the reverse primer</span>
-<span class="sd">        primer_internal(str): the internal probe (qPCR only, otherwise set to NA)</span>
-<span class="sd">        sensi_pass(str): did it pass the sensitivity tests? (either &quot;passed&quot; or &quot;failed&quot;)</span>
-<span class="sd">        speci_pass(str): did it pass the specificity tests? (either &quot;passed&quot; or &quot;failed&quot;)</span>
-<span class="sd">        speci_ass_no(int): number of assemblies tested for specificity</span>
-<span class="sd">        speci_m(str): the number of mismatches allowed in the test for seqkit</span>
-<span class="sd">        sensi(dict): the dictionary with all sensitivity testing results</span>
-<span class="sd">        speci(dict): the dictionary with all the specificity testing results</span>
-<span class="sd">        res_target_str(str): results of the blastx testing</span>
-<span class="sd">        primer_fold(Path): the path object of the folder the primers are in</span>
-<span class="sd">        target_fold(Path): the Path object of the folder the targets are in</span>
-<span class="sd">        seqkit_fold(Path): the Path object of the folder with the in silico testing results</span>
-<span class="sd">        source_fold(Path): the Path object of the folder the entire thing is in (parent folder of all DiPPER2 results)</span>
-<span class="sd">        qPCR(str): toggle of y or n to change formatting according to whether it is qPCR or not</span>
+<span class="sd">        header (str): the header with type of primer and file name of primer</span>
+<span class="sd">        primer_frwd (str): the forward primer</span>
+<span class="sd">        primer_rev (str): the reverse primer</span>
+<span class="sd">        primer_internal (str): the internal probe (qPCR only, otherwise set to NA)</span>
+<span class="sd">        sensi_pass (str): did it pass the sensitivity tests? (either &quot;passed&quot; or &quot;failed&quot;)</span>
+<span class="sd">        speci_pass (str): did it pass the specificity tests? (either &quot;passed&quot; or &quot;failed&quot;)</span>
+<span class="sd">        speci_ass_no (int): number of assemblies tested for specificity</span>
+<span class="sd">        speci_m (str): the number of mismatches allowed in the test for seqkit</span>
+<span class="sd">        sensi (dict): the dictionary with all sensitivity testing results</span>
+<span class="sd">        speci (dict): the dictionary with all the specificity testing results</span>
+<span class="sd">        res_target_str (str): results of the blastx testing</span>
+<span class="sd">        primer_fold (Path): the path object of the folder the primers are in</span>
+<span class="sd">        target_fold (Path): the Path object of the folder the targets are in</span>
+<span class="sd">        seqkit_fold (Path): the Path object of the folder with the in silico testing results</span>
+<span class="sd">        source_fold (Path): the Path object of the folder the entire thing is in (parent folder of all DiPPER2 results)</span>
+<span class="sd">        qPCR (str): toggle of y or n to change formatting according to whether it is qPCR or not</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        None</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -7124,9 +7377,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>folder(Path)</code>
+                <code>folder</code>
             </td>
             <td>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7139,9 +7393,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>file(str)</code>
+                <code>file</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7154,9 +7409,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>length(int)</code>
+                <code>length</code>
             </td>
             <td>
+                  <code>int</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7169,9 +7425,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>count(int)</code>
+                <code>count</code>
             </td>
             <td>
+                  <code>int</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7184,9 +7441,10 @@ Print results to a text file and a PDF (currently not implemented). Also generat
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>target_type(str)</code>
+                <code>target_type</code>
             </td>
             <td>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -7366,11 +7624,11 @@ Print results to a text file and a PDF (currently not implemented). Also generat
 <span class="sd">    Parse the Specificity and Sensitivity test results based on the in silico PCRs.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        folder(Path): a path object corresponding to the folder with the in silico results (in the FUR.P3.PRIMERS) folder</span>
-<span class="sd">        file(str): the primer file</span>
-<span class="sd">        length(int): the length of the amplicon</span>
-<span class="sd">        count(int): the number of targets or neighbours</span>
-<span class="sd">        target_type(str): &quot;target&quot; or &quot;neighbour&quot;</span>
+<span class="sd">        folder (Path): a path object corresponding to the folder with the in silico results (in the FUR.P3.PRIMERS) folder</span>
+<span class="sd">        file (str): the primer file</span>
+<span class="sd">        length (int): the length of the amplicon</span>
+<span class="sd">        count (int): the number of targets or neighbours</span>
+<span class="sd">        target_type (str): &quot;target&quot; or &quot;neighbour&quot;</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        a dictionary with the results for targets and neighbours (specificity and sensitivity). Raw numbers not interpreted.</span>
