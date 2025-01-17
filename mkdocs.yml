@@ -1,5 +1,5 @@
 site_name: DiPPER2 documentation
-use_directory_urls: https://thwacker.github.io/DiPPER2/
+use_directory_urls: true
 theme:
   name: "material"
 font: false
