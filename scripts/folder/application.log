@@ -1,0 +1,6 @@
+2025-01-17 16:35:10,002 - INFO - Primer3_module_optimized.py - Starting the Primer3 module...
+2025-01-17 16:35:10,003 - ERROR - Primer3_module_optimized.py - Could not find {target}
+Traceback (most recent call last):
+  File "/Users/theresawacker/repos/DiPPER2/scripts/Primer3_module_optimized.py", line 219, in main
+    target = next(source_folder.glob("*FUR.db.out.txt"))
+StopIteration

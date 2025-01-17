@@ -5,13 +5,15 @@ from pathlib import Path
 import tempfile
 import shutil
 from unittest.mock import patch, MagicMock
-
+import sys
+print(sys.path)
 # Assuming all your functions are imported from your script
 from Primer3_module_optimized import (
     move_files,
     parse_primers,
     find_and_return_following_lines_and_target
 )
+
 
 
 class TestMoveFolders(unittest.TestCase):

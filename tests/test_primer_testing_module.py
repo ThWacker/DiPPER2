@@ -8,7 +8,7 @@ import subprocess
 from unittest.mock import patch, MagicMock
 
 from Bio import SeqIO
-from Primer_Testing_module_optimized import (
+from scripts.Primer_Testing_module_optimized import (
     check_folders,
     check_program_installed,
     concat_files,

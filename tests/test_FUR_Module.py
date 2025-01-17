@@ -5,6 +5,8 @@ from pathlib import Path
 import tempfile
 import shutil
 import subprocess
+import os
+import sys
 from unittest.mock import patch, MagicMock
 from FUR_module_optimized import (make_fur_db, run_fur, check_folders, clean_up)
 from logging_handler import Logger
