@@ -3,7 +3,7 @@
 ![Static Badge](https://img.shields.io/badge/unittest_code_coverage-78%25-yellow)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ThWacker/DiPPER2)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-![](./logo/Dipper2_white.png) 
+![](./logo/Dipper2_black.png) 
 # DiPPER2
 DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility
 
