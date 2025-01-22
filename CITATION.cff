@@ -15,6 +15,9 @@ authors:
     email: t.wacker2@exeter.ac.uk
     affiliation: 'University of Exeter '
     orcid: 'https://orcid.org/0000-0002-1789-2346'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.14699018
 license: BSD-3-Clause
 repository-code: 'https://github.com/ThWacker/DiPPER2'
 keywords:
@@ -24,7 +27,4 @@ keywords:
   - diagnostic-primers 
   - unique-genomic-regions
 version: 1.0.0
-identifiers:
-  - type: doi
-    value: 10.5281/zenodo.14699018
 date-pre-released: 2025-01-20
