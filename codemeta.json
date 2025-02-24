@@ -1,7 +1,24 @@
 {
     "@context": "https://w3id.org/codemeta/3.0",
     "type": "SoftwareSourceCode",
-    "applicationCategory": "Biology",
+    "applicationCategory": "Biology", "author": [
+        {
+            "id": "https://orcid.org/0000-0002-1789-2346",
+            "type": "Person",
+            "affiliation": {
+                "type": "Organization",
+                "name": "University of Exeter"
+            },
+            "email": "t.wacker2@exeter.ac.uk",
+            "familyName": "Wacker",
+            "givenName": "Theresa"
+        },
+        {
+            "type": "Role",
+            "schema:author": "https://orcid.org/0000-0002-1789-2346",
+            "roleName": "Developer"
+        }
+    ],
     "codeRepository": "https://github.com/ThWacker/DiPPER2",
     "dateModified": "2025-01-19",
     "description": "DiPPER2: Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility.\n\nThis pipeline and modules are meant to facilitate reliable and reproducible finding of diagnostic targets and to make picking primers for those targets as user-friendly as possible. The approach taken is a phylogeny-driven and clade-specific approach.",
