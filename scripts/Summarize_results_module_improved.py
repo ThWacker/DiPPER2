@@ -329,7 +329,11 @@ def run_tests(
                 if len(lines) == count:
                     # Process each line to count correct and incorrect amplicon lengths
                     for line in lines:
-                        amp_len = len(line.strip().split("\t")[6])
+                        split_line = line.strip().split("\t")
+                        if len(split_line) < 7:
+                            logger.warning(f"Skipping line with insufficient columns: {split_line}")
+                            continue  # Skip lines that do not have enough columns
+                        amp_len = len(split_line[6])
                         if amp_len == length:
                             passed_amp += 1
                         else:
@@ -347,7 +351,11 @@ def run_tests(
                     failed += 1 if target_type == "target" else 0
                     passed_n += 1 if target_type == "neighbour" else 0
                     for line in lines:
-                        amp_len = len(line.strip().split("\t")[6])
+                        split_line = line.strip().split("\t")
+                        if len(split_line) < 7:
+                            logger.warning(f"Skipping line with insufficient columns: {split_line}")
+                            continue  # Skip lines that do not have enough columns
+                        amp_len = len(split_line[6])
                         if amp_len == length:
                             passed_amp += 1
                         else:
