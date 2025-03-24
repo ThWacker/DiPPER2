@@ -223,12 +223,12 @@ def run_seqkit_amplicon_with_optional_timeout(
         logger.exception(f"An unexpected error occurred: {str(e)}")
         raise Exception(f"An unexpected error occurred: {str(e)}") from e
 
-    finally:
-        # Cleanup: Ensure all subprocesses are terminated
-        if cat and cat.poll() is None:
-            cat.terminate()
-        if seqkit_out and seqkit_out.poll() is None:
-            seqkit_out.terminate()
+    # finally:
+    #     # Cleanup: Ensure all subprocesses are terminated
+    #     if cat and cat.poll() is None:
+    #         cat.terminate()
+    #     if seqkit_out and seqkit_out.poll() is None:
+    #         seqkit_out.terminate()
 
 
 def move_files_with_pattern(source_dir: Path, pattern: str, destination_dir: Path):
@@ -529,7 +529,7 @@ def main():
 
                 try:
                     # Construct filename for output
-                    filename = f"{file_path}_seqkit_amplicon_against_target_m{i}.txt"
+                    filename = f"{file_path}_seqkit_amplicon_against_neighbour_m{i}.txt"
 
                     # Write output to the file
                     with open(filename, "w", encoding="utf-8") as file:
@@ -637,35 +637,35 @@ def main():
                 filenamed = f"{file_path_tar}_blastx_1e-5.txt"
                 with open(filenamed, "w", encoding="utf-8") as file_1:
                     file_1.write(output_tar)  # Save blastx results to a file
-            except OSError as e:
+            except Exception as e:
                 # If an error occurs while writing the blastx output, log it and raise an exception
                 logger.error(f"Error writing output of blastx to file {filenamed}: {e}")
-                raise OSError(f"Error writing output of blastx to file {filenamed}: {e}") from e
+                raise Exception(f"Error writing output of blastx to file {filenamed}: {e}") from e
 
-        # Move files that are related to seqkit testing into a subfolder called "in_silico_tests"
-        in_silico_folder = destination_folder_pr / "in_silico_tests"
-        in_silico_folder.mkdir(parents=True, exist_ok=True)  # Create the subfolder if it doesn't exist
-        pattern_to_match = "seqkit_amplicon_against"  # Pattern to search for in the file names
+    # Move files that are related to seqkit testing into a subfolder called "in_silico_tests"
+    in_silico_folder = destination_folder_pr / "in_silico_tests"
+    in_silico_folder.mkdir(parents=True, exist_ok=True)  # Create the subfolder if it doesn't exist
+    pattern_to_match = "seqkit_amplicon_against"  # Pattern to search for in the file names
 
-        logger.info(f"Moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}...")
+    logger.info(f"Moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}...")
 
-        try:
-            # Move files matching the pattern from the destination folder to the in_silico_tests folder
-            move_files_with_pattern(destination_folder_pr, pattern_to_match, in_silico_folder)
-        except Exception as e:
-            # If an error occurs during the file moving process, log it and raise an exception
-            logger.error(f"Error moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}: {e}")
-            raise Exception(f"Error moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}: {e}") from e
+    try:
+        # Move files matching the pattern from the destination folder to the in_silico_tests folder
+        move_files_with_pattern(destination_folder_pr, pattern_to_match, in_silico_folder)
+    except Exception as e:
+        # If an error occurs during the file moving process, log it and raise an exception
+        logger.error(f"Error moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}: {e}")
+        raise Exception(f"Error moving files with {pattern_to_match} in name from {destination_folder_pr} into {in_silico_folder}: {e}") from e
 
-        # Log that the script has completed successfully
-        logger.info("Primer_Testing_module.py ran to completion: exit status 0")
+    # Log that the script has completed successfully
+    logger.info("Primer_Testing_module.py ran to completion: exit status 0")
 
-        # If the 'delete_concat' argument is set, delete concatenated files
-        if args.delete_concat:
-            delete_concats(concat_t, concat_n, logger)
+    # If the 'delete_concat' argument is set, delete concatenated files
+    if args.delete_concat:
+        delete_concats(concat_t, concat_n, logger)
 
-        # Exit the script successfully
-        sys.exit(0)
+    # Exit the script successfully
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
