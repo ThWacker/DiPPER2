@@ -8,62 +8,136 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 import re
-from Bio import SeqIO  # type: ignore
-from logging_handler import Logger
 import threading
 import time
 import psutil
+from typing import Optional
+from Bio import SeqIO  # type: ignore
 from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import Pool, current_process
+from logging_handler import Logger
 
+
+# ────────────────────────────────────────────────────────────────
+# Configuration
+# ────────────────────────────────────────────────────────────────
+MAX_WORKERS = 3
 MAX_MEMORY_MB_PER_JOB = 16000
-MIN_AVAILABLE_MEMORY_MB = 20000
-CHECK_INTERVAL = 2  # seconds
+MIN_AVAILABLE_MEMORY_MB = 5000
+CHECK_INTERVAL = 2
 
 
-def monitor_memory(pid, threshold_mb, stop_event, logger):
+# ────────────────────────────────────────────────────────────────
+# Memory monitoring
+# ────────────────────────────────────────────────────────────────
+def monitor_memory(pid, threshold_mb, logger):
+    """ 
+    Memory monitoring to ensure that process does not exceed the limits.
+    Args:
+        pid ()
+    """
     try:
         proc = psutil.Process(pid)
-        while not stop_event.is_set() and proc.is_running():
+        while proc.is_running():
             mem = proc.memory_info().rss / (1024 ** 2)
             if mem > threshold_mb:
-                logger.error(f"[KILL] PID {pid} exceeded {mem:.2f} MB > {threshold_mb} MB")
-                try:
-                    proc.kill()
-                except Exception as e:
-                    logger.error(f"[Monitor] Kill failed: {e}")
+                logger.warning(f"[KILL] PID {pid} exceeded {mem:.2f} MB")
+                proc.kill()
                 break
             time.sleep(1)
     except psutil.NoSuchProcess:
-        logger.warn(f"[Monitor] PID {pid} already exited.")
-    except Exception as e:
-        logger.error(f"[Monitor] Error: {e}")
+        pass
 
-
-def wait_for_memory(min_available_mb):
+def wait_for_memory(min_available_mb, logger):
     while True:
         available_mb = psutil.virtual_memory().available / (1024 ** 2)
         if available_mb >= min_available_mb:
             return
-        print(f"[WAIT] Available memory {available_mb:.2f} MB < threshold. Sleeping...")
+        logger.info(f"[WAIT] Available memory {available_mb:.2f} MB < threshold. Sleeping...")
         time.sleep(CHECK_INTERVAL)
 
-
-def run_command_with_memory_control(command, logger):
-    wait_for_memory(MIN_AVAILABLE_MEMORY_MB)
-
-    print(f"[START] Launching: {command}")
-    stop_event = threading.Event()
-    p = subprocess.Popen(command, shell=True, preexec_fn=None)
-
-    monitor = threading.Thread(target=monitor_memory, args=(p.pid, MAX_MEMORY_MB_PER_JOB, stop_event))
-    monitor.start()
+# ────────────────────────────────────────────────────────────────
+# Main processing function
+# ────────────────────────────────────────────────────────────────
+def process_file_amplicon(
+    file_path: Path,
+    frwd: str,
+    rev: str,
+    mismatch: int,
+    logger,
+    timeout: Optional[int],
+    ) -> tuple:
 
     try:
-        p.wait()
-    finally:
-        stop_event.set()
-        monitor.join()
-        logger.info(f"[CLEANUP] Process {p.pid} and monitor thread joined.")
+        cat = subprocess.Popen(["cat", str(file_path)], stdout=subprocess.PIPE, text=True)
+
+        seqkit_out = subprocess.Popen(
+            ["seqkit", "amplicon", "-F", frwd, "-R", rev, "--bed", "-m", str(mismatch)],
+            stdin=cat.stdout,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        cat.stdout.close()
+
+        memory_thread = threading.Thread(target=monitor_memory, args=(seqkit_out.pid, MAX_MEMORY_MB_PER_JOB, logger))
+        memory_thread.daemon = True
+        memory_thread.start()
+
+        output, error = seqkit_out.communicate(timeout=timeout)
+
+        if seqkit_out.returncode != 0:
+            logger.warning(f"[{file_path.name}] Seqkit failed: {error.strip()}")
+            return None
+
+        logger.info(f"[{file_path.name}] Success with mismatch {mismatch}, length: {len(output)}")
+        return output
+
+    except subprocess.TimeoutExpired:
+        logger.warning(f"[{file_path.name}] Timeout after {timeout}s")
+        seqkit_out.kill()
+        cat.kill()
+        return None
+
+    except Exception as e:
+        logger.exception(f"[{file_path.name}] Unexpected error: {e}")
+        return None
+
+# ────────────────────────────────────────────────────────────────
+# Worker wrapper
+# ────────────────────────────────────────────────────────────────
+def process_file_wrapper(args):
+    return process_file_amplicon(*args)
+
+# ────────────────────────────────────────────────────────────────
+# Run multiprocessing pool
+# ────────────────────────────────────────────────────────────────
+def run_seqkit_amplicon_with_optional_timeout(
+    frwd: str,
+    rev: str,
+    concat: Path,
+    mismatch: int,
+    logger,
+    timeout: Optional[int],
+    max_workers: int = 4,
+):
+    files = [f for f in concat.glob("*") if f.is_file()]
+    if not files:
+        logger.warning(f"No files found in {concat}")
+        return []
+
+    logger.info(f"Processing {len(files)} files with mismatch={mismatch}...")
+    wait_for_memory(MIN_AVAILABLE_MEMORY_MB, logger)
+
+    args = [(f, frwd, rev, mismatch, logger, None) for f in files]
+
+    with Pool(processes=max_workers) as pool:
+        results = pool.map(process_file_wrapper, args)
+
+    successful = [res for res in results if res is not None]
+    logger.info(f"Finished mismatch {mismatch}: {len(successful)} successful")
+    return successful
+
 
 def check_folders(*folders: Path,logger: Logger):
     """
@@ -130,115 +204,6 @@ def extract_primer_sequences(file: Path, logger: Logger) -> tuple[str, str, str]
         sequences["PRIMER_RIGHT"],
         sequences["PRIMER_INTERNAL"],
     )
-
-
-def run_seqkit_amplicon_with_optional_timeout(
-    frwd: str, rev: str, concat: Path, number: int, logger: Logger, timeout: int = None
-):
-    """
-    Run seqkit amplicon with an optional timeout and return the output.
-
-    Args:
-        frwd (str): The forward primer sequence.
-        rev (str): The reverse primer sequence.
-        concat (Path): folder with targets or neighbours
-        number (int): The number of allowed mismatches.
-        timeout (Optional[int]): Timeout in seconds for the subprocess. If None, no timeout is applied.
-
-    Returns:
-        Optional[str]: Output of seqkit amplicon as a string if successful, None if it times out.
-
-    Raises:
-        ValueError: If invalid arguments are provided.
-        subprocess.CalledProcessError: If seqkit amplicon fails with a non-zero exit code.
-    """
-    # Validate inputs
-    if not all([frwd, rev, concat]):
-        raise ValueError(
-            "Forward primer, reverse primer, and concatenated file must be provided."
-        )
-    # sense check mismatch number 
-    if number < 0:
-        logger.error(
-            "Error in function call of run_seqkit_amplicon_with_optional_timeout. Mismatch number must be a non-negative integer."
-        )
-        raise ValueError("Mismatch number must be a non-negative integer.")
-
-    logger.info(
-        f"Running seqkit amplicon on {concat} with primers {frwd} (forward) and {rev} (reverse)."
-    )
-
-    try:
-        # Step 1: create list of files in folder
-        assembly_files = list(concat.glob("*"))
-        # Step 2: Create subprocess to iteratively read input files in folder, parallelized
-
-        # Iterate through each file in the list
-        for assembly in assembly_files:
-            if file_path_tar.is_file():
-                cat = subprocess.Popen(
-                    ["cat", concat],
-                    stdout=subprocess.PIPE,  # Send output to the next process
-                    text=True,  # Enable text mode for I/O
-                )
-                logger.debug(f"'cat {concat}' subprocess started successfully.")
-
-        # Step 2: Pipe the output of 'cat' into 'seqkit amplicon'
-        logger.debug("'seqkit amplicon' subprocess started successfully.")
-        seqkit_out = subprocess.Popen(
-            ["seqkit", "amplicon", "-F", frwd, "-R", rev, "--bed", "-m", str(number)],
-            stdin=cat.stdout,  # Input from 'cat' command
-            stdout=subprocess.PIPE,  # Capture standard output
-            stderr=subprocess.PIPE,  # Capture standard error
-            text=True,  # Enable text mode for I/O
-        )
-
-        # Step 3: Handle timeout if provided
-        if timeout is not None:
-            output, error = seqkit_out.communicate(timeout=timeout)
-        else:
-            output, error = seqkit_out.communicate()
-
-        # Step 4: Check for errors
-        if seqkit_out.returncode != 0:
-            logger.error(f"Seqkit error output: {error.strip()}")
-            raise subprocess.CalledProcessError(
-                seqkit_out.returncode, "seqkit amplicon", output=error.strip()
-            )
-
-        logger.info(
-            f"Seqkit amplicon ran successfully. Output size: {len(output)} characters."
-        )
-        return output
-
-    except subprocess.TimeoutExpired:
-        # Handle timeout scenarios
-        logger.warning(f"Seqkit amplicon timed out after {timeout} seconds.")
-        seqkit_out.kill()  # Ensure seqkit process is terminated
-        if cat:
-            cat.kill()  # Ensure 'cat' process is terminated
-        return None
-
-    except subprocess.CalledProcessError as e:
-        # Handle non-zero exit codes from seqkit
-        logger.exception(
-            f"Seqkit amplicon failed with exit code {e.returncode}: {e.output}"
-        )
-        raise subprocess.CalledProcessError(
-            returncode=-1, cmd="seqkit amplicon", output="", stderr=str(e)
-        ) from e
-
-    except Exception as e:
-        # Handle any unexpected exceptions
-        logger.exception(f"An unexpected error occurred: {str(e)}")
-        raise Exception(f"An unexpected error occurred: {str(e)}") from e
-
-    # finally:
-    #     # Cleanup: Ensure all subprocesses are terminated
-    #     if cat and cat.poll() is None:
-    #         cat.terminate()
-    #     if seqkit_out and seqkit_out.poll() is None:
-    #         seqkit_out.terminate()
 
 
 def move_files_with_pattern(source_dir: Path, pattern: str, destination_dir: Path):
@@ -368,29 +333,6 @@ def get_longest_target(directory: Path) -> Path:
     return longest_file
 
 
-def delete_concats(target: Path, neighbour: Path, logger: Logger):
-    """
-    Delete concatenated fasta files.
-
-    Args:
-        target (Path): the concatenated targets
-        neighbour (Path): the concatenated neighbours
-    
-    Returns:
-        None
-    
-    Raises:
-        FileNotFoundError
-    """
-    try:
-        os.remove(target)
-        os.remove(neighbour)
-        logger.info("Concatenated files deleted.")
-    except FileNotFoundError as e:
-        logger.error(f"Error deleting concatenated files: {e}")
-
-
-
 def main():
     now = datetime.now()
     dt_string = now.strftime("%d-%m-%Y_%Hh%Mmin%Ss_%z")
@@ -458,12 +400,12 @@ def main():
 
     for file_path in all_files:
         if file_path.is_file():
-            logger.info(f"Testing your primers in {file_path}:\n")
+            logger.info("Testing your primers in: %s ", file_path)
             try:
                 pr_frwd, pr_rev, pr_intern = extract_primer_sequences(file_path, logger)
             except Exception as e:
                 logger.exception(
-                    f"Could not extract primer sequences from {file_path}: {e}",
+                    "Could not extract primer sequences from %s: %s",file_path, e,
                     exc_info=1,
                 )
                 raise RuntimeError(
@@ -474,7 +416,13 @@ def main():
             for i in range(4):
                 try:
                     out_seqk_target = run_seqkit_amplicon_with_optional_timeout(
-                        pr_frwd, pr_rev, fur_target, i, logger
+                        frwd=pr_frwd,
+                        rev=pr_rev,
+                        concat=fur_target,
+                        mismatch=i,
+                        logger=logger,
+                        timeout=None,  
+                        max_workers=MAX_WORKERS,
                     )
                 except subprocess.CalledProcessError as e:
                     logger.exception(f"Error running seqkit amplicon: {e}")
@@ -505,10 +453,10 @@ def main():
                 try:
                     # Construct filename for output
                     filename = f"{file_path}_seqkit_amplicon_against_target_m{i}.txt"
-
                     # Write output to the file
                     with open(filename, "w", encoding="utf-8") as file:
-                        file.write(out_seqk_target)
+                        for line in out_seqk_target:
+                            file.write(line)
                 except (IOError, OSError, PermissionError) as e:
                     # Log error and raise exception with additional context
                     logger.exception(
@@ -521,8 +469,14 @@ def main():
             for i in range(5):
                 try:
                     out_seqk_neighbour = run_seqkit_amplicon_with_optional_timeout(
-                        pr_frwd, pr_rev, concat_n, i, logger, timeout=480)
-                    logger.info(f"ran seqkit amplicon for {i} mismatches")
+                        frwd=pr_frwd,
+                        rev=pr_rev,
+                        concat=fur_neighbour,
+                        mismatch=i,
+                        logger=logger,
+                        timeout=60,  
+                        max_workers=MAX_WORKERS,
+                    )
                 except Exception as e:
                     logger.exception(f"Error running seqkit amplicon: {e}")
                     raise Exception(f"Error running seqkit amplicon: {e}") from e
@@ -539,7 +493,8 @@ def main():
 
                     # Write output to the file
                     with open(filename, "w", encoding="utf-8") as file:
-                        file.write(out_seqk_target)
+                        for line in out_seqk_neighbour:
+                            file.write(line)
                 except (IOError, OSError, PermissionError) as e:
                     # Log error and raise exception with additional context
                     logger.error(
@@ -622,7 +577,7 @@ def main():
                         f'Seqkit locate did not return a bed file for the assembly {args.ref if args.ref else ref} with the amplicon "{amp}".\n'
                     )
                     continue
-
+            
                 try:
                     # Generate a file name for the bed file and write seqkit locate results to it
                     match_no = re.search(r"_(\d+)\.txt", file_path_tar.name)
@@ -637,16 +592,16 @@ def main():
                     # If an error occurs while writing the output to the file, log it and raise an exception
                     logger.error(f"Error writing output of seqkit locate to file {filename}: {e}")
                     raise OSError(f"Error writing output of seqkit locate to file {filename}: {e}") from e
-
-            try:
-                # Write the blastx output to a text file
-                filenamed = f"{file_path_tar}_blastx_1e-5.txt"
-                with open(filenamed, "w", encoding="utf-8") as file_1:
-                    file_1.write(output_tar)  # Save blastx results to a file
-            except Exception as e:
-                # If an error occurs while writing the blastx output, log it and raise an exception
-                logger.error(f"Error writing output of blastx to file {filenamed}: {e}")
-                raise Exception(f"Error writing output of blastx to file {filenamed}: {e}") from e
+            else:
+                try:
+                    # Write the blastx output to a text file
+                    filenamed = f"{file_path_tar}_blastx_1e-5.txt"
+                    with open(filenamed, "w", encoding="utf-8") as file_1:
+                        file_1.write(output_tar)  # Save blastx results to a file
+                except Exception as e:
+                    # If an error occurs while writing the blastx output, log it and raise an exception
+                    logger.error(f"Error writing output of blastx to file {filenamed}: {e}")
+                    raise Exception(f"Error writing output of blastx to file {filenamed}: {e}") from e
 
     # Move files that are related to seqkit testing into a subfolder called "in_silico_tests"
     in_silico_folder = destination_folder_pr / "in_silico_tests"
@@ -666,9 +621,6 @@ def main():
     # Log that the script has completed successfully
     logger.info("Primer_Testing_module.py ran to completion: exit status 0")
 
-    # If the 'delete_concat' argument is set, delete concatenated files
-    if args.delete_concat:
-        delete_concats(concat_t, concat_n, logger)
 
     # Exit the script successfully
     sys.exit(0)
