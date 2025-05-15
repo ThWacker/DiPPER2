@@ -533,7 +533,7 @@ def main():
 
                     # Write output to the file
                     with open(filename, "w", encoding="utf-8") as file:
-                        file.write(out_seqk_target)
+                        file.write(out_seqk_neighbour)
                 except (IOError, OSError, PermissionError) as e:
                     # Log error and raise exception with additional context
                     logger.error(
