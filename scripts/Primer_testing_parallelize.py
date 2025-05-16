@@ -10,56 +10,93 @@ from pathlib import Path
 import re
 import threading
 import time
-import psutil
+from multiprocessing import Pool
 from typing import Optional
+import psutil
 from Bio import SeqIO  # type: ignore
-from concurrent.futures import ProcessPoolExecutor
-from multiprocessing import Pool, current_process
 from logging_handler import Logger
 
 
 # ────────────────────────────────────────────────────────────────
 # Configuration
 # ────────────────────────────────────────────────────────────────
-MAX_WORKERS = 3
-MAX_MEMORY_MB_PER_JOB = 16000
-MIN_AVAILABLE_MEMORY_MB = 5000
+#currently hard coded this needs to be included in args.parse
+MAX_WORKERS = 4
+MAX_MEMORY_MB_PER_JOB =  16000000000
+MIN_AVAILABLE_MEMORY = 5000000000
 CHECK_INTERVAL = 2
 
 
 # ────────────────────────────────────────────────────────────────
 # Memory monitoring
 # ────────────────────────────────────────────────────────────────
-def monitor_memory(pid, threshold_mb, logger):
+def monitor_memory(pid, threshold, logger):
     """ 
     Memory monitoring to ensure that process does not exceed the limits.
+    Will kill process if it exceeds limits.
+    Run as a deamon, so that it is terminated when all non-daemon threads finish.
     Args:
-        pid ()
+        pid (int): the process ID
+        threshold_mb (int): maximum memory in bytes
+        logger (Logger): the logger
+    Returns:
+        None
+    Raises:
+        None
     """
     try:
+        #use psutil. Is a C extension, will not be under GIL
         proc = psutil.Process(pid)
         while proc.is_running():
-            mem = proc.memory_info().rss / (1024 ** 2)
-            if mem > threshold_mb:
-                logger.warning(f"[KILL] PID {pid} exceeded {mem:.2f} MB")
+            #get resident set size (rss) in bytes
+            mem = proc.memory_info().rss 
+            if mem > threshold:
+                logger.warning(f"[KILL] PID {pid} exceeded {mem / (1024 ** 2):.2f} MB")
                 proc.kill()
-                break
+                return
             time.sleep(1)
+    # process is already killed
     except psutil.NoSuchProcess:
         pass
 
-def wait_for_memory(min_available_mb, logger):
+def wait_for_memory(min_available, logger):
+    """
+    Will wait till enough memory in bytes is available. Times out after 6h and kills the entire DiPPER2 run.
+    Args:
+        min_available (int): the minimum memory that needs to be available to exit the function and continue with the script
+        logger (Logger): the logger
+    Returns:
+        None
+    Raises:
+        TimeoutError
+    """
+    #hardcoded timeout, needs to be changed to dynamically changeable.
+    timeout=21600
+    #get time in seconds
+    start_time = time.time()
+
     while True:
-        available_mb = psutil.virtual_memory().available / (1024 ** 2)
-        if available_mb >= min_available_mb:
+        #get available memory
+        available = psutil.virtual_memory().available
+
+        # there is enough available. Yay. Let's proceed with the script
+        if available >= min_available:
             return
-        logger.info(f"[WAIT] Available memory {available_mb:.2f} MB < threshold. Sleeping...")
+        
+        #meh, not enough memory. When if clause becomes True, raise TimeoutError exception
+        if time.time() - start_time > timeout:
+            logger.warning(f"[TIMEOUT] Memory check timed out after {timeout} seconds.")
+            raise TimeoutError(f"Memory did not reach {min_available} bytes within timeout")
+        
+        #there is not enough memory but also we have not run out of time. Waiting...
+        logger.info(f"[WAIT] Available memory {available}  < threshold. Waiting for {CHECK_INTERVAL} seconds.")
         time.sleep(CHECK_INTERVAL)
 
 # ────────────────────────────────────────────────────────────────
 # Main processing function
 # ────────────────────────────────────────────────────────────────
 def process_file_amplicon(
+
     file_path: Path,
     frwd: str,
     rev: str,
@@ -67,10 +104,32 @@ def process_file_amplicon(
     logger,
     timeout: Optional[int],
     ) -> tuple:
+    """
+    This is where the actual magic happens. At least part of it. Seqkit amplicon is spawned as a separate process.
+    A memory monitoring thread is started as a daemon. While the current process waits for seqkit_out.communicate, 
+    this daemon monitors memory usage and kills the process if it starts to eat too much memory.
+
+    Args:
+        file_path (Path): the assembly file
+        frwd (str): the forward primer
+        rev (str): the reverse primer
+        mismatch (int): mismatches allowed in seqkit
+        logger (Logger): the logger
+        timeout (int): how many seconds seqkit amplicon can run before it times out
+
+    Returns:
+       output (str): text of output of seqkit amplicon (in bed format)
+
+    Raises:
+        subprocess.TimeoutExpired
+        Exception
+    """
 
     try:
+        # cat is not memory monitored. This should (hypothetically) not use much memory
         cat = subprocess.Popen(["cat", str(file_path)], stdout=subprocess.PIPE, text=True)
 
+        # run seqkit amplicon as a new separate process
         seqkit_out = subprocess.Popen(
             ["seqkit", "amplicon", "-F", frwd, "-R", rev, "--bed", "-m", str(mismatch)],
             stdin=cat.stdout,
@@ -80,16 +139,22 @@ def process_file_amplicon(
         )
         cat.stdout.close()
 
+        # Initializing of memory monitoring daemon
         memory_thread = threading.Thread(target=monitor_memory, args=(seqkit_out.pid, MAX_MEMORY_MB_PER_JOB, logger))
         memory_thread.daemon = True
         memory_thread.start()
+        
+        # is there a timeout? get the results from seqkit
+        if timeout is not None:
+            output, error = seqkit_out.communicate(timeout=timeout)
+        else:
+            output, error = seqkit_out.communicate()
 
-        output, error = seqkit_out.communicate(timeout=timeout)
-
+        # well, this could have been put into an exception but here we are 
         if seqkit_out.returncode != 0:
             logger.warning(f"[{file_path.name}] Seqkit failed: {error.strip()}")
-            return None
 
+        # Eureka
         logger.info(f"[{file_path.name}] Success with mismatch {mismatch}, length: {len(output)}")
         return output
 
@@ -107,6 +172,12 @@ def process_file_amplicon(
 # Worker wrapper
 # ────────────────────────────────────────────────────────────────
 def process_file_wrapper(args):
+    """
+    Pool.map manages that each process gets exactly one item (one tuple) from the args list at a time. 
+    Each tuple corresponds to a single file f and its associated arguments. 
+    Our wrapper passes the arguments of the tuple to the function. 
+    Thus the function does not receive a tuple (one var), but each element. 
+    """
     return process_file_amplicon(*args)
 
 # ────────────────────────────────────────────────────────────────
@@ -121,15 +192,38 @@ def run_seqkit_amplicon_with_optional_timeout(
     timeout: Optional[int],
     max_workers: int = 4,
 ):
+    """
+    Parallelizing seqkit using the multiprocessing package and pool.map.
+    Args:
+        frwd (str): forward primer
+        rev (str): reverse primer
+        concat (Path): the path to the folder with the assemblies, either FUR.target or FUR.neighbour
+        mismatch (int): allowed mismatch for seqkit amplicon
+        timeout (int): the time in seconds that can pass before seqkit amplicon runs time out
+        logger (Logger): the logger
+        max_workers (int): max worker processes spawned by pool.map
+
+    Returns:
+        successful (list): list of results
+    
+    Raises:
+        TimeoutError
+    """
     files = [f for f in concat.glob("*") if f.is_file()]
     if not files:
         logger.warning(f"No files found in {concat}")
         return []
 
     logger.info(f"Processing {len(files)} files with mismatch={mismatch}...")
-    wait_for_memory(MIN_AVAILABLE_MEMORY_MB, logger)
+    
+    # Check if enough memory is available
+    try:
+        wait_for_memory(MIN_AVAILABLE_MEMORY, logger)
+    except TimeoutError as e:
+        logger.error("[TIMEOUT] The memory timed out when trying to run seqkit amplicon with error %s", str(e))
+        sys.exit(1)
 
-    args = [(f, frwd, rev, mismatch, logger, None) for f in files]
+    args = [(f, frwd, rev, mismatch, logger, timeout) for f in files]
 
     with Pool(processes=max_workers) as pool:
         results = pool.map(process_file_wrapper, args)
