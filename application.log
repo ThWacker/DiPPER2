@@ -1,0 +1,17 @@
+2025-05-16 15:56:57,570 - WARNING - target_move_module_optimized.py - GCA_000772715* not found! Are you in the folder with the assemblies? Please double-check!
+2025-05-16 15:56:57,578 - WARNING - target_move_module_optimized.py - GCA_000772775* not found! Are you in the folder with the assemblies? Please double-check!
+2025-05-16 15:56:57,588 - WARNING - target_move_module_optimized.py - GCA_000277895* not found! Are you in the folder with the assemblies? Please double-check!
+2025-05-16 15:56:57,598 - WARNING - target_move_module_optimized.py - GCA_000770355* not found! Are you in the folder with the assemblies? Please double-check!
+2025-05-16 15:56:57,608 - WARNING - target_move_module_optimized.py - GCA_003949975* not found! Are you in the folder with the assemblies? Please double-check!
+2025-05-16 15:56:57,618 - WARNING - target_move_module_optimized.py - GCA_003015715* not found! Are you in the folder with the assemblies? Please double-check!
+2025-05-16 15:56:57,618 - WARNING - target_move_module_optimized.py - LICENSE is not a fasta file. Skipping.
+2025-05-16 15:56:57,619 - WARNING - target_move_module_optimized.py - requirements.txt is not a fasta file. Skipping.
+2025-05-16 15:56:57,619 - WARNING - target_move_module_optimized.py - CITATION.cff is not a fasta file. Skipping.
+2025-05-16 15:56:57,619 - WARNING - target_move_module_optimized.py - README.md is not a fasta file. Skipping.
+2025-05-16 15:56:57,619 - DEBUG - target_move_module_optimized.py - File logo already exists in /Users/theresawacker/Desktop/2024_2025_Projects/2024_Joanna_XaP_Xv_Xvv_qPCR/X_vasicola_qPCR/FUR.target, skipping.
+2025-05-16 15:56:57,620 - WARNING - target_move_module_optimized.py - .gitignore is not a fasta file. Skipping.
+2025-05-16 15:56:57,620 - DEBUG - target_move_module_optimized.py - File scripts already exists in /Users/theresawacker/Desktop/2024_2025_Projects/2024_Joanna_XaP_Xv_Xvv_qPCR/X_vasicola_qPCR/FUR.target, skipping.
+2025-05-16 15:56:57,620 - WARNING - target_move_module_optimized.py - codemeta.json is not a fasta file. Skipping.
+2025-05-16 15:56:57,620 - DEBUG - target_move_module_optimized.py - File .github already exists in /Users/theresawacker/Desktop/2024_2025_Projects/2024_Joanna_XaP_Xv_Xvv_qPCR/X_vasicola_qPCR/FUR.target, skipping.
+2025-05-16 15:56:57,620 - WARNING - target_move_module_optimized.py - application.log is not a fasta file. Skipping.
+2025-05-16 15:56:57,620 - DEBUG - target_move_module_optimized.py - File .git already exists in /Users/theresawacker/Desktop/2024_2025_Projects/2024_Joanna_XaP_Xv_Xvv_qPCR/X_vasicola_qPCR/FUR.target, skipping.
