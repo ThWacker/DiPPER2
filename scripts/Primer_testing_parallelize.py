@@ -21,7 +21,7 @@ from logging_handler import Logger
 # Configuration
 # ────────────────────────────────────────────────────────────────
 #currently hard coded this needs to be included in args.parse
-MAX_WORKERS = 4
+MAX_WORKERS = 6
 MAX_MEMORY_MB_PER_JOB =  16000000000
 MIN_AVAILABLE_MEMORY = 5000000000
 CHECK_INTERVAL = 2
