@@ -568,7 +568,7 @@ def main():
                         concat=fur_neighbour,
                         mismatch=i,
                         logger=logger,
-                        timeout=60,  
+                        timeout=600,  
                         max_workers=MAX_WORKERS,
                     )
                 except Exception as e:
