@@ -67,7 +67,8 @@ echo "Checking if mandatory arguments have been provided..."
 
 # CHECK1: Check if mandatory arguments are provided
 if [ "$a_provided" = false ] || [ "$b_provided" = false ] || [ "$c_provided" = false ] || [ "$d_provided" = false ] || [ "$e_provided" = false ]; then
-    diemsg "Error: The values -f, -d, -F, -R and -l are mandatory!"
+    echo "Error: The values -f, -d, -F, -R and -l are mandatory!"
+    diemsg 
 fi
 
 echo "Mandatory arguments have been provided!"
