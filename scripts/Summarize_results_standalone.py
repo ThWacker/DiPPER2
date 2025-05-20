@@ -27,8 +27,6 @@ def generate_html_jinja(
     sensi: dict,
     speci: dict,
     res_target_str: str,
-    primer_fold: Path,
-    target_fold: Path,
     seqkit_fold: Path,
     source_folder: Path,
     ampli_len: int
@@ -82,8 +80,8 @@ def generate_html_jinja(
         sensi=pformat(sensi, depth=4),
         speci=pformat(speci, depth=4),
         res_target_str=res_target_str,
-        primer_fold=primer_fold,
-        target_fold=target_fold,
+        primer_fold=source_folder,
+        target_fold=source_folder,
         seqkit_fold=seqkit_fold,
         sensi_pass=sensi_pass,
         speci_pass=speci_pass,
@@ -176,6 +174,7 @@ def run_tests(
         length (int): the length of the amplicon
         count (int): the number of targets or neighbours
         target_type (str): "target" or "neighbour"
+        logger (Logger): the logger
 
     Returns:
         a dictionary with the results for targets and neighbours (specificity and sensitivity). Raw numbers not interpreted.
@@ -331,7 +330,7 @@ def handle_blasts_and_efetch(
     if not found_target.exists():
         logger.info(f"No files for {found_target} were found")
         return f"No files for {found_target} found."
-    if any(file.stat().st_size == 0 for file in found_target):
+    if found_target.stat().st_size == 0:
         logger.info(
             f"{found_target} is empty. Blastx did not return result"
         )
@@ -533,7 +532,6 @@ def print_results(
     header: str,
     primer_frwd: str,
     primer_rev: str,
-    primer_internal: str,
     sensi_pass: str,
     sensi_ass_no: int,
     sensi_m: list,
@@ -543,8 +541,6 @@ def print_results(
     sensi: dict,
     speci: dict,
     res_target_str: str,
-    primer_fold: Path,
-    target_fold: Path,
     seqkit_fold: Path,
     source_folder: Path,
     ampli_len: int,
@@ -558,7 +554,6 @@ def print_results(
         header (str): the header with type of primer and file name of primer
         primer_frwd (str): the forward primer
         primer_rev (str): the reverse primer
-        primer_internal (str): the internal probe (qPCR only, otherwise set to NA)
         sensi_pass (str): did it pass the sensitivity tests? (either "passed" or "failed")
         speci_pass (str): did it pass the specificity tests? (either "passed" or "failed")
         speci_ass_no (int): number of assemblies tested for specificity
@@ -566,11 +561,8 @@ def print_results(
         sensi (dict): the dictionary with all sensitivity testing results
         speci (dict): the dictionary with all the specificity testing results
         res_target_str (str): results of the blastx testing
-        primer_fold (Path): the path object of the folder the primers are in
-        target_fold (Path): the Path object of the folder the targets are in
         seqkit_fold (Path): the Path object of the folder with the in silico testing results
         source_fold (Path): the Path object of the folder the entire thing is in (parent folder of all DiPPER2 results)
-        qPCR (str): toggle of y or n to change formatting according to whether it is qPCR or not
     Returns:
         None
     """
@@ -581,10 +573,6 @@ def print_results(
         file.write(header)
         file.write(primer_frwd)
         file.write(primer_rev)
-        if qPCR == "y":
-            file.write(primer_internal)
-        else:
-            pass
         file.write(f"\nAmplicon length: {ampli_len}\n")
         file.write("Sensitivity and Specificity testing:\n")
         file.write("Sensitivity:\n")
@@ -607,8 +595,6 @@ def print_results(
         file.write("BLASTX Target Testing:\n")
         file.write(res_target_str)
         file.write("Files&Folders:\n")
-        file.write(f"Primers are found in {primer_fold}.\n")
-        file.write(f"Target fastas and blastx results are found in {target_fold}.\n")
         file.write(f"If generated, bed files are present in {source_folder}.\n")
         file.write(f"In silico PCR results are found in {seqkit_fold}.\n")
         file.write("Detailed Sensitivity results:\n")
@@ -624,7 +610,6 @@ def print_results(
         header,
         primer_frwd,
         primer_rev,
-        primer_internal,
         sensi_pass,
         sensi_ass_no,
         sensi_m,
@@ -636,7 +621,7 @@ def print_results(
         res_target_str,
         seqkit_fold,
         source_folder,
-        amp_len,
+        ampli_len
     )
 
 
@@ -668,11 +653,13 @@ def generate_results(
     """
     logger.info("Retrieving Primers and obtaining amplicon length...")
     
-    primer_frwd = f">Forward Primer {number}\n{forward}"
-    primer_rev = f">Reverse Primer {number}\n{reverse}"
+    header = f"RESULTS FOR CONV. PCR PRIMER \n"
+    primer_frwd = f">Forward Primer \n{forward}"
+    primer_rev = f">Reverse Primer \n{reverse}"
 
     try:
-        amp_len=get_amplicon_length_from_seq(target)
+        ampli_target = destination_seqkit / "Primer_seqkit_amplicon_against_target_m0.txt"
+        amp_len=get_amplicon_length_from_seq(ampli_target)
     except Exception as e:
         logger.error("Get_amplicon_length_from_seq failed for %s: %s", target, e)
         raise Exception("Get_amplicon_length_from_seq failed for %s: %s", target, e)

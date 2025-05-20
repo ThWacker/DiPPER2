@@ -6,7 +6,7 @@ set -e
 die() { echo "$@" ; exit 1; }
 diemsg() {
     echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> -F <forward primer> -R <reverse primer> -o <outfile prefix -c <delete concatenated files. Default:1. Set to 0 if you don't want that> 
-    -r <reference for bed files> -a <assembly used as reference for FUR>"  
+    -r <reference for bed files> "  
     echo ""
     echo "Arguments -f, -F, -R, -d, and -l are mandatory."
     echo "BLAST+, seqkit, python and all dependencies must be installed in path!!!"
@@ -34,12 +34,14 @@ FRW=
 REV=
 DEL=1
 REF=
-REF_FUR=
+
 
 # Initialize variables to track whether mandatory options are provided
 a_provided=false
 b_provided=false
 c_provided=false
+d_provided=false
+e_provided=false
 
 # Gather input files and settings
 while [ $# -gt 0 ]; do
@@ -48,11 +50,10 @@ while [ $# -gt 0 ]; do
     -d) ASSEM_F="$2"; shift; b_provided=true;;
     -l) TARGET="$2"; shift; c_provided=true;;
     -o) OUT="$2"; shift;;
-    -F) FRW="$2"; shift;;
-    -R) REV="$2"; shift;;
+    -F) FRW="$2"; shift; d_provided=true;;
+    -R) REV="$2"; shift; e_provided=true;;
     -c) DEL="$2"; shift;;
     -r) REF="$2"; shift;;
-    -a) REF_FUR="$2"; shift;;
     -*) echo >&2 "Unknown option: $1"; diemsg;;
     *) break;;    # terminate while loop
     esac
@@ -65,8 +66,8 @@ done
 echo "Checking if mandatory arguments have been provided..."
 
 # CHECK1: Check if mandatory arguments are provided
-if [ "$a_provided" = false ] || [ "$b_provided" = false ] || [ "$c_provided" = false ]; then
-    diemsg "Error: The values -f, -d, and -l are mandatory!"
+if [ "$a_provided" = false ] || [ "$b_provided" = false ] || [ "$c_provided" = false ] || [ "$d_provided" = false ] || [ "$e_provided" = false ]; then
+    diemsg "Error: The values -f, -d, -F, -R and -l are mandatory!"
 fi
 
 echo "Mandatory arguments have been provided!"
@@ -135,103 +136,33 @@ cd "$ASSEM_F" || exit 1
 echo "Shifting all the target assemblies into FUR.target and all the neighbours into FUR.neighbour folders"
 "$default_python" "$SCRIPT_DIR"/target_move_module_optimized.py -t "$TARGET" -f "$FOLD"
 
-# Run FUR
-echo "Running FUR"
- 
-if [[ -n $OUT && -n $FUR && -n $REF_FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR" -o "$OUT" -r "$REF_FUR"&& true
-    EXIT_STATUS="$?"
-elif [[ -n $FUR && -n $REF_FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR" -r "$REF_FUR"&& true
-    EXIT_STATUS="$?"
-elif [[ -n $OUT && -n $REF_FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT" -r "$REF_FUR"&& true
-    EXIT_STATUS="$?"
-elif [[ -n $OUT && -n $FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT" -p "$FUR"&& true
-elif [[ -n $FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -p "$FUR"&& true
-    EXIT_STATUS="$?"
-elif [[ -n $OUT ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -o "$OUT"&& true
-    EXIT_STATUS="$?"
-elif [[ -n $REF_FUR ]]; then
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD" -r "$REF_FUR" && true
-    EXIT_STATUS="$?"
-else
-    "$default_python"  "$SCRIPT_DIR"/FUR_module_optimized.py -f "$FOLD"&& true
-    EXIT_STATUS="$?"
-fi
-
-#check if the command failed with an exit status other than 0
-if [[ $EXIT_STATUS -ne 0 ]]; then
-    echo "FUR failed with error ${EXIT_STATUS}. Check log for details!"
-    exit 1
-fi
-echo "Finished running FUR"
-
-# Run P3 picking
-echo "Pick primers using Primer3"
-convPCR="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=200 prodMaxSize=1000 Oligo=0"
-if [[ -n $OUT && -n $P3 && $QPCR == "y" ]]; then
-    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3" -q "$QCPR" && true
-    EXIT_STATUS="$?"
-elif [[ -n $OUT && -n $P3 ]]; then
-    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$P3"&& true
-    EXIT_STATUS="$?"
-elif [[ -n $OUT && $QPCR == "n" ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$convPCR"&& true
-    EXIT_STATUS="$?"
-elif [[ -n $OUT && $QPCR == "y" ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -q "$QPCR"&& true
-    EXIT_STATUS="$?"
-elif [[ -n $OUT ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -o "$OUT" -p "$convPCR"&& true
-    EXIT_STATUS="$?"
-elif [[ -n $P3 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -p "$P3"&& true
-    EXIT_STATUS="$?"
-elif [[ $QPCR == "y" ]]; then
-    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -q "$QCPR"&& true
-    EXIT_STATUS="$?"
-else
-    "$default_python" "$SCRIPT_DIR"/Primer3_module_optimized.py -f "$FOLD" -p "$convPCR"&& true
-    EXIT_STATUS="$?"
-fi
-
-#check if the command failed with an exit status other than 0
-if [[ $EXIT_STATUS -ne 0 ]]; then
-    echo "Primer picking failed with error ${EXIT_STATUS}. Check log for details!"
-    exit 1
-fi
-echo "Finished primer picking."
 
 # Run in silico tests and blastx
 echo "Testing the primers for specificity and sensitivity in silico and determining the target"
 
 if [[ -n $OUT && $DEL -eq 0 && -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL" -r "$REF" && true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_standalone.py -f "$FOLD" -F "$FRW" -R "$REV" -o "$OUT" -c "$DEL" -r "$REF" && true
     EXIT_STATUS="$?"
 elif [[ -n $OUT && -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -r "$REF"&& true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_standalone.py -f "$FOLD" -F "$FRW" -R "$REV" -o "$OUT" -r "$REF"&& true
     EXIT_STATUS="$?"
 elif [[ -n $OUT && $DEL -eq 0 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -o "$OUT" -c "$DEL" && true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_standalone.py -f "$FOLD" -o "$OUT" -c "$DEL" && true
     EXIT_STATUS="$?"
 elif [[ -n $REF && $DEL -eq 0 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD" -r "$REF" -c "$DEL" && true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_standalone.py -f "$FOLD" -F "$FRW" -R "$REV" -r "$REF" -c "$DEL" && true
     EXIT_STATUS="$?"
 elif [[ $DEL -eq 0 ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -c "$DEL"&& true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_standalone.py -f "$FOLD" -F "$FRW" -R "$REV"  -c "$DEL"&& true
     EXIT_STATUS="$?"
 elif [[ -n $OUT ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -o "$OUT"&& true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_standalone.py -f "$FOLD" -F "$FRW" -R "$REV"  -o "$OUT"&& true
     EXIT_STATUS="$?"
 elif [[ -n $REF ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"  -r "$REF"&& true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_standalone.py -f "$FOLD" -F "$FRW" -R "$REV"  -r "$REF"&& true
     EXIT_STATUS="$?"
 else
-    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_optimized.py -f "$FOLD"&& true
+    "$default_python"  "$SCRIPT_DIR"/Primer_Testing_module_standalone.py -f "$FOLD" -F "$FRW" -R "$REV" && true
     EXIT_STATUS="$?"
 fi
 
@@ -245,14 +176,9 @@ echo "Finished in silico PCR and target definition."
 
 # Summary
 echo "Writing summary outfiles/"
+"$default_python"  "$SCRIPT_DIR"/Summarize_results_module_standalone.py  -f "$FOLD"&& true
+EXIT_STATUS="$?"
 
-if  [[ $QPCR == "y" ]]; then
-    "$default_python"  "$SCRIPT_DIR"/Summarize_results_module_improved.py -f "$FOLD" -q "$QPCR"&& true
-    EXIT_STATUS="$?"
-else
-    "$default_python"  "$SCRIPT_DIR"/Summarize_results_module_improved.py  -f "$FOLD"&& true
-    EXIT_STATUS="$?"
-fi
 
 # Clean up FUR.target and FUR.neighbour after saving all the targets and neighbours into txt files
 #check if the command failed with an exit status other than 0

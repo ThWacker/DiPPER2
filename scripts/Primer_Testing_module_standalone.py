@@ -452,7 +452,7 @@ def main():
 
         try:
             # Construct filename for output
-            filename = source_folder / f"{args.output_prefix}_primer_seqkit_amplicon_against_target_m{i}.txt"
+            filename = source_folder / f"Primer_seqkit_amplicon_against_target_m{i}.txt"
 
             # Write output to the file
             with open(filename, "w", encoding="utf-8") as file:
@@ -483,7 +483,7 @@ def main():
 
         try:
             # Construct filename for output
-            filename_n = source_folder / f"{args.output_prefix}_primer_seqkit_amplicon_against_neighbour_m{i}.txt"
+            filename_n = source_folder / f"Primer_seqkit_amplicon_against_neighbour_m{i}.txt"
 
             # Write output to the file
             with open(filename_n, "w", encoding="utf-8") as file:
@@ -577,7 +577,7 @@ def main():
 
         try:
             # Generate a file name for the bed file and write seqkit locate results to it
-            
+            ref = Path(ref)
             filename = f"Primer_amplicon_locate_in_{ref.name}.bed"
             filename = source_folder / filename
             logger.info(f"Printing bed file for seqkit locate to {filename}")
