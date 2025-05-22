@@ -63,6 +63,25 @@ git clone https://github.com/ThWacker/DiPPER2.git
 
 ## Usage
 
+> __*PLEASE NOTE THAT CURRENTLY RELATIVE PATHS ARE NOT RESOLVED PROPERLY. USE ABSOLUTE PATHS.*__
+
+### Minimal usage:
+
+```Bash
+/repos/DiPPER2/scripts/DiPPER2_wrapper.sh -d <folder with the assemblies> -f <name of the results folder> -o <results files prefix> -q <toggle if qPCR primers are wanted or not, default n> -l <list of targets>
+```
+
+### Optional parameters:
+
+```
+-c <delete concatenated files. Default:1. Set to 0 if you don't want that> 
+-p <FUR parameters>
+-t <primer3 parameters> [default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1]
+-q <qpcr (y) or conventional pcr (n)> [default: n] 
+-r <reference for bed files>
+-a <assembly used as reference for FUR>
+```
+
 ## DiPPER2 results walkthrough
 
 ### The results folder contains:
