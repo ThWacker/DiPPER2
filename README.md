@@ -89,11 +89,12 @@ git clone https://github.com/ThWacker/DiPPER2.git
 
 The parallelized version of DiPPER2 does not, like the unparallelized version, concatenate all targets and neighbour assembly fastas and run the *in silico* PCR on those, but uses the ```multiprocessing``` package to run ```seqkit amplicon ```, the tool which is used for *in-silico* PCR, on individual assemblies in parallel. To make sure this does not overwhelm the computer or server, the ```Primer_testing_parallelize.py``` script will check if there is sufficient memory available (currently set to 5 Gb) before starting each job. If no sufficient memory is available, it will wait 2 seconds and then check again. It does that up to 6h long before timing out completely (the script will then stop). During running the multiple processes, a Daemon thread will monitor the memory usage of each process and if it exceeds 16Gb, kills it. 
 
-Note that ```-c 0``` is incompatible with the parallelized version of DiPPER2,as no concatenated files are generated in the parallelized version. 
+__Note__:
 
-Currently, the __amount of workers/ cpus__ is set to __6__. This can be changed by going into the script ```Primer_testing_parallelize.py``` and changing the constant ```MAX_WORKERS``` in line 24.
-__The ```MAX_MEMORY_MB_PER_JOB```__ is not, as its variable name tries to imply, in Mb, but in bytes and is currently set to __16GB__. Again, this can be changed in the script ```Primer_testing_parallelize.py``` and changing the constant ```MAX_MEMORY_MB_PER_JOB``` in line 25.
-Finally, the __minimum memory required to start a parallel job__ is set to __5Gb__. This can be changed in the script ```Primer_testing_parallelize.py``` and changing the constant ```MIN_AVAILABLE_MEMORY``` in line 26.
+* ```-c 0``` is incompatible with the parallelized version of DiPPER2,as no concatenated files are generated in the parallelized version. 
+* Currently, the __amount of workers/ cpus__ is set to __6__. This can be changed by going into the script ```Primer_testing_parallelize.py``` and changing the constant ```MAX_WORKERS``` in line 24.
+* __The ```MAX_MEMORY_MB_PER_JOB```__ is not, as its variable name tries to imply, in Mb, but in bytes and is currently set to __16GB__. Again, this can be changed in the script ```Primer_testing_parallelize.py``` and changing the constant ```MAX_MEMORY_MB_PER_JOB``` in line 25.
+* Finally, the __minimum memory required to start a parallel job__ is set to __5Gb__. This can be changed in the script ```Primer_testing_parallelize.py``` and changing the constant ```MIN_AVAILABLE_MEMORY``` in line 26.
 
 ## DiPPER2 results walkthrough
 
