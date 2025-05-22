@@ -3,3 +3,4 @@ biopython
 Jinja2
 pandas
 pylint
+psutil
