@@ -10,7 +10,7 @@ from pathlib import Path
 import re
 import threading
 import time
-from multiprocessing import Pool
+from multiprocessing import Pool, set_start_method
 from typing import Optional
 import psutil
 from Bio import SeqIO  # type: ignore
@@ -92,7 +92,7 @@ def process_file_amplicon(
     mismatch: int,
     logger,
     MAX_MEMORY_MB_PER_JOB:int,
-    timeout: Optional[int]
+    timeout: Optional[int]= None
     ):
     """
     This is where the actual magic happens. At least part of it. Seqkit amplicon is spawned as a separate process.
@@ -114,7 +114,6 @@ def process_file_amplicon(
         subprocess.TimeoutExpired
         Exception
     """
-
     try:
         # cat is not memory monitored. This should (hypothetically) not use much memory
         cat = subprocess.Popen(["cat", str(file_path)], stdout=subprocess.PIPE, text=True)
@@ -135,7 +134,7 @@ def process_file_amplicon(
         memory_thread.start()
         
         # is there a timeout? get the results from seqkit
-        if timeout:
+        if timeout is not None:
             output, error = seqkit_out.communicate(timeout=timeout)
         else:
             output, error = seqkit_out.communicate()
@@ -182,7 +181,7 @@ def run_seqkit_amplicon_with_optional_timeout(
     CHECK_INTERVAL: int, 
     MIN_AVAILABLE_MEMORY: int,
     MAX_MEMORY_MB_PER_JOB: int,
-    timeout: Optional[int],
+    timeout: Optional[int]=None,
     max_workers: int = 6
     
 ):
@@ -491,6 +490,9 @@ def main():
     args = parser.parse_args()
     source_folder = Path(args.folder)
     
+    # configure multiprocessing: spawn and not fork
+    set_start_method("spawn")
+
     # configures the logger
     module_name = Path(__file__).name
     logger_instance = Logger(module_name, source_folder, args.verbose)
