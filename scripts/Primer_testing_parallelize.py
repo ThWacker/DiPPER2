@@ -115,18 +115,19 @@ def process_file_amplicon(
         Exception
     """
     try:
-        # cat is not memory monitored. This should (hypothetically) not use much memory
-        cat = subprocess.Popen(["cat", str(file_path)], stdout=subprocess.PIPE, text=True)
-
-        # run seqkit amplicon as a new separate process
+        with open(file_path, 'r') as f:
+            file_contents = f.read()
+    except OSError as e:
+        logger.exception("could not open or read file %s, error %s", file_path, e)
+        raise OSError(f"could not open or read file {file_path} with {e}") from e
+    try:
         seqkit_out = subprocess.Popen(
             ["seqkit", "amplicon", "-F", frwd, "-R", rev, "--bed", "-m", str(mismatch)],
-            stdin=cat.stdout,
+            stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True,
+            text=True
         )
-        cat.stdout.close()
 
         # Initializing of memory monitoring daemon
         memory_thread = threading.Thread(target=monitor_memory, args=(seqkit_out.pid, MAX_MEMORY_MB_PER_JOB, logger))
@@ -135,9 +136,11 @@ def process_file_amplicon(
         
         # is there a timeout? get the results from seqkit
         if timeout is not None:
-            output, error = seqkit_out.communicate(timeout=timeout)
+            print(f"{timeout} for process {seqkit_out.pid} for file {file_path}")
+            output, error = seqkit_out.communicate(input=file_contents, timeout=timeout)
         else:
-            output, error = seqkit_out.communicate()
+            output, error = seqkit_out.communicate(input=file_contents)
+        
 
         # well, this could have been put into an exception but here we are
         if seqkit_out.returncode != 0:
@@ -150,7 +153,6 @@ def process_file_amplicon(
     except subprocess.TimeoutExpired:
         logger.warning(f"[{file_path.name}] Timeout after {timeout}s")
         seqkit_out.kill()
-        cat.kill()
         return None
 
     except Exception as e:
