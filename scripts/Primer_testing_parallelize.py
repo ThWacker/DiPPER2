@@ -136,10 +136,13 @@ def process_file_amplicon(
         
         # is there a timeout? get the results from seqkit
         if timeout is not None:
-            print(f"{timeout} for process {seqkit_out.pid} for file {file_path}")
+            print(f"{timeout} for process {seqkit_out.pid} for file {file_path}. the time is {time.time()}")
             output, error = seqkit_out.communicate(input=file_contents, timeout=timeout)
+            seqkit_out.wait() 
+            print(f"the output of {seqkit_out.pid} is {len(output)} characters.The time is {time.time()}")
         else:
             output, error = seqkit_out.communicate(input=file_contents)
+            seqkit_out.wait() 
         
 
         # well, this could have been put into an exception but here we are
@@ -595,7 +598,7 @@ def main():
                     raise RuntimeError(
                         f"Error writing output of seqkit amplicon to file {filename}: {e}"
                     ) from e
-            # run seqkit amplicon for neighbours with up to 5 mismatches. Time out after 8 min
+            # run seqkit amplicon for neighbours with up to 5 mismatches. Time out after 30s
             for i in range(5):
                 try:
                     out_seqk_neighbour = run_seqkit_amplicon_with_optional_timeout(
@@ -607,7 +610,7 @@ def main():
                         CHECK_INTERVAL=CHECK_INTERVAL,
                         MIN_AVAILABLE_MEMORY=MIN_AVAILABLE_MEMORY,
                         MAX_MEMORY_MB_PER_JOB=MAX_MEMORY_MB_PER_JOB,
-                        timeout=10,
+                        timeout=30,
                         max_workers=MAX_WORKERS,
                     )
                 except Exception as e:
