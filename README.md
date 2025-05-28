@@ -178,7 +178,7 @@ This means that conventional primers have a target optimum Tm of 60 and a produc
 ## Future developments
 
 * FUR.target and FUR.neighbour assemblies are listed in target.txt and neighbour.txt and the folders are deleted
-* A working wrapper for the parallelized primer testing
+* ~~A working wrapper for the parallelized primer testing~~ &check;
 * A standalone pipeline that tests user provided primers (currently pre-release version in branch parallelize)
 * optimized blastx strategy to account for Ns in FURs output
 * packaging for PyPi
