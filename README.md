@@ -93,18 +93,38 @@ git clone https://github.com/ThWacker/DiPPER2.git
 ```
 
 ### Minimal usage (parallel):
-> The wrapper for this is not yet available but will be made available shortly.
+```Bash
+./DiPPER_wrapper_parallel.sh -f <results folder> -d <folder with the assemblies> -l <list with targets> 
+```
+
+#### Optional parameters:
+```
+-o <outfile prefix> [default: date]
+-p <FUR parameters> [default: none]
+-t <primer3 parameters> [default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1] 
+-q <qpcr (y) or conventional pcr (n)> [default: n]
+-r <reference for bed files> [default: longest target assembly]
+-a <assembly used as reference for FUR> [default: longest target assembly]
+-m <max memory that a job can use before getting killed> [default: 16000000000]
+-n <min memory that needs to be available to run a job> [default: 5000000000]
+-c <check interval for when not enough memory is available to start a job. After <-c> seconds, another memory check is conducted> [default: 2]
+-w <max number of workers in the pool of workers for jobs> [default: 6]
+```
+
 
 ## Additional information on the parallelized version of DiPPER2
 
 The parallelized version of DiPPER2 does not, like the unparallelized version, concatenate all targets and neighbour assembly fastas and run the *in silico* PCR on those, but uses the ```multiprocessing``` package to run ```seqkit amplicon ```, the tool which is used for *in-silico* PCR, on individual assemblies in parallel. To make sure this does not overwhelm the computer or server, the ```Primer_testing_parallelize.py``` script will check if there is sufficient memory available (currently set to 5 Gb) before starting each job. If no sufficient memory is available, it will wait 2 seconds and then check again. It does that up to 6h long before timing out completely (the script will then stop). During running the multiple processes, a Daemon thread will monitor the memory usage of each process and if it exceeds 16Gb, kills it. 
 
-__Note__:
+__*Notes*__:
 
-* ```-c 0``` is incompatible with the parallelized version of DiPPER2,as no concatenated files are generated in the parallelized version. 
-* Currently, the __amount of workers/ cpus__ is set to __6__. This can be changed by going into the script ```Primer_testing_parallelize.py``` and changing the constant ```MAX_WORKERS``` in line 24.
-* __The ```MAX_MEMORY_MB_PER_JOB```__ is not, as its variable name tries to imply, in Mb, but in bytes and is currently set to __16GB__. Again, this can be changed in the script ```Primer_testing_parallelize.py``` and changing the constant ```MAX_MEMORY_MB_PER_JOB``` in line 25.
-* Finally, the __minimum memory required to start a parallel job__ is set to __5Gb__. This can be changed in the script ```Primer_testing_parallelize.py``` and changing the constant ```MIN_AVAILABLE_MEMORY``` in line 26.
+__Multiprocessing__ uses "spawn" as start method to avoid file descriptors being passed on and to make it save for MacOS. However, this can lead to other problems, especially due to the following documented restrictions:
+
+>__More picklability:__ Ensure that all arguments to Process.__init__() are picklable. Also, if you subclass Process then make sure that instances will be picklable when the Process.start method is called. </br>
+>__Global variable:__ Bear in mind that if code run in a child process tries to access a global variable, then the value it sees (if any) may not be the same as the value in the parent process at the time that Process.start was called.
+>However, global variables which are just module level constants cause no problems.
+
+If that turns out to be a problem, change the ```set_start_method("spawn")``` in the main function to ```fork``` or comment that line out in ```Primer_testing_parallelize.py```. That might solve the problem. 
 
 ## DiPPER2 results walkthrough
 
