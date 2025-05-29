@@ -45,9 +45,9 @@ def make_fur_db(target_folder: Path, neighbour_folder: Path, source: Path, logge
         logger.info("Making FUR DB.")
         fur_db = source / 'FUR.db'
         if reference:
-            subprocess.run(['makeFurDb', '-t', str(target_folder), '-n', str(neighbour_folder), '-d', str(fur_db), '-r', str(reference)], check=True)
+            subprocess.run(['makeFurDb', '-t', str(target_folder), '-n', str(neighbour_folder), '-d', str(fur_db),'-T', '6', '-r', str(reference)], check=True)
         else:
-            subprocess.run(['makeFurDb', '-t', str(target_folder), '-n', str(neighbour_folder), '-d', str(fur_db)], check=True)
+            subprocess.run(['makeFurDb', '-t', str(target_folder), '-n', str(neighbour_folder), '-d', str(fur_db),'-T', '6'], check=True)
     except subprocess.CalledProcessError as e:
         logger.exception(f"Error when executing makeFurDb: {e}")
         raise RuntimeError(f"Error when executing makeFurDb: {e}") from e
