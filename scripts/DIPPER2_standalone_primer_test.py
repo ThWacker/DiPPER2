@@ -86,16 +86,14 @@ def main():
     run_command(test_args)
     print("Finished in silico PCR and target definition")
 
-    # Summarize args
+    # Summarize results
     summarize_args = [
         python_env,
         str(script_dir / "Summarize_results_module_standalone.py"),
         "-f",
         args.fold,
     ]
-    if args.qpcr == "y":
-        summarize_args += ["-q", args.qpcr]
-
+    #run 
     run_command(summarize_args)
     print("Finished! All steps completed successfully.")
 
