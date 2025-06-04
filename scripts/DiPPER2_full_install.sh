@@ -174,7 +174,7 @@ echo "All requested software installations attempted." | tee -a "$LOGFILE"
 
 echo "The following software was installed:" | tee -a "$LOGFILE"
 for str in "${InstallArray[@]}"; do
-  echo "${str}"
+  echo "$str"
 done
 
 
