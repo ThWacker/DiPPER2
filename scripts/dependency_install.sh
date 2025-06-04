@@ -67,7 +67,7 @@ install_primer3() {
         update_path "$(pwd)"
         cd ../..
     else
-        mamba install bioconda::primer3
+        yes "" | mamba install bioconda::primer3
     fi
     echo "Primer3 installed successfully" | tee -a "$LOGFILE"
     InstallArray+=("Primer3")
@@ -78,7 +78,7 @@ install_fur() {
     git clone https://github.com/evolbioinf/fur || { echo "FUR clone failed" | tee -a "$LOGFILE"; return; }
     cd fur || { echo "FUR directory missing" | tee -a "$LOGFILE"; return; }
 
-    sudo ./scripts/setup.sh || { echo "FUR setup.sh failed" | tee -a "$LOGFILE"; return; }
+    bash ./scripts/setup.sh || { echo "FUR setup.sh failed" | tee -a "$LOGFILE"; return; }
     make || { echo "FUR make failed" | tee -a "$LOGFILE"; return; }
 
     update_path "$(pwd)/bin"
@@ -102,18 +102,32 @@ install_edirect() {
 
 install_blast() {
     echo "Installing ncbi-blast-2.2.31+..." | tee -a "$LOGFILE"
-    curl -s -f -Lo ncbi-blast-2.2.31+-x64-linux.tar.gz \
-        https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz || {
-        echo "Download of BLAST failed" | tee -a "$LOGFILE"; return;
-    }
+    if [[ $MAC == "n" ]]; then
+        curl -s -f -Lo ncbi-blast-2.2.31+-x64-linux.tar.gz \
+            https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.2.31/ncbi-blast-2.2.31+-x64-linux.tar.gz || {
+            echo "Download of BLAST failed" | tee -a "$LOGFILE"; return;
+        }
 
-    tar -xzf ncbi-blast-2.2.31+-x64-linux.tar.gz || {
-        echo "Extraction of BLAST failed" | tee -a "$LOGFILE"; return;
-    }
+        tar -xzf ncbi-blast-2.2.31+-x64-linux.tar.gz || {
+            echo "Extraction of BLAST failed" | tee -a "$LOGFILE"; return;
+        }
 
-    rm ncbi-blast-2.2.31+-x64-linux.tar.gz
+        rm ncbi-blast-2.2.31+-x64-linux.tar.gz
 
-    update_path "$(pwd)/ncbi-blast-2.2.31+/bin"
+        update_path "$(pwd)/ncbi-blast-2.2.31+/bin"
+    else
+        curl -s -f -Lo ncbi-blast-2.16.0+-x64-macosx.tar.gz  \
+        https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.16.0+-x64-macosx.tar.gz || {
+            echo "Download of BLAST failed" | tee -a "$LOGFILE"; return;
+        }
+        tar -xzf ncbi-blast-2.16.0+-x64-macosx.tar.gz || {
+            echo "Extraction of BLAST failed" | tee -a "$LOGFILE"; return;
+        }
+
+        rm ncbi-blast-2.16.0+-x64-macosx.tar.gz
+
+        update_path "$(pwd)/ncbi-blast-2.16.0+/bin"
+    fi
 
     echo "BLAST+ installed successfully" | tee -a "$LOGFILE"
     InstallArray+=("BLAST+")
