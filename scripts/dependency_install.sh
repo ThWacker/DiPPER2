@@ -18,7 +18,7 @@ echo ""
 echo "-h for help"
 echo ""
 
-if [ "$1" == "-h" ] ; then
+if [ $# -gt 0 ] && [ "$1" == "-h" ]; then
     diemsg
 fi
 
@@ -46,7 +46,7 @@ echo "Detailed install log information" | tee -a "$LOGFILE"
 update_path() {
     local new_path="$1"
     echo "export PATH=$new_path:\${PATH}" >> "$HOME/.bashrc"
-    echo "Added $new_path to PATH" | tee -a "$LOGFILE"
+    echo "Added \"$new_path\" to PATH" | tee -a "$LOGFILE"
 }
 
 # install functions that return if they fail. 
@@ -67,7 +67,7 @@ install_primer3() {
         update_path "$(pwd)"
         cd ../..
     else
-        yes "" | mamba install bioconda::primer3
+        yes "" | conda install bioconda::primer3
     fi
     echo "Primer3 installed successfully" | tee -a "$LOGFILE"
     InstallArray+=("Primer3")
@@ -133,8 +133,8 @@ install_blast() {
     InstallArray+=("BLAST+")
 }
 
-install_mamba() {
-    echo "Installing mamba via Miniforge..." | tee -a "$LOGFILE"
+install_conda() {
+    echo "Installing conda via Miniforge..." | tee -a "$LOGFILE"
     if [[ $MAC == "y" ]]; then
       curl -fsSLo Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh" || {
           echo "Failed to download Miniforge installer" | tee -a "$LOGFILE"; return;
@@ -148,23 +148,25 @@ install_mamba() {
     bash Miniforge3.sh -b -p "${HOME}/conda" || {
         echo "Miniforge installer failed" | tee -a "$LOGFILE"; return;
     }
-
-    mamba shell init || {
-        echo "Failed at mamba shell init" | tee -a "$LOGFILE"; return;
+    source "${HOME}/conda/etc/profile.d/conda.sh" ||{
+        echo "Miniforge failed to source conda sh"| tee -a "$LOGFILE"; return;
+    }
+    conda init || {
+        echo "Failed at conda shell init" | tee -a "$LOGFILE"; return;
     }
 
-    echo "Mamba installed successfully" | tee -a "$LOGFILE"
-    InstallArray+=("Mamba")
+    echo "Conda installed successfully" | tee -a "$LOGFILE"
+    InstallArray+=("Conda")
 }
 
 install_seqkit() {
     echo "Installing seqkit..." | tee -a "$LOGFILE"
-    if ! command -v mamba >/dev/null 2>&1; then
-        install_mamba
+    if ! command -v conda >/dev/null 2>&1; then
+        install_conda
     fi
 
-    mamba install -y -c bioconda seqkit || {
-        echo "Seqkit install via mamba failed" | tee -a "$LOGFILE"; return;
+    conda install -y -c bioconda seqkit || {
+        echo "Seqkit install via conda failed" | tee -a "$LOGFILE"; return;
     }
 
     update_path "${HOME}/conda/bin"
@@ -177,7 +179,7 @@ install_seqkit() {
 # Test if programs are there and if not,install. Otherwise just notify that they are installed. 
 if ! command -v efetch >/dev/null 2>&1; then install_edirect; else echo "Entrez Direct already installed" | tee -a "$LOGFILE"; fi
 if ! command -v blastx >/dev/null 2>&1; then install_blast; else echo "BLAST+ already installed" | tee -a "$LOGFILE"; fi
-if ! command -v mamba >/dev/null 2>&1; then install_mamba; else echo "Mamba already installed" | tee -a "$LOGFILE"; fi
+if ! command -v conda  >/dev/null 2>&1; then install_conda; else echo "Conda already installed" | tee -a "$LOGFILE"; fi
 if ! command -v seqkit >/dev/null 2>&1; then install_seqkit; else echo "Seqkit already installed" | tee -a "$LOGFILE"; fi
 if [[ $ALONE == "n" ]]; then
   if ! command -v primer3_core >/dev/null 2>&1; then install_primer3; else echo "Primer3 already installed" | tee -a "$LOGFILE"; fi
