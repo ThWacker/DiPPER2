@@ -21,41 +21,49 @@ DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and 
 ## Synopsis
 __*This pipeline and modules are meant to facilitate reliable and reproducible finding of diagnostic targets and to make picking primers for those targets as user-friendly as possible. The approach taken is a phylogeny-driven and clade-specific approach.*__ 
 
-The pipeline, once functional, automatically finds unique genomic regions for a target species, pathovar or race with moderate user intervention, automatically picks primers for these regions that are amenable to both conventional PCR and quantitative PCR, and finally tests them for specificity and sensitivity.
+The pipeline automatically finds unique genomic regions for a target species, pathovar or race with moderate user intervention, automatically picks primers for these regions that are amenable to both conventional PCR and quantitative PCR, and finally tests them for specificity and sensitivity.
+
+The pipeline can also be run "stand-alone" to *only test* but not pick primers. In that case it will only perform tests for specificity and sensitivity for existing primers.
 
 ## Overview
 DiPPER2 is a tool to find unique genomic regions of target species, build primers (conv. or qPCR) for them, validate them *in silico*, define the identity of the unique genomic regions (either by homology or genome coordinates) and produce a user-friendly html report (and a more machine-readable .txt report).
 
+Standalone-DiPPER2 is modified pipeline workflow that will validate existing primers *in silico*, define the identity of their amplicons (either by homology or genome coordinates) and produce a user-friendly html report (and a more machine-readable .txt report).
+
 ## Features
-Key features of DiPPER2:
+Key features of DiPPER2 (&Dagger; only in full pipeline):
 
 * generates a html and .txt report with the primers, the identity of the region the primers target and information of specificity and sensitivity.
-* generates .txt files (in fasta format) with primers for the unique genomic regions found
-* generates fasta files with the sequence of the unique genomic regions the primers target
-* generates .txt files that contain information on the primer's characteristics (Tm, GC, product size *etc*.)
+* generates .txt files (in fasta format) with primers for the unique genomic regions found (&Dagger;)
+* generates fasta files with the sequence of the unique genomic regions the primers target (&Dagger;)
+* generates .txt files that contain information on the primer's characteristics (Tm, GC, product size *etc*.) (&Dagger;)
 * generates .bed files of unique genomic regions that cannot be identified by homology (blastx). These can be used in IGV to find where the unique genomic region falls in a reference genome (either provided, or longest)
 * generates .bed files for the *in silico* tests of primers
 
 For more details on the outputs and the folder structure, compare the 'DiPPER2 results walkthrough' section.
 
-## Pipeline workflow:
+## Full DiPPER2 pipeline workflow
+
+This workflow will find unique genomic regions, 
 Each script initializes a logger from the custom Logger class, defined in ```logging_handler.py```.
 
-1. ```DiPPER2_wrapper.sh``` checks if mandatory arguments have been provided, checks which python version is found, finds the default python interpreter, checks if dipper2 environment exists and if not, creates one (upgrades pip, installs requirements, activates the python environment). It then changes directory to the directory that contains all assemblies. 
-2. Called by ```DiPPER2_wrapper.sh```, ```target_move_module_optimized.py``` is run. This module creates two folders, FUR.target and FUR.neighbour, and sorts the target and neighbour assemblies from the current directory into the respective folders.
+1. ```DiPPER2_wrapper.sh``` or ```DiPPER2_wrapper.py``` checks if mandatory arguments have been provided, checks which python version is found, finds the default python interpreter, checks if dipper2 environment exists and if not, creates one (upgrades pip, installs requirements, activates the python environment). It then changes directory to the directory that contains all assemblies. 
+2. Called by ```DiPPER2_wrapper.sh/py```, ```target_move_module_optimized.py``` is run. This module creates two folders, FUR.target and FUR.neighbour, and sorts the target and neighbour assemblies from the current directory into the respective folders.
 3. If the previous module successfully finished, the third party software ```FUR``` is run by calling ```FUR_module_optimized```. It checks if all folder are present and non-empty, then makes a ```FUR``` database and runs ```FUR```. ```FUR``` provides some statistics about its run, those are saved in ```FUR_Summary_output.txt```. Finally, the module deletes the ```FUR``` database, as it takes up a lot of space.
-4. Once that has run successfully, ```DiPPER2_wrapper.sh``` calls ```Primer3_module_optimized.py```, which finds the ```FUR``` output file. ```FUR```s output, found in <outfile_prefix>_FUR.db.out.txt, does not have the right format for ```Primer3```, which will be run next. Therefore, the script imports functions to convert the output from ```fur2primer3.py```. It checks if it has all the primer3 parameters necessary (```-t``` option) and reformats the ```FUR``` output as a ```Primer3``` input. The resulting file is <outfile_prefix>_FUR.db.out.txt.primers.txt. Then ```primer3_core``` is run. Results from that run are in <outfile_prefix>_FUR.db.out.txt.primers.txt.primer3_out.txt. From there, it extracts the four [lowest penalty](https://www.primer3plus.com/primer3plusHelp.html#calculatePenalties) primers, puts them into primer files and also extracts their targets, as well as key primer parameters (Tm etc.) from ```Primer 3```'s output. Primers are identified by number which corresponds to the line number of the primer found in the Primer3 output file, and the files with the primers are moved into FUR.P3.PRIMERS. Target fastas are moved into FUR.P3.TARGETS. FUR.P3.PRIMERS has a subfolder primer_data which contains the data for each primer.
+4. Once that has run successfully, ```DiPPER2_wrapper.sh/py``` calls ```Primer3_module_optimized.py```, which finds the ```FUR``` output file. ```FUR```s output, found in <outfile_prefix>_FUR.db.out.txt, does not have the right format for ```Primer3```, which will be run next. Therefore, the script imports functions to convert the output from ```fur2primer3.py```. It checks if it has all the primer3 parameters necessary (```-t``` option) and reformats the ```FUR``` output as a ```Primer3``` input. The resulting file is <outfile_prefix>_FUR.db.out.txt.primers.txt. Then ```primer3_core``` is run. Results from that run are in <outfile_prefix>_FUR.db.out.txt.primers.txt.primer3_out.txt. From there, it extracts the four [lowest penalty](https://www.primer3plus.com/primer3plusHelp.html#calculatePenalties) primers, puts them into primer files and also extracts their targets, as well as key primer parameters (Tm etc.) from ```Primer 3```'s output. Primers are identified by number which corresponds to the line number of the primer found in the Primer3 output file, and the files with the primers are moved into FUR.P3.PRIMERS. Target fastas are moved into FUR.P3.TARGETS. FUR.P3.PRIMERS has a subfolder primer_data which contains the data for each primer.
 5. If this has successfully finished, the wrapper calls ```Primer_Testing_module_optimized.py```. This checks if it has all it needs (primers, targets etc), then concatenates all assemblies in the FUR.target folder and all assemblies in the FUR.neighbour folder in two files, respectively. It then runs first sensitivity tests using ```seqkit amplicon``` for *in silico* PCR on the concatenated targets. It does that iteratively up till 3 mismatches allowed. Then it runs specificity tests on the neighbours, iteratively for all four primers with up to 4 mismatches. This test can time out, the time out is set to 6 minutes, as often ```seqkit amplicon``` find huge (several kb) off-target amplicons when primer pairs randomly match in the genome of neighbours. After finishing that, it runs ```blastx``` on the targets. If ```blastx``` does not return any hits, it either takes the reference provided by the user (```-r``` option) or finds the longest assembly within the targets and runs ```seqkit locate``` with the primer target. The result is a bedfile with coordinates where the primer target is found in the assembly. Finally, it puts all *in silico* testing files into a separate subfolder of FUR.P3.PRIMERS call in_silico_tests.
 6. Upon successful finish of this script, the ```Summarize_results_module_improved.py``` module is run. It will produce an html report for the user that will tell them whether the sets of primers failed or passed. Sensitivity tests are passed when the primer pair produces an amplicon of the correct size for all target assemblies. Off-target amplification or missing target assemblies is accepted for *in silico* tests with 3 mismatches. For the specifictity tests, the script checks whether no neighbours produced an amplicon with the correct size. No correct sized amplicons of any neighbour are accepted for up to 4 mismatches. The report also contains information on the targets, and lists which files are found where.
 
 ## Requirements
-The following programs need to be in path:
+The following programs need to be in path for __the full DiPPER2 pipeline__:
 
 * [BLAST+](https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html)
 * [seqkit](https://bioinf.shenwei.me/seqkit/download/)
 * [FUR](https://github.com/EvolBioInf/fur)
-* [primer3_core](https://primer3.org/releases.html)
+* [Primer3](https://primer3.org/releases.html)
 * [E-utilities](https://www.ncbi.nlm.nih.gov/home/tools/)
+
+For __primer testing only standalone-pipeline__, ```FUR``` and ```Primer3``` are *not* needed. 
 
 DiPPER2 was developed using python 3.9 and 3.12. It runs stably on both version 3.9 and 3.12, but a python version >=3.12 is recommended.
 
@@ -66,10 +74,38 @@ Seqkit, BLAST+ and primer3 can be installed via conda. primer3 can also be insta
 
 ## Installation
 
-Assuming all the required programs listed in Requirements are installed and in path, DiPPER2 can be installed by cloning the repo:
+To install the dependencies, please run the ```dependency_install.sh``` script. For both Linux and MacOS you can decide whether you want to install the entire pipeline (including ```FUR``` and ```Primer3```) or the standalone, primer-testing one.
+By default it will install the full pipeline (```-s n```). To install the standalone-pipeline, set ```-s y```.
+
+```Bash
+Usage: dependency_install.sh -m n -s n
+    Installation Script. Either installs the entire DiPPER2 pipeline dependencies or just dependencies of the standalone pipeline, which tests primers only.
+      -m <Is this a MacOS?> [y/n; default n]
+      -s <standalone or not?> [y/n; default n]
+```
+To install ```FUR``` successfully, this installation script might have to be run as sudo.
+
+__NOTE: the MacOS install of ```FUR``` will fail!__</br>
+Follow the following steps:
+1. check which of the following might already be installed:
+    - golang 
+    - libdivsufsort-dev 
+    - make
+    - phylonium
+    - homebrew
+2. Install homebrew if necessary first:
+```/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
+```
+3. Install all missing other packages using
+```Bash
+brew install <package>
+```
+
+Assuming all the required programs listed in Requirements are then installed and in path, DiPPER2 can be installed by cloning the repo:
 ```Bash
 git clone https://github.com/ThWacker/DiPPER2.git
 ```
+> *DiPPER2 should now be ready to go*
 
 ## Usage
 
