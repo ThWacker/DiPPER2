@@ -49,6 +49,7 @@ def process_target_files(list_targets: list, source_folder:Path, fur_target_fold
             result = subprocess.run(['find', str(source_folder), '-maxdepth', '1', '-type', 'f', '-iname', accession_pattern], capture_output=True, text=True, check=True)
             filename = result.stdout.strip()
             test_list=filename.split(sep="\n")
+            logger.debug(f"test list for {accession}:\n{test_list}")
             if len(test_list) > 1:
                 logger.error("Make sure that there is only one assembly per accession. Please delete the other assemblies and only keep the highest quality one.")
                 sys.exit()
