@@ -34,9 +34,9 @@ Standalone-DiPPER2 is modified pipeline workflow that will validate existing pri
 Key features of DiPPER2 (&Dagger; only in full pipeline):
 
 * generates a html and .txt report with the primers, the identity of the region the primers target and information of specificity and sensitivity.
-* generates .txt files (in fasta format) with primers for the unique genomic regions found (&Dagger;)
-* generates fasta files with the sequence of the unique genomic regions the primers target (&Dagger;)
-* generates .txt files that contain information on the primer's characteristics (Tm, GC, product size *etc*.) (&Dagger;)
+* generates .txt files (in fasta format) with primers for the unique genomic regions found&Dagger;
+* generates fasta files with the sequence of the unique genomic regions the primers target&Dagger;
+* generates .txt files that contain information on the primer's characteristics (Tm, GC, product size *etc*.)&Dagger;
 * generates .bed files of unique genomic regions that cannot be identified by homology (blastx). These can be used in IGV to find where the unique genomic region falls in a reference genome (either provided, or longest)
 * generates .bed files for the *in silico* tests of primers
 
@@ -94,7 +94,8 @@ Follow the following steps:
     - phylonium
     - homebrew
 2. Install homebrew if necessary first:
-```/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
+```Bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
 ```
 3. Install all missing other packages using
 ```Bash
@@ -109,7 +110,7 @@ git clone https://github.com/ThWacker/DiPPER2.git
 
 ## Usage
 
-> __*PLEASE NOTE THAT CURRENTLY RELATIVE PATHS ARE NOT RESOLVED PROPERLY. USE ABSOLUTE PATHS.*__
+> __*PLEASE NOTE THAT CURRENTLY RELATIVE PATHS ARE NOT RESOLVED PROPERLY. USE ABSOLUTE PATHS. You might have to run ```conda activate``` first for all programs to be in PATH.*__
 
 ### Minimal usage (non-parallel):
 
@@ -162,7 +163,7 @@ __Multiprocessing__ uses "spawn" as start method to avoid file descriptors being
 
 If that turns out to be a problem, change the ```set_start_method("spawn")``` in the main function to ```fork``` or comment that line out in ```Primer_testing_parallelize.py```. That might solve the problem. 
 
-## DiPPER2 results walkthrough
+## Full DiPPER2 pipeline run results walkthrough
 
 ### The results folder contains:
 
@@ -215,7 +216,7 @@ This means that conventional primers have a target optimum Tm of 60 and a produc
 
 * FUR.target and FUR.neighbour assemblies are listed in target.txt and neighbour.txt and the folders are deleted
 * ~~A working wrapper for the parallelized primer testing~~ &check;
-* A standalone pipeline that tests user provided primers (currently pre-release version in branch parallelize)
+* ~~A standalone pipeline that tests user provided primers (currently pre-release version in branch parallelize)~~&check;
 * optimized blastx strategy to account for Ns in FURs output
 * packaging for PyPi
 * Docker containerization and conda packaging
