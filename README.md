@@ -9,6 +9,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14699018.svg)](https://doi.org/10.5281/zenodo.14699018)
 ![](./logo/Dipper2_white.png) 
+[![CodeFactor](https://www.codefactor.io/repository/github/thwacker/dipper2/badge/main)](https://www.codefactor.io/repository/github/thwacker/dipper2/overview/main)
 # DiPPER2
 DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility
 
