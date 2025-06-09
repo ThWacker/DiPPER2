@@ -174,7 +174,7 @@ def main():
         default="primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1",
         help="string from config file that defines the primer3_core parameters for fur2prim. Default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200",
     )
-    parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.1.0-beta")
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.1.0")
     parser.add_argument(
         "-o",
         "--outfile_prefix",

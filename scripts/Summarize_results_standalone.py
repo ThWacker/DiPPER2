@@ -748,7 +748,7 @@ def main():
         description="Summarize the results and generate html results",
         epilog="Theresa Wacker T.Wacker2@exeter.ac.uk",
     )
-    parser.add_argument("-v", "--version", action="version", version="%(prog)s 0.1.0-beta")
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s 1.1.0")
     parser.add_argument(
         "-f",
         "--folder",

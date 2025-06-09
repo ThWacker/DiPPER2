@@ -5,9 +5,15 @@ set -e
 
 die() { echo "$@" ; exit 1; }
 diemsg() {
-    echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> -o <outfile prefix -c <delete concatenated files. Default:1. Set to 0 if you don't want that> 
-    -p <FUR parameters>  -t <primer3 parameters> [default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1] -q <qpcr (y) or conventional pcr (n)> [default: n] 
-    -r <reference for bed files> -a <assembly used as reference for FUR>"  
+    echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> 
+    -o <outfile prefix 
+    -c <delete concatenated files. Default:1. Set to 0 if you don't want that> 
+    -p <FUR parameters>  
+    -t <primer3 parameters> [default: primMinTm=58 primOptTm=60 primMaxTm=62 inMinTm=63 inOptTm=65 inMaxTm=67 prodMinSize=100 prodMaxSize=200 Oligo=1] 
+    -q <qpcr (y) or conventional pcr (n)> [default: n] 
+    -r <reference for bed files>
+    -a <assembly used as reference for FUR>
+    -v <version>"  
     echo ""
     echo "Arguments -f, -d, and -l are mandatory."
     echo "FUR (https://github.com/EvolBioInf/fur/tree/master), primer3_core (https://github.com/primer3-org/primer3), BLAST+, seqkit, python and all dependencies must be installed in path!!!"
@@ -22,7 +28,7 @@ echo ""
 echo "-h for help"
 echo ""
 
-if [ "$1" == "-h" ] || [ $# -lt 4 ]; then
+if [ "$1" == "-h" ] || [ $# -lt 3 ]; then
     diemsg
 fi
 
@@ -37,6 +43,12 @@ QPCR="n"
 DEL=1
 REF=
 REF_FUR=
+VERSION="1.1.0"
+
+#Display version
+if [ "$1" == "-v" ]; then
+    echo "DiPPER2 version ${VERSION}"
+fi
 
 # Initialize variables to track whether mandatory options are provided
 a_provided=false

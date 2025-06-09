@@ -95,7 +95,7 @@ def main():
     parser = argparse.ArgumentParser(prog='Dipper2',description='Target and Neighbour Folder Sorting', epilog="Bugs, suggestions, criticism, cake, capybaras and praise to t.wacker2@exeter.ac.uk")
     parser.add_argument('-t', '--target', type=str, required=True, help='Please add target list')
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which will include the FUR.target and FUR.neighbour subfolders')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1.0-beta')
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.1.0')
     parser.add_argument(
             "-V", "--verbose", action="store_true", help="increase logging verbosity"
         )

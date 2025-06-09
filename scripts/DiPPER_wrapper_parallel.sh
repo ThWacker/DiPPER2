@@ -17,7 +17,8 @@ diemsg() {
     -m <max memory that a job can use before getting killed> [default: 16000000000] 
     -n <min memory that needs to be available to run a job> [default: 5000000000]
     -c <check interval for when not enough memory is available to start a job. After <-c> seconds, another memory check is conducted> [default: 2]
-    -w <max number of workers in the pool of workers for jobs> [default: 6]"  
+    -w <max number of workers in the pool of workers for jobs> [default: 6]
+    -v <version>"  
     echo ""
     echo "Arguments -f, -d, and -l are mandatory."
     echo "FUR (https://github.com/EvolBioInf/fur/tree/master), primer3_core (https://github.com/primer3-org/primer3), BLAST+, seqkit, python and all dependencies must be installed in path!!!"
@@ -32,7 +33,7 @@ echo ""
 echo "-h for help"
 echo ""
 
-if [ "$1" == "-h" ] || [ $# -lt 4 ]; then
+if [ "$1" == "-h" ] || [ $# -lt 3 ]; then
     diemsg
 fi
 
@@ -51,6 +52,12 @@ M_MAX=
 M_MIN=
 WORK=
 INT=
+VERSION="1.1.0"
+
+#Display version
+if [ "$1" == "-v" ]; then
+    echo "DiPPER2 version ${VERSION}"
+fi
 
 # Initialize variables to track whether mandatory options are provided
 a_provided=false

@@ -31,6 +31,7 @@ def main():
         "-c", "--del_concat", default=1, type=int, help="Delete concatenated files"
     )
     parser.add_argument("-r", "--ref", help="Reference for BED files")
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.1.0')
 
     args = parser.parse_args()
 

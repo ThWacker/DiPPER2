@@ -5,8 +5,11 @@ set -e
 
 die() { echo "$@" ; exit 1; }
 diemsg() {
-    echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> -F <forward primer> -R <reverse primer> -o <outfile prefix -c <delete concatenated files. Default:1. Set to 0 if you don't want that> 
-    -r <reference for bed files> "  
+    echo "Usage: $0 -f <results folder> -d <folder with the assemblies> -l <list with targets> -F <forward primer> -R <reverse primer> 
+    -o <outfile prefix 
+    -c <delete concatenated files. Default:1. Set to 0 if you don't want that> 
+    -r <reference for bed files> 
+    -v <version>"  
     echo ""
     echo "Arguments -f, -F, -R, -d, and -l are mandatory."
     echo "BLAST+, seqkit, python and all dependencies must be installed in path!!!"
@@ -21,7 +24,7 @@ echo ""
 echo "-h for help"
 echo ""
 
-if [ "$1" == "-h" ] || [ $# -lt 4 ]; then
+if [ "$1" == "-h" ] || [ $# -lt 5 ]; then
     diemsg
 fi
 
@@ -34,6 +37,12 @@ FRW=
 REV=
 DEL=1
 REF=
+VERSION="1.1.0"
+
+#Display version
+if [ "$1" == "-v" ]; then
+    echo "DiPPER2 version ${VERSION}"
+fi
 
 
 # Initialize variables to track whether mandatory options are provided

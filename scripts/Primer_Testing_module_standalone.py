@@ -356,7 +356,7 @@ def main():
         epilog="complaints, bugs, coffee, puppies and suggestions to t.wacker2@exeter.ac.uk",
     )
     parser.add_argument(
-        "-v", "--version", action="version", version="%(prog)s 0.1.0-beta"
+        "-v", "--version", action="version", version="%(prog)s 1.1.0"
     )
     parser.add_argument(
         "-f",

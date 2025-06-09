@@ -112,7 +112,7 @@ def main():
     parser = argparse.ArgumentParser(prog="DiPPER2",description='This module runs FUR to find unique genomic regions', epilog="Bugs, suggestions, criticism, chocolate, puppies and praise to t.wacker2@exeter.ac.uk")
     parser.add_argument('-p', '--parameter', type=str, default=" ", help='Tells FUR how to run. -u -> only the first subtraction step; -U -> runs first Subtraction step and Intersection step; -m -> runs megablast instead of blastn in the last step; without argument runs FUR in full.')
     parser.add_argument('-o', '--outfile_prefix', default=dt_string, type=str, help='Outfile prefix. Default is date and time in d-m-y-h-m-s-tz format')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.0.1')
+    parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.1.0')
     parser.add_argument('-f', '--folder', type=str, required=True, help='Results folder name, which includes results folders from previous steps')
     parser.add_argument('-r', '--reference', type=str, default=None,help="Optional reference for the makeFurDb step" )
     parser.add_argument(
