@@ -1,6 +1,6 @@
 [![CodeQL Advanced](https://github.com/ThWacker/DiPPER2/actions/workflows/codeql.yml/badge.svg)](https://github.com/ThWacker/DiPPER2/actions/workflows/codeql.yml) [![Python Lint and Code Quality](https://github.com/ThWacker/DiPPER2/actions/workflows/pylint.yml/badge.svg)](https://github.com/ThWacker/DiPPER2/actions/workflows/pylint.yml)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-
+[![CodeFactor](https://www.codefactor.io/repository/github/thwacker/dipper2/badge/main)](https://www.codefactor.io/repository/github/thwacker/dipper2/overview/main)
  <!----
   (![Static Badge](https://img.shields.io/badge/unittest_code_coverage-78%25-yellow))
   --->
@@ -9,7 +9,8 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14699018.svg)](https://doi.org/10.5281/zenodo.14699018)
 ![](./logo/Dipper2_white.png) 
-[![CodeFactor](https://www.codefactor.io/repository/github/thwacker/dipper2/badge/main)](https://www.codefactor.io/repository/github/thwacker/dipper2/overview/main)
+
+
 # DiPPER2
 DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility
 
