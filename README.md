@@ -225,7 +225,7 @@ This means that conventional primers have a target optimum Tm of 60 and a produc
   
 ## Contact
 
-Either open an issue in this repo or contact Theresa Wacker at t[dot]wacker2[at]exeter[dot]ac[dot]uk.
+Either open an issue in this repo or contact Theresa Wacker at theresa[underscore]wacker[at]mailbox[dot]org.
 
 ## Acknowledgements
 
