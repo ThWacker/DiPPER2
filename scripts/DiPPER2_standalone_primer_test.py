@@ -90,9 +90,13 @@ def main():
     # Summarize results
     summarize_args = [
         python_env,
-        str(script_dir / "Summarize_results_module_standalone.py"),
+        str(script_dir / "Summarize_results_standalone.py"),
         "-f",
         args.fold,
+         "-F",
+        args.forward,
+        "-R",
+        args.reverse,
     ]
     #run 
     run_command(summarize_args)

@@ -186,7 +186,7 @@ echo "Finished in silico PCR and target definition."
 
 # Summary
 echo "Writing summary outfiles/"
-"$default_python"  "$SCRIPT_DIR"/Summarize_results_module_standalone.py  -f "$FOLD"&& true
+"$default_python"  "$SCRIPT_DIR"/Summarize_results_standalone.py -f "$FOLD" -F "$FRW" -R "$REV"  && true
 EXIT_STATUS="$?"
 
 
