@@ -138,9 +138,9 @@ git clone https://github.com/ThWacker/DiPPER2.git
 ```
 #### &ddagger; Example of list with targets
 ```
-ABC123 (for a file in the folder with genomes called ABC123.fna/fa/fasta or ABC123.4.fna)
-GCA1234567 (for a file in the folder with genomes called GCA1234567.fa/fna/fasta or GCA1234567.1.fna/fa/fasta)
-GCF0000001 (for a file in the folder with genomes called GCF0000001.fa/fna/fasta or GCF0000001.1.fna/fa/fasta)
+ABC123       (for a file in the folder with genomes called ABC123.fna/fa/fasta or ABC123.4.fna)
+GCA1234567   (for a file in the folder with genomes called GCA1234567.fa/fna/fasta or GCA1234567.1.fna/fa/fasta)
+GCF0000001   (for a file in the folder with genomes called GCF0000001.fa/fna/fasta or GCF0000001.1.fna/fa/fasta)
 A_fancy_name (for a file in the folder with genomes called A_fancy_name.fa/fna/fasta or A_fancy_name.1.fna/fa/fasta)
 ```
 #### Optional parameters:
