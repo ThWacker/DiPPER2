@@ -14,7 +14,8 @@
 # DiPPER2
 DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility
 
-__PLEASE CITE PRE-PRINT WHEN USING DIPPER - *Thank you!*__
+####  __PLEASE CITE PRE-PRINT WHEN USING DIPPER - *Thank you!*__
+>
 >DiPPER2 – a user-friendly pipeline for picking and evaluating taxon-specific PCR primer 
 >
 >Theresa Wacker, David Studholme
