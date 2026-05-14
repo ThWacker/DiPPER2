@@ -14,11 +14,11 @@
 # DiPPER2
 DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility
 
->__+++++NOTE - IMPORTANT:+++++__
+__PLEASE CITE PRE-PRINT WHEN USING DIPPER - *Thank you!*__
+>DiPPER2 – a user-friendly pipeline for picking and evaluating taxon-specific PCR primer 
 >
->__This is a work in progress.__
->
->__++++++++++++++++++++++++++__
+>Theresa Wacker, David Studholme
+>bioRxiv 2025.06.26.661695; doi: https://doi.org/10.1101/2025.06.26.661695
 
 ## Synopsis
 __*This pipeline and modules are meant to facilitate reliable and reproducible finding of diagnostic targets and to make picking primers for those targets as user-friendly as possible. The approach taken is a phylogeny-driven and clade-specific approach.*__ 
