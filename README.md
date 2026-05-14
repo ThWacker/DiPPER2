@@ -112,12 +112,12 @@ git clone https://github.com/ThWacker/DiPPER2.git
 
 ## Usage
 
-> __*PLEASE NOTE THAT CURRENTLY RELATIVE PATHS ARE NOT RESOLVED PROPERLY. USE ABSOLUTE PATHS. You might have to run ```conda activate``` first for all programs to be in PATH.*__
+> __*PLEASE NOTE THAT CURRENTLY RELATIVE PATHS ARE NOT RESOLVED PROPERLY. USE ABSOLUTE PATHS AND NO SYMBOLIC LINKS. You might have to run ```conda activate``` first for all programs to be in PATH.*__
 
 ### Minimal usage (non-parallel):
 
 ```Bash
-/repos/DiPPER2/scripts/DiPPER2_wrapper.sh -d <folder with the assemblies> -f <name of the results folder> -o <results files prefix> -q <toggle if qPCR primers are wanted or not, default n> -l <list of targets>
+/repos/DiPPER2/scripts/DiPPER2_wrapper.sh -d <folder with the assemblies> -f <name of the results folder> -o <results files prefix> -q <toggle if qPCR primers are wanted or not, default n> -l <file with list (one per line) of target accessions/ IDs &ddagger;>
 ```
 
 #### Optional parameters:
@@ -133,9 +133,15 @@ git clone https://github.com/ThWacker/DiPPER2.git
 
 ### Minimal usage (parallel):
 ```Bash
-./DiPPER_wrapper_parallel.sh -f <results folder> -d <folder with the assemblies> -l <list with targets> 
+./DiPPER_wrapper_parallel.sh -f <results folder> -d <folder with the assemblies> -l <file with list (one per line) of target accessions/ IDs &ddagger;> 
 ```
-
+#### &ddagger; Example of list with targets
+```
+ABC123 (for a file in the folder with genomes called ABC123.fna/fa/fasta or ABC123.4.fna)
+GCA1234567 (for a file in the folder with genomes called GCA1234567.fa/fna/fasta or GCA1234567.1.fna/fa/fasta)
+GCF0000001 (for a file in the folder with genomes called GCF0000001.fa/fna/fasta or GCF0000001.1.fna/fa/fasta)
+A_fancy_name (for a file in the folder with genomes called A_fancy_name.fa/fna/fasta or A_fancy_name.1.fna/fa/fasta)
+```
 #### Optional parameters:
 ```
 -o <outfile prefix> [default: date]
