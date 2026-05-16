@@ -58,7 +58,7 @@ Each script initializes a logger from the custom Logger class, defined in ```log
 6. Upon successful finish of this script, the ```Summarize_results_module_improved.py``` module is run. It will produce an html report for the user that will tell them whether the sets of primers failed or passed. Sensitivity tests are passed when the primer pair produces an amplicon of the correct size for all target assemblies. Off-target amplification or missing target assemblies is accepted for *in silico* tests with 3 mismatches. For the specifictity tests, the script checks whether no neighbours produced an amplicon with the correct size. No correct sized amplicons of any neighbour are accepted for up to 4 mismatches. The report also contains information on the targets, and lists which files are found where.
 
 ## Requirements
-The following programs need to be in path for __the full DiPPER2 pipeline__:
+The following programs __*<ins>need to be in path for</ins>*__ __the full DiPPER2 pipeline__:
 
 * [BLAST+](https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html)
 * [seqkit](https://bioinf.shenwei.me/seqkit/download/)
@@ -109,7 +109,7 @@ Assuming all the required programs listed in Requirements are then installed and
 ```Bash
 git clone https://github.com/ThWacker/DiPPER2.git
 ```
-> *DiPPER2 should now be ready to go*
+> *DiPPER2 should now be ready to go*. In case of `file not found` or similar errors, check if all programs are in path (FUR etc.)
 
 ## Usage
 
@@ -157,6 +157,16 @@ A_fancy_name (for a file in the folder with genomes called A_fancy_name.fa/fna/f
 -w <max number of workers in the pool of workers for jobs> [default: 6]
 ```
 
+## _Trouble Shooting_: known pitfalls
+
+DiPPER2 might fail when:
+
+* not all programs are in PATH
+* two target or neighbour fasta files have the same accession or name (this is especially the case when accessions have multiple versions like GCF123456.**1** and GCF123456.**2**. Keep only one of them in this case)
+* two contigs have the same name (contig_1 and contig_2 in two different assemblies for instance). Ensure all contigs have unique names
+* no absolute paths are used in the command line call (need to be absolute paths)
+
+All of these are subject to future enhancements and will be resolved eventually. When they are, they are removed from this list.
 
 ## Additional information on the parallelized version of DiPPER2
 
