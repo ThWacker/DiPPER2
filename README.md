@@ -14,11 +14,12 @@
 # DiPPER2
 DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and Reproducibility
 
->__+++++NOTE - IMPORTANT:+++++__
+####  __PLEASE CITE PRE-PRINT WHEN USING DIPPER - *Thank you!*__
 >
->__This is a work in progress.__
+>DiPPER2 – a user-friendly pipeline for picking and evaluating taxon-specific PCR primer 
 >
->__++++++++++++++++++++++++++__
+>Theresa Wacker, David Studholme
+>bioRxiv 2025.06.26.661695; doi: https://doi.org/10.1101/2025.06.26.661695
 
 ## Synopsis
 __*This pipeline and modules are meant to facilitate reliable and reproducible finding of diagnostic targets and to make picking primers for those targets as user-friendly as possible. The approach taken is a phylogeny-driven and clade-specific approach.*__ 
@@ -57,7 +58,7 @@ Each script initializes a logger from the custom Logger class, defined in ```log
 6. Upon successful finish of this script, the ```Summarize_results_module_improved.py``` module is run. It will produce an html report for the user that will tell them whether the sets of primers failed or passed. Sensitivity tests are passed when the primer pair produces an amplicon of the correct size for all target assemblies. Off-target amplification or missing target assemblies is accepted for *in silico* tests with 3 mismatches. For the specifictity tests, the script checks whether no neighbours produced an amplicon with the correct size. No correct sized amplicons of any neighbour are accepted for up to 4 mismatches. The report also contains information on the targets, and lists which files are found where.
 
 ## Requirements
-The following programs need to be in path for __the full DiPPER2 pipeline__:
+The following programs __*<ins>need to be in path for</ins>*__ __the full DiPPER2 pipeline__:
 
 * [BLAST+](https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html)
 * [seqkit](https://bioinf.shenwei.me/seqkit/download/)
@@ -108,16 +109,16 @@ Assuming all the required programs listed in Requirements are then installed and
 ```Bash
 git clone https://github.com/ThWacker/DiPPER2.git
 ```
-> *DiPPER2 should now be ready to go*
+> *DiPPER2 should now be ready to go*. In case of `file not found` or similar errors, check if all programs are in path (FUR etc.)
 
 ## Usage
 
-> __*PLEASE NOTE THAT CURRENTLY RELATIVE PATHS ARE NOT RESOLVED PROPERLY. USE ABSOLUTE PATHS. You might have to run ```conda activate``` first for all programs to be in PATH.*__
+> __*PLEASE NOTE THAT CURRENTLY RELATIVE PATHS ARE NOT RESOLVED PROPERLY. USE ABSOLUTE PATHS AND NO SYMBOLIC LINKS. You might have to run ```conda activate``` first for all programs to be in PATH.*__
 
 ### Minimal usage (non-parallel):
 
 ```Bash
-/repos/DiPPER2/scripts/DiPPER2_wrapper.sh -d <folder with the assemblies> -f <name of the results folder> -o <results files prefix> -q <toggle if qPCR primers are wanted or not, default n> -l <list of targets>
+/repos/DiPPER2/scripts/DiPPER2_wrapper.sh -d <folder with the assemblies> -f <name of the results folder> -o <results files prefix> -q <toggle if qPCR primers are wanted or not, default n> -l <file with list (one per line) of target accessions/ IDs &ddagger;>
 ```
 
 #### Optional parameters:
@@ -133,9 +134,15 @@ git clone https://github.com/ThWacker/DiPPER2.git
 
 ### Minimal usage (parallel):
 ```Bash
-./DiPPER_wrapper_parallel.sh -f <results folder> -d <folder with the assemblies> -l <list with targets> 
+./DiPPER_wrapper_parallel.sh -f <results folder> -d <folder with the assemblies> -l <file with list (one per line) of target accessions/ IDs &ddagger;> 
 ```
-
+#### &ddagger; Example of list with targets
+```
+ABC123       (for a file in the folder with genomes called ABC123.fna/fa/fasta or ABC123.4.fna)
+GCA1234567   (for a file in the folder with genomes called GCA1234567.fa/fna/fasta or GCA1234567.1.fna/fa/fasta)
+GCF0000001   (for a file in the folder with genomes called GCF0000001.fa/fna/fasta or GCF0000001.1.fna/fa/fasta)
+A_fancy_name (for a file in the folder with genomes called A_fancy_name.fa/fna/fasta or A_fancy_name.1.fna/fa/fasta)
+```
 #### Optional parameters:
 ```
 -o <outfile prefix> [default: date]
@@ -150,6 +157,16 @@ git clone https://github.com/ThWacker/DiPPER2.git
 -w <max number of workers in the pool of workers for jobs> [default: 6]
 ```
 
+## _Trouble Shooting_: known pitfalls
+
+DiPPER2 might fail when:
+
+* not all programs are in PATH
+* two target or neighbour fasta files have the same accession or name (this is especially the case when accessions have multiple versions like GCF123456.**1** and GCF123456.**2**. Keep only one of them in this case)
+* two contigs have the same name (contig_1 and contig_2 in two different assemblies for instance). Ensure all contigs have unique names
+* no absolute paths are used in the command line call (need to be absolute paths)
+
+All of these are subject to future enhancements and will be resolved eventually. When they are, they are removed from this list.
 
 ## Additional information on the parallelized version of DiPPER2
 
