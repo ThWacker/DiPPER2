@@ -23,7 +23,7 @@ DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and 
 >
 
 ## DiPPER2 GUI web tool
-##### *DiPPER2 is now hosted on the Warwick Systems Biology web tools page as an easy GUI web tool*
+##### *DiPPER2 is now hosted on the Warwick Systems Biology web tools page as an easy-to-use GUI web tool*.
 You can find it [here](https://green-cavy.lnx.warwick.ac.uk/tools/user_cases.php).
 
 ## Synopsis
