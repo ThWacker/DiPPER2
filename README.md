@@ -20,6 +20,11 @@ DiPPER2:  Diagnostic Primer Picking and Evaluation pipeline for Reliability and 
 >
 >Theresa Wacker, David Studholme
 >bioRxiv 2025.06.26.661695; doi: https://doi.org/10.1101/2025.06.26.661695
+>
+
+## DiPPER2 GUI web tool
+##### *DiPPER2 is now hosted on the Warwick Systems Biology web tools page as an easy GUI web tool*
+You can find it [here](https://green-cavy.lnx.warwick.ac.uk/tools/user_cases.php).
 
 ## Synopsis
 __*This pipeline and modules are meant to facilitate reliable and reproducible finding of diagnostic targets and to make picking primers for those targets as user-friendly as possible. The approach taken is a phylogeny-driven and clade-specific approach.*__ 
